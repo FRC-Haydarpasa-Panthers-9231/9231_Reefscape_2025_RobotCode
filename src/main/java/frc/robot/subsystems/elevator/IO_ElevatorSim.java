@@ -8,14 +8,18 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.robot.Constants;
+import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil;
 import frc.robot.util.sim.MotionProfiledElevatorMechanism;
 import frc.robot.util.sim.MotionProfiledMechanism;
+import org.littletonrobotics.junction.Logger;
 
 public class IO_ElevatorSim implements IO_ElevatorBase {
 
@@ -26,31 +30,42 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
   private final MotionProfiledMechanism m_Mech;
 
   private final VoltageOut voltageRequest = new VoltageOut(0.0).withUpdateFreqHz(0.0);
+  private final LoggedTunableNumber elevatorPosition =
+      new LoggedTunableNumber("Elevator/Position", 0);
+  private final LoggedTunableNumber elevatorPositionInside =
+      new LoggedTunableNumber("Elevator/PositionInside", 0);
+  private double lastElevatorHeight = 0;
+  private double elevatorOutHeight = 0.146;
 
   public IO_ElevatorSim() {
     elevatorMotor = new TalonFX(0);
 
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.Slot0 =
-        new Slot0Configs()
-            .withKP(300)
-            .withKI(50)
-            .withKD(50)
-            .withKV(0)
-            .withKS(0)
-            .withKA(0)
-            .withKG(0.1);
+        new Slot0Configs().withKP(50).withKI(5).withKD(1).withKV(0).withKS(0).withKA(0).withKG(0.1);
     config.Feedback.SensorToMechanismRatio = Constants.Elevator.kElevatorGearing;
     config.TorqueCurrent.PeakForwardTorqueCurrent = 120.0;
     config.TorqueCurrent.PeakReverseTorqueCurrent = -120.0;
     config.CurrentLimits.StatorCurrentLimit = 120.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-    config.MotionMagic.MotionMagicCruiseVelocity = 80; // Target cruise velocity of 80 rps
+    config.MotionMagic.MotionMagicCruiseVelocity =
+        80 / Constants.Elevator.kElevatorGearing; // Target
+    // cruise
+    // velocity
+    // of
+    // 80
+    // rps
     config.MotionMagic.MotionMagicAcceleration =
-        160; // Target acceleration of 160 rps/s (0.5 seconds)
-    config.MotionMagic.MotionMagicJerk = 1600; // Target jerk of 1600 rps/s/s (0.1 seconds)
+        160 / Constants.Elevator.kElevatorGearing; // Target acceleration of 160 rps/s (0.5
+    // seconds)
+    config.MotionMagic.MotionMagicJerk = 1600 / Constants.Elevator.kElevatorGearing; // Target
+    // jerk of
+    // 1600
+    // rps/s/s
+    // (0.1
+    // seconds)
 
     PhoenixUtil.tryUntilOk(5, () -> elevatorMotor.getConfigurator().apply(config));
 
@@ -62,8 +77,8 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
             Constants.Elevator.kElevatorDrumRadius,
             Constants.Elevator.kMinElevatorHeightMeters,
             Constants.Elevator.kMaxElevatorHeightMeters,
-            true,
-            0.24);
+            false,
+            Constants.Elevator.kDefaultSetpoint);
 
     m_Mech = new MotionProfiledElevatorMechanism("Elevator");
   }
@@ -92,6 +107,180 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
             * Constants.Elevator.kElevatorGearing);
 
     m_Mech.updateElevator(elevatorSim.getPositionMeters());
+    /*
+     * if (elevatorPosition.hasChanged(elevatorPosition.hashCode())
+     * || elevatorPositionInside.hasChanged(elevatorPositionInside.hashCode())) {
+     * Logger.recordOutput(
+     * "FinalComponentPoses2",
+     * new Pose3d[] {
+     * new Pose3d(0.1, 0.006, 0.182 + elevatorPosition.get(),
+     * new Rotation3d(0, 0, 0))
+     * });
+     *
+     * Logger.recordOutput(
+     * "FinalComponentPoses3",
+     * new Pose3d[] {
+     * new Pose3d(0.32, 0.01, 0.505 + elevatorPosition.get(),
+     * new Rotation3d(0, 0, 0))
+     * });
+     *
+     * Logger.recordOutput(
+     * "FinalComponentPoses1",
+     * new Pose3d[] {
+     * new Pose3d(0.07, 0.01, 0.146 + elevatorPositionInside.get(),
+     * new Rotation3d(0, 0, 0))
+     * });
+     * }
+     */
+    if (elevatorSim.getPositionMeters() > lastElevatorHeight
+        && 1.8 + elevatorOutHeight > 0.182 + elevatorSim.getPositionMeters()) {
+
+      elevatorOutHeight = 0.146 + elevatorSim.getPositionMeters();
+      Logger.recordOutput(
+          "FinalComponentPoses1",
+          new Pose3d[] {new Pose3d(0.07, 0.01, elevatorOutHeight, new Rotation3d(0, 0, 0))});
+
+      Logger.recordOutput(
+          "FinalComponentPoses2",
+          new Pose3d[] {
+            new Pose3d(0.1, 0.006, 0.182 + elevatorSim.getPositionMeters(), new Rotation3d(0, 0, 0))
+          });
+
+      Logger.recordOutput(
+          "FinalComponentPoses3",
+          new Pose3d[] {
+            new Pose3d(0.32, 0.01, 0.505 + elevatorSim.getPositionMeters(), new Rotation3d(0, 0, 0))
+          });
+    } else if (elevatorSim.getPositionMeters() < lastElevatorHeight
+        && elevatorOutHeight <= 0.182 + elevatorSim.getPositionMeters()) {
+      elevatorOutHeight = 0.146 + elevatorSim.getPositionMeters();
+
+      Logger.recordOutput(
+          "FinalComponentPoses1",
+          new Pose3d[] {new Pose3d(0.07, 0.01, elevatorOutHeight, new Rotation3d(0, 0, 0))});
+
+      Logger.recordOutput(
+          "FinalComponentPoses2",
+          new Pose3d[] {
+            new Pose3d(0.1, 0.006, 0.182 + elevatorSim.getPositionMeters(), new Rotation3d(0, 0, 0))
+          });
+
+      Logger.recordOutput(
+          "FinalComponentPoses3",
+          new Pose3d[] {
+            new Pose3d(0.32, 0.01, 0.505 + elevatorSim.getPositionMeters(), new Rotation3d(0, 0, 0))
+          });
+
+    } else if (elevatorSim.getPositionMeters() == lastElevatorHeight) {
+      Logger.recordOutput(
+          "FinalComponentPoses1",
+          new Pose3d[] {
+            new Pose3d(0.07, 0.01, 0.146 + elevatorOutHeight, new Rotation3d(0, 0, 0))
+          });
+
+      Logger.recordOutput(
+          "FinalComponentPoses2",
+          new Pose3d[] {
+            new Pose3d(0.1, 0.006, 0.182 + elevatorSim.getPositionMeters(), new Rotation3d(0, 0, 0))
+          });
+
+      Logger.recordOutput(
+          "FinalComponentPoses3",
+          new Pose3d[] {
+            new Pose3d(0.32, 0.01, 0.505 + elevatorSim.getPositionMeters(), new Rotation3d(0, 0, 0))
+          });
+    } else if (elevatorOutHeight >= 0.182 + elevatorSim.getPositionMeters()
+        || 1.986 + elevatorOutHeight < 0.182 + elevatorSim.getPositionMeters()
+            && (elevatorSim.getPositionMeters() < lastElevatorHeight
+                || elevatorSim.getPositionMeters() > lastElevatorHeight)) {
+
+      Logger.recordOutput(
+          "FinalComponentPoses2",
+          new Pose3d[] {
+            new Pose3d(0.1, 0.006, 0.182 + elevatorSim.getPositionMeters(), new Rotation3d(0, 0, 0))
+          });
+
+      Logger.recordOutput(
+          "FinalComponentPoses3",
+          new Pose3d[] {
+            new Pose3d(0.32, 0.01, 0.505 + elevatorSim.getPositionMeters(), new Rotation3d(0, 0, 0))
+          });
+    }
+    lastElevatorHeight = elevatorSim.getPositionMeters();
+
+    /*
+     * // if (0.182 + elevatorPosition.get() <= 0.637)
+     * lastElevatorHeight = elevatorSim.getPositionMeters();
+     *
+     * // asansör yükseliyorsa
+     * if (lastElevatorHeight < elevatorSim.getPositionMeters()) {
+     *
+     * if (0.146 + elevatorSim.getPositionMeters())
+     *
+     * Logger.recordOutput(
+     * "FinalComponentPoses2",
+     * new Pose3d[] {
+     * new Pose3d(
+     * 0.1,
+     * 0.006,
+     * 0.182 + elevatorSim.getPositionMeters(),
+     * new Rotation3d(0, 0, 0))
+     * });
+     *
+     *
+     * Logger.recordOutput(
+     * "FinalComponentPoses3",
+     * new Pose3d[] {
+     * new Pose3d(0.32, 0.01, 0.505 + elevatorSim.getPositionMeters(),
+     * new Rotation3d(0, 0, 0))
+     * });
+     *
+     * if (0.182 + elevatorSim.getPositionMeters() >= 0.637) {
+     *
+     * Logger.recordOutput(
+     * "FinalComponentPoses1",
+     * new Pose3d[] {new Pose3d(0.07, 0.01, 0.146 + elevatorSim.getPositionMeters(),
+     * new Rotation3d(0, 0, 0))});
+     *
+     * }
+     * }
+     *
+     * // asansör alçalıyorsa
+     * if (lastElevatorHeight > elevatorSim.getPositionMeters()) {
+     *
+     *
+     *
+     * }
+     */
+
+    // 0.78
+    /*
+     * if(0.182 + elevatorPosition.get() >= 0.637 || (0.182 + elevatorPosition.get()<=0.637
+     * &&
+     * 0.146 + elevatorPosition.get()) ){
+     * Logger.recordOutput(
+     * "FinalComponentPoses3",
+     * new Pose3d[] {
+     * new Pose3d(0.07, 0.01, 0.146 + elevatorPosition.get(), new Rotation3d(0, 0, 0))
+     * });
+     * }
+     */
+
+    /*
+     * z
+     * Logger.recordOutput(
+     * "FinalComponentPoses2",
+     * new Pose3d[] {
+     * new Pose3d(0.1, 0.006, 0.182 + elevatorSim.getPositionMeters(),
+     * new Rotation3d(0, 0, 0))
+     * });
+     * Logger.recordOutput(
+     * "FinalComponentPoses3",
+     * new Pose3d[] {
+     * new Pose3d(0.07, 0.01, 0.146 + elevatorSim.getPositionMeters(),
+     * new Rotation3d(0, 0, 0))
+     * });
+     */
 
     inputs.elevatorAppliedVolts =
         new double[] {elevatorMotor.getMotorVoltage().getValueAsDouble(), 0.0};

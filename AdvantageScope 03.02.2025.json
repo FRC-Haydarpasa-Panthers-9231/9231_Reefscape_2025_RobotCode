@@ -1,0 +1,151 @@
+{
+  "hubs": [
+    {
+      "x": -8,
+      "y": -8,
+      "width": 1552,
+      "height": 832,
+      "state": {
+        "sidebar": {
+          "width": 267,
+          "expanded": [
+            "/Tuning/Component1R",
+            "/Tuning/Component1",
+            "/Tuning",
+            "/SmartDashboard",
+            "/AdvantageKit",
+            "/SmartDashboard/Elevator",
+            "/AdvantageKit/RealOutputs",
+            "/SmartDashboard/Elevator/Elevator Root"
+          ]
+        },
+        "tabs": {
+          "selected": 1,
+          "tabs": [
+            {
+              "type": 0,
+              "title": "",
+              "controller": null,
+              "controllerUUID": "fdy4subkfdkzb5vi1v45qx8wrmwtgasd",
+              "renderer": "#/",
+              "controlsHeight": 0
+            },
+            {
+              "type": 3,
+              "title": "3D Field",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "robot",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Odometry/Robot",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "model": "9231 Reefscape"
+                    }
+                  },
+                  {
+                    "type": "component",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/FinalComponentPoses1",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {}
+                  },
+                  {
+                    "type": "component",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/FinalComponentPoses2",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {}
+                  },
+                  {
+                    "type": "component",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/FinalComponentPoses3",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {}
+                  }
+                ],
+                "game": "2025 Field",
+                "origin": "blue"
+              },
+              "controllerUUID": "9lmsifti64ri1oarsn19a28wrxe82joe",
+              "renderer": {
+                "cameraIndex": -1,
+                "orbitFov": 50,
+                "cameraPosition": [
+                  7.064017543662082,
+                  1.8154461570284939,
+                  -6.802277686683594
+                ],
+                "cameraTarget": [
+                  9.40968106076057,
+                  0.6386769696611604,
+                  -4.944537470704564
+                ]
+              },
+              "controlsHeight": 318
+            },
+            {
+              "type": 10,
+              "title": "Mechanism",
+              "controller": [
+                {
+                  "type": "mechanism",
+                  "logKey": "NT:/SmartDashboard/Elevator",
+                  "logType": "Mechanism2d",
+                  "visible": true,
+                  "options": {}
+                }
+              ],
+              "controllerUUID": "kfaubkr059x8ho4u8kjr1ru5bhjlndkm",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "Line Graph",
+              "controller": {
+                "leftSources": [],
+                "rightSources": [],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "rightUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "svw9x1n22tk8eu0dmr0v19m5snor631m",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 2,
+              "title": "Odometry",
+              "controller": {
+                "sources": [],
+                "game": "2025 Field",
+                "bumpers": "auto",
+                "origin": "blue",
+                "orientation": 0,
+                "size": 30
+              },
+              "controllerUUID": "m4djumfwxtk2s33kjhktvzcawgpl2jj6",
+              "renderer": null,
+              "controlsHeight": 200
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "satellites": [],
+  "version": "4.1.0"
+}

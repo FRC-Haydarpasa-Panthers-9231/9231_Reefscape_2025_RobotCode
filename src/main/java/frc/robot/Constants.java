@@ -8,10 +8,10 @@ public final class Constants {
 
   public static class Elevator {
     public static final double kElevatorGearing = 5;
-    public static final double kCarriageMass = 3;
-    public static final double kElevatorDrumRadius = 0.3;
-    public static final double kMinElevatorHeightMeters = 5;
-    public static final double kMaxElevatorHeightMeters = 10;
+    public static final double kCarriageMass = 6;
+    public static final double kElevatorDrumRadius = 0.15;
+    public static final double kMinElevatorHeightMeters = 0;
+    public static final double kMaxElevatorHeightMeters = 2;
     public static final double kDefaultSetpoint = 0;
   }
 
