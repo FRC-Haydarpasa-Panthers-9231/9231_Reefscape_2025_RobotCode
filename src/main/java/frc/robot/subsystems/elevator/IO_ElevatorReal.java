@@ -37,10 +37,27 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-    config.MotionMagic.MotionMagicCruiseVelocity = 80; // Target cruise velocity of 80 rps
+    config.MotionMagic.MotionMagicCruiseVelocity =
+        80 / Constants.Elevator.kElevatorGearing; // Target
+    // cruise
+    // velocity
+    // of
+    // 80
+    // rps
     config.MotionMagic.MotionMagicAcceleration =
-        160; // Target acceleration of 160 rps/s (0.5 seconds)
-    // config.MotionMagic.MotionMagicJerk = 1600; // Target jerk of 1600 rps/s/s (0.1 seconds)
+        160 / Constants.Elevator.kElevatorGearing; // Target
+    // acceleration
+    // of
+    // 160
+    // rps/s
+    // (0.5
+    // seconds)
+    config.MotionMagic.MotionMagicJerk = 1600 / Constants.Elevator.kElevatorGearing; // Target
+    // jerk of
+    // 1600
+    // rps/s/s
+    // (0.1
+    // seconds)
     PhoenixUtil.tryUntilOk(5, () -> elevatorMotor.getConfigurator().apply(config));
   }
 
