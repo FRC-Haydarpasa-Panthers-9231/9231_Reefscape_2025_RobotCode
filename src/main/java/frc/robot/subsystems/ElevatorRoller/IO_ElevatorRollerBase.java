@@ -1,0 +1,21 @@
+package frc.robot.subsystems.ElevatorRoller;
+
+import org.littletonrobotics.junction.AutoLog;
+
+public interface IO_ElevatorRollerBase {
+
+  @AutoLog
+  public static class ElevatorRollerInputs {
+    public double elevatorRoller1AppliedVolts = 0.0;
+    public double elevatorRoller1CurrentAmps = 0.0;
+
+    public double elevatorRoller2AppliedVolts = 0.0;
+    public double elevatorRoller2CurrentAmps = 0.0;
+  }
+
+  void updateInputs(ElevatorRollerInputs inputs);
+
+  public void setElevatorRollerVoltage(double speed);
+
+  public void stopMotors();
+}

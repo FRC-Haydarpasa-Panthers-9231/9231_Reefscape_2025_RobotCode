@@ -18,10 +18,12 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.generated.TunerConstants;
+import frc.robot.util.Elastic;
 import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -118,26 +120,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotPeriodic() {
 
-    if (componentX.hasChanged(hashCode())
-        || componentY.hasChanged(hashCode())
-        || componentZ.hasChanged(hashCode())
-        || componentR1.hasChanged(hashCode())
-        || componentR2.hasChanged(hashCode())
-        || componentR3.hasChanged(hashCode())) {
-
-      Logger.recordOutput("9231RobotPose", new Pose2d());
-      Logger.recordOutput("ZeroedComponentPoses", new Pose3d[] {new Pose3d()});
-      // Logger.recordOutput(
-      // "FinalComponentPoses1",
-      // new Pose3d[] {new Pose3d(0.07, 0.01, 0.146, new Rotation3d(0, 0, 0))});
-      // Logger.recordOutput(
-      // "FinalComponentPoses2",
-      // new Pose3d[] {new Pose3d(0.1, 0.006, 0.182, new Rotation3d(0, 0, 0))});
-      // Logger.recordOutput(
-      // "FinalComponentPoses3",
-      // new Pose3d[] {new Pose3d(0.32, 0.0, 0.505, new Rotation3d(0, 0, 0))});
-    }
-    // Switch thread to high priority to improve loop timing
     Threads.setCurrentThreadPriority(true, 99);
 
     // Runs the Scheduler. This is responsible for polling buttons, adding
@@ -147,13 +129,18 @@ public class Robot extends LoggedRobot {
     // the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
+    if (Robot.isSimulation()) {
+      DriverStation.silenceJoystickConnectionWarning(true);
+    }
     // Return to normal thread priority
     Threads.setCurrentThreadPriority(false, 10);
   }
 
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    robotContainer.checkControllers();
+  }
 
   /** This function is called periodically when disabled. */
   @Override
@@ -177,6 +164,8 @@ public class Robot extends LoggedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
+    robotContainer.checkControllers();
+
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
@@ -184,6 +173,7 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+    Elastic.selectTab(2);
   }
 
   /** This function is called periodically during operator control. */
@@ -207,5 +197,28 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+    if (componentX.hasChanged(hashCode())
+        || componentY.hasChanged(hashCode())
+        || componentZ.hasChanged(hashCode())
+        || componentR1.hasChanged(hashCode())
+        || componentR2.hasChanged(hashCode())
+        || componentR3.hasChanged(hashCode())) {
+
+      Logger.recordOutput("9231RobotPose", new Pose2d());
+      Logger.recordOutput("ZeroedComponentPoses", new Pose3d[] {new Pose3d()});
+    }
+
+    // Logger.recordOutput(
+    // "FinalComponentPoses1",
+    // new Pose3d[] {new Pose3d(0.07, 0.01, 0.146, new Rotation3d(0, 0, 0))});
+    // Logger.recordOutput(
+    // "FinalComponentPoses2",
+    // new Pose3d[] {new Pose3d(0.1, 0.006, 0.182, new Rotation3d(0, 0, 0))});
+    // Logger.recordOutput(
+    // "FinalComponentPoses3",
+    // new Pose3d[] {new Pose3d(0.32, 0.0, 0.505, new Rotation3d(0, 0, 0))});
+
+    // Switch thread to high priority to improve loop timing
+  }
 }

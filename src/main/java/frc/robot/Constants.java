@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
@@ -7,17 +8,25 @@ public final class Constants {
   public static final boolean tuningMode = true;
 
   public static class Elevator {
-    public static final double kElevatorGearing = 5;
-    public static final double kCarriageMass = 6;
-    public static final double kElevatorDrumRadius = 0.15;
+    public static final int ELEVATOR_MOTOR1_PORT = 9;
+    public static final int ELEVATOR_MOTOR2_PORT = 10;
+
+    public static final double kElevatorGearing = 25;
+    public static final double kCarriageMass = 18;
+    public static final double kElevatorDrumRadius = Units.inchesToMeters(0.62);
     public static final double kMinElevatorHeightMeters = 0;
-    public static final double kMaxElevatorHeightMeters = 2;
+    public static final double kMaxElevatorHeightMeters = 1.6075;
     public static final double kDefaultSetpoint = 0;
+
+    // Yazılımsal limit için maksimum ve minimum pozisyon değerleri
+    public static final double ELEVATOR_MAX_POSITION_RAD = 0; // Örnek: 90 derece
+    public static final double ELEVATOR_MIN_POSITION_RAD = 100; // Örnek: 0 derece
   }
 
-  // Yazılımsal limit için maksimum ve minimum pozisyon değerleri
-  public static final double ELEVATOR_MAX_POSITION_RAD = 0; // Örnek: 90 derece
-  public static final double ELEVATOR_MIN_POSITION_RAD = 100; // Örnek: 0 derece
+  public static class ElevatorRoller {
+    public static final int ELEVATOR_ROLLER_MOTOR1_PORT = 11;
+    public static final int ELEVATOR_ROLLER_MOTOR2_PORT = 12;
+  }
 
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
