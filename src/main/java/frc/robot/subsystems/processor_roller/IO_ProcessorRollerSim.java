@@ -31,7 +31,6 @@ public class IO_ProcessorRollerSim implements IO_ProcessorRollerBase {
   @Override
   public void stopMotor() {
     processorRoller1MotorAppliedVolts = 0;
-
     processorRoller1Motor.setInputVoltage(processorRoller1MotorAppliedVolts);
   }
 }

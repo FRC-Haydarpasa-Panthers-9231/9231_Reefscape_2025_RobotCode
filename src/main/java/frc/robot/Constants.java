@@ -28,6 +28,25 @@ public final class Constants {
     public static final int ELEVATOR_ROLLER_MOTOR2_PORT = 12;
   }
 
+  public static class ProcessorPivot {
+    public static final int PROCESSOR_PIVOT_MOTOR_PORT = 13;
+    public static final int PROCESSOR_PIVOT_ENCODER_CHANNEL = 14;
+    public static final double PROCESSOR_PIVOT_MIN_OUTPUT = 0;
+    public static final double PROCESSOR_PIVOT_MAX_OUTPUT = 2;
+
+    public static final double PROCESSOR_PIVOT_MIN_ANGLE_RAD = 0;
+    public static final double PROCESSOR_PIVOT_MAX_ANGLE_RAD = 50;
+
+    public static final double kGearing = 1;
+    public static final double armLength = 1;
+    public static final double mass = 1;
+
+    // TODO: BUNU BUL
+    // distance per pulse = (angle per revolution) / (pulses per revolution)
+    // = (2 * PI rads) / (4096 pulses)
+    public static final double kArmEncoderDistPerPulse = 2.0 * Math.PI / 4096;
+  }
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;

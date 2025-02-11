@@ -8,6 +8,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import frc.robot.Constants;
+import frc.robot.util.SparkUtil;
 
 public class IO_ProcessorRollerReal implements IO_ProcessorRollerBase {
 
@@ -17,17 +18,23 @@ public class IO_ProcessorRollerReal implements IO_ProcessorRollerBase {
     processorRoller =
         new SparkMax(Constants.ElevatorRoller.ELEVATOR_ROLLER_MOTOR1_PORT, MotorType.kBrushless);
 
-    processorRoller.configure(
-        new SparkMaxConfig().idleMode(IdleMode.kCoast).smartCurrentLimit(50).inverted(false),
-        ResetMode.kNoResetSafeParameters,
-        PersistMode.kPersistParameters);
+    SparkUtil.tryUntilOk(
+        processorRoller,
+        5,
+        () ->
+            processorRoller.configure(
+                new SparkMaxConfig()
+                    .idleMode(IdleMode.kCoast)
+                    .smartCurrentLimit(50)
+                    .inverted(false),
+                ResetMode.kNoResetSafeParameters,
+                PersistMode.kPersistParameters));
   }
 
   @Override
   public void updateInputs(ProcessorRollerInputs inputs) {
     inputs.processorRollerAppliedVolts =
         processorRoller.getAppliedOutput() * processorRoller.getBusVoltage();
-    ;
     inputs.processorRollerCurrentAmps = processorRoller.getOutputCurrent();
   }
 

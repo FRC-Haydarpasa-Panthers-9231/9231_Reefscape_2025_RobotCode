@@ -8,6 +8,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import frc.robot.Constants;
+import frc.robot.util.SparkUtil;
 
 public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
 
@@ -20,19 +21,30 @@ public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
     elevatorRoller2Motor =
         new SparkMax(Constants.ElevatorRoller.ELEVATOR_ROLLER_MOTOR2_PORT, MotorType.kBrushless);
 
-    elevatorRoller1Motor.configure(
-        new SparkMaxConfig().idleMode(IdleMode.kCoast).smartCurrentLimit(50).inverted(false),
-        ResetMode.kNoResetSafeParameters,
-        PersistMode.kPersistParameters);
+    SparkUtil.tryUntilOk(
+        elevatorRoller1Motor,
+        5,
+        () ->
+            elevatorRoller1Motor.configure(
+                new SparkMaxConfig()
+                    .idleMode(IdleMode.kCoast)
+                    .smartCurrentLimit(50)
+                    .inverted(false),
+                ResetMode.kNoResetSafeParameters,
+                PersistMode.kPersistParameters));
 
-    elevatorRoller2Motor.configure(
-        new SparkMaxConfig()
-            .idleMode(IdleMode.kCoast)
-            .smartCurrentLimit(50)
-            .inverted(true)
-            .follow(elevatorRoller1Motor),
-        ResetMode.kNoResetSafeParameters,
-        PersistMode.kPersistParameters);
+    SparkUtil.tryUntilOk(
+        elevatorRoller2Motor,
+        5,
+        () ->
+            elevatorRoller2Motor.configure(
+                new SparkMaxConfig()
+                    .idleMode(IdleMode.kCoast)
+                    .smartCurrentLimit(50)
+                    .inverted(true)
+                    .follow(elevatorRoller1Motor),
+                ResetMode.kNoResetSafeParameters,
+                PersistMode.kPersistParameters));
   }
 
   @Override
