@@ -40,6 +40,7 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.IO_ElevatorReal;
 import frc.robot.subsystems.elevator.IO_ElevatorSim;
 import frc.robot.subsystems.elevator.SUB_Elevator;
+import frc.robot.subsystems.led.SUB_LED;
 import frc.robot.subsystems.processor_pivot.IO_ProcessorPivotReal;
 import frc.robot.subsystems.processor_pivot.IO_ProcessorPivotSim;
 import frc.robot.subsystems.processor_pivot.SUB_ProcessorPivot;
@@ -62,274 +63,290 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  // Subsystems
-  private final Drive drive;
-  private final SUB_Elevator elevator;
-  private final SUB_ElevatoRoller elevatorRoller;
-  private final Vision vision;
-  private final SUB_ProcessorPivot processorPivot;
-  private final SUB_ProcessorRoller processorRoller;
-  private final Superstructure superstructure;
+    // Subsystems
+    private final Drive drive;
+    private final SUB_Elevator elevator;
+    private final SUB_ElevatoRoller elevatorRoller;
+    private final Vision vision;
+    private final SUB_ProcessorPivot processorPivot;
+    private final SUB_ProcessorRoller processorRoller;
+    private final SUB_LED led;
+    private final Superstructure superstructure;
 
-  private double speedRate = 1;
-  // Controller
-  private final CommandXboxController driverController = new CommandXboxController(0);
-  private final CommandXboxController operatorController = new CommandXboxController(1);
+    private double speedRate = 1;
+    // Controller
+    private final CommandXboxController driverController = new CommandXboxController(0);
+    private final CommandXboxController operatorController = new CommandXboxController(1);
 
-  // Dashboard inputs
-  private final LoggedDashboardChooser<Command> autoChooser;
+    // Dashboard inputs
+    private final LoggedDashboardChooser<Command> autoChooser;
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
-    switch (Constants.currentMode) {
-      case REAL:
-        // Real robot, instantiate hardware IO implementations
-        drive =
-            new Drive(
-                new GyroIOPigeon2(),
-                new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                new ModuleIOTalonFX(TunerConstants.FrontRight),
-                new ModuleIOTalonFX(TunerConstants.BackLeft),
-                new ModuleIOTalonFX(TunerConstants.BackRight));
-        elevator = new SUB_Elevator(new IO_ElevatorReal());
-        elevatorRoller = new SUB_ElevatoRoller(new IO_ElevatorRollerReal());
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                new VisionIOLimelight("limelight", drive::getRotation));
-        processorPivot = new SUB_ProcessorPivot(new IO_ProcessorPivotReal());
-        processorRoller = new SUB_ProcessorRoller(new IO_ProcessorRollerReal());
-        break;
+    /** The container for the robot. Contains subsystems, OI devices, and commands. */
+    public RobotContainer()
+    {
+        switch (Constants.currentMode) {
+            case REAL:
+                // Real robot, instantiate hardware IO implementations
+                drive =
+                    new Drive(
+                        new GyroIOPigeon2(),
+                        new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                        new ModuleIOTalonFX(TunerConstants.FrontRight),
+                        new ModuleIOTalonFX(TunerConstants.BackLeft),
+                        new ModuleIOTalonFX(TunerConstants.BackRight));
+                elevator = new SUB_Elevator(new IO_ElevatorReal());
+                elevatorRoller = new SUB_ElevatoRoller(new IO_ElevatorRollerReal());
+                vision =
+                    new Vision(
+                        drive::addVisionMeasurement,
+                        new VisionIOLimelight("limelight", drive::getRotation));
+                processorPivot = new SUB_ProcessorPivot(new IO_ProcessorPivotReal());
+                processorRoller = new SUB_ProcessorRoller(new IO_ProcessorRollerReal());
+                break;
 
-      case SIM:
-        // Sim robot, instantiate physics sim IO implementations
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIOSim(TunerConstants.FrontLeft),
-                new ModuleIOSim(TunerConstants.FrontRight),
-                new ModuleIOSim(TunerConstants.BackLeft),
-                new ModuleIOSim(TunerConstants.BackRight));
-        elevator = new SUB_Elevator(new IO_ElevatorSim());
-        elevatorRoller = new SUB_ElevatoRoller(new IO_ElevatorRollerSim());
-        processorPivot = new SUB_ProcessorPivot(new IO_ProcessorPivotSim());
-        processorRoller = new SUB_ProcessorRoller(new IO_ProcessorRollerSim());
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                new VisionIOPhotonVisionSim(
-                    "photonCamera", VisionConstants.robotToCamera0, drive::getPose));
+            case SIM:
+                // Sim robot, instantiate physics sim IO implementations
+                drive =
+                    new Drive(
+                        new GyroIO() {},
+                        new ModuleIOSim(TunerConstants.FrontLeft),
+                        new ModuleIOSim(TunerConstants.FrontRight),
+                        new ModuleIOSim(TunerConstants.BackLeft),
+                        new ModuleIOSim(TunerConstants.BackRight));
+                elevator = new SUB_Elevator(new IO_ElevatorSim());
+                elevatorRoller = new SUB_ElevatoRoller(new IO_ElevatorRollerSim());
+                processorPivot = new SUB_ProcessorPivot(new IO_ProcessorPivotSim());
+                processorRoller = new SUB_ProcessorRoller(new IO_ProcessorRollerSim());
+                vision =
+                    new Vision(
+                        drive::addVisionMeasurement,
+                        new VisionIOPhotonVisionSim(
+                            "photonCamera", VisionConstants.robotToCamera0, drive::getPose));
 
-        break;
+                break;
 
-      default:
-        // Replayed robot, disable IO implementations
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {});
-        elevator = new SUB_Elevator(new IO_ElevatorSim());
-        elevatorRoller = new SUB_ElevatoRoller(new IO_ElevatorRollerSim());
-        processorPivot = new SUB_ProcessorPivot(new IO_ProcessorPivotSim());
-        processorRoller = new SUB_ProcessorRoller(new IO_ProcessorRollerSim());
-        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+            default:
+                // Replayed robot, disable IO implementations
+                drive =
+                    new Drive(
+                        new GyroIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {});
+                elevator = new SUB_Elevator(new IO_ElevatorSim());
+                elevatorRoller = new SUB_ElevatoRoller(new IO_ElevatorRollerSim());
+                processorPivot = new SUB_ProcessorPivot(new IO_ProcessorPivotSim());
+                processorRoller = new SUB_ProcessorRoller(new IO_ProcessorRollerSim());
+                vision =
+                    new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
-        break;
+                break;
+        }
+
+        led = new SUB_LED(1, 30);
+        superstructure =
+            new Superstructure(
+                drive, elevator, elevatorRoller, processorPivot, processorRoller, led, this);
+
+        // Set up auto routines
+        autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+
+        // Set up SysId routines
+        autoChooser.addOption(
+            "Drive Wheel Radius Characterization",
+            DriveCommands.wheelRadiusCharacterization(drive));
+        autoChooser.addOption(
+            "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+        autoChooser.addOption(
+            "Drive SysId (Quasistatic Forward)",
+            drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption(
+            "Drive SysId (Quasistatic Reverse)",
+            drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        autoChooser.addOption(
+            "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption(
+            "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+        // Configure the button bindings
+        configureButtonBindings();
     }
-    superstructure =
-        new Superstructure(drive, elevator, elevatorRoller, processorPivot, processorRoller, this);
 
-    // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
-    // Set up SysId routines
-    autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    // Configure the button bindings
-    configureButtonBindings();
-  }
-
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureButtonBindings() {
-    drive.setDefaultCommand(joystickDrive());
-
-    // Lock to 0° when A button is held
-    driverController
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -driverController.getLeftY(),
-                () -> -driverController.getLeftX(),
-                () -> new Rotation2d()));
-
-    // Switch to X pattern when X button is pressed
-    // driverController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    // Reset gyro to 0° when B button is pressed
-
-    /*
-     * driverController
-     * .b()
-     * .onTrue(
-     * Commands.runOnce(
-     * () ->
-     * drive.setPose(
-     * new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-     * drive)
-     * .ignoringDisable(true));
-     **/
-
-    driverController
-        .y()
-        .onTrue(new InstantCommand(() -> speedRate = 0.5))
-        .onFalse(new InstantCommand(() -> speedRate = 1));
-
-    driverController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
-
-    processorRoller.setDefaultCommand(
-        Commands.run(() -> processorRoller.stopMotor(), processorRoller));
-
-    driverController
-        .y()
-        .onTrue(
-            superstructure.setWantedSuperStateCommand(
-                Superstructure.WantedSuperState.CORAL_STAGE_1));
-
-    driverController
-        .x()
-        .onTrue(
-            superstructure.setWantedSuperStateCommand(
-                Superstructure.WantedSuperState.CORAL_STAGE_2));
-    driverController
-        .b()
-        .onTrue(
-            superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.ZERO_STATE));
-    /*
-     *
-     *
-     * driverController
-     * .x()
-     * .onTrue(Commands.run(() -> elevator.setElevatorVoltage(3), elevator))
-     * .onFalse(Commands.run(() -> elevator.setElevatorVoltage(0), elevator));
-     *
-     * driverController
-     * .b()
-     * .onTrue(Commands.run(() -> elevator.setElevatorVoltage(-3), elevator))
-     * .onFalse(Commands.run(() -> elevator.setElevatorVoltage(0), elevator));
-     *
+    /**
+     * Use this method to define your button->command mappings. Buttons can be created by
+     * instantiating a {@link GenericHID} or one of its subclasses ({@link
+     * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+     * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
+    private void configureButtonBindings()
+    {
+        drive.setDefaultCommand(joystickDrive());
 
-    // Driver Left Bumper: Face Nearest Reef Face
-    driverController
-        .leftBumper()
-        .whileTrue(
-            joystickDriveAtAngle(
-                () ->
-                    FieldConstants.getNearestReefFace(drive.getPose())
+        // Lock to 0° when A button is held
+        driverController
+            .a()
+            .whileTrue(
+                DriveCommands.joystickDriveAtAngle(
+                    drive,
+                    () -> -driverController.getLeftY(),
+                    () -> -driverController.getLeftX(),
+                    () -> new Rotation2d()));
+
+        // Switch to X pattern when X button is pressed
+        // driverController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+
+        // Reset gyro to 0° when B button is pressed
+
+        /*
+         * driverController
+         * .b()
+         * .onTrue(
+         * Commands.runOnce(
+         * () ->
+         * drive.setPose(
+         * new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+         * drive)
+         * .ignoringDisable(true));
+         **/
+
+        driverController
+            .y()
+            .onTrue(new InstantCommand(() -> speedRate = 0.5))
+            .onFalse(new InstantCommand(() -> speedRate = 1));
+
+        driverController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+
+        processorRoller.setDefaultCommand(
+            Commands.run(() -> processorRoller.stopMotor(), processorRoller));
+
+        driverController
+            .y()
+            .onTrue(
+                superstructure.setWantedSuperStateCommand(
+                    Superstructure.WantedSuperState.CORAL_STAGE_1));
+
+        driverController
+            .x()
+            .onTrue(
+                superstructure.setWantedSuperStateCommand(
+                    Superstructure.WantedSuperState.CORAL_STAGE_2));
+        driverController
+            .b()
+            .onTrue(
+                superstructure
+                    .setWantedSuperStateCommand(Superstructure.WantedSuperState.ZERO_STATE));
+        /*
+         *
+         *
+         * driverController
+         * .x()
+         * .onTrue(Commands.run(() -> elevator.setElevatorVoltage(3), elevator))
+         * .onFalse(Commands.run(() -> elevator.setElevatorVoltage(0), elevator));
+         *
+         * driverController
+         * .b()
+         * .onTrue(Commands.run(() -> elevator.setElevatorVoltage(-3), elevator))
+         * .onFalse(Commands.run(() -> elevator.setElevatorVoltage(0), elevator));
+         *
+         */
+
+        // Driver Left Bumper: Face Nearest Reef Face
+        driverController
+            .leftBumper()
+            .whileTrue(
+                joystickDriveAtAngle(
+                    () -> FieldConstants.getNearestReefFace(drive.getPose())
                         .getRotation()
                         .rotateBy(Rotation2d.k180deg)));
 
-    // Driver Left Bumper + Right Stick Right: Approach Nearest Right-Side Reef Branch
-    driverController
-        .leftBumper()
-        .and(driverController.axisGreaterThan(XboxController.Axis.kRightX.value, 0.8))
-        .whileTrue(
-            joystickApproach(
-                () -> FieldConstants.getNearestReefBranch(drive.getPose(), ReefSide.RIGHT)));
+        // Driver Left Bumper + Right Stick Right: Approach Nearest Right-Side Reef Branch
+        driverController
+            .leftBumper()
+            .and(driverController.axisGreaterThan(XboxController.Axis.kRightX.value, 0.8))
+            .whileTrue(
+                joystickApproach(
+                    () -> FieldConstants.getNearestReefBranch(drive.getPose(), ReefSide.RIGHT)));
 
-    // Driver Left Bumper + Right Stick Left: Approach Nearest Left-Side Reef Branch
-    driverController
-        .leftBumper()
-        .and(driverController.axisLessThan(XboxController.Axis.kRightX.value, -0.8))
-        .whileTrue(
-            joystickApproach(
-                () -> FieldConstants.getNearestReefBranch(drive.getPose(), ReefSide.LEFT)));
+        // Driver Left Bumper + Right Stick Left: Approach Nearest Left-Side Reef Branch
+        driverController
+            .leftBumper()
+            .and(driverController.axisLessThan(XboxController.Axis.kRightX.value, -0.8))
+            .whileTrue(
+                joystickApproach(
+                    () -> FieldConstants.getNearestReefBranch(drive.getPose(), ReefSide.LEFT)));
 
-    // Driver Left Bumper + Right Bumper: Approach Nearest Reef Face
-    driverController
-        .leftBumper()
-        .and(driverController.rightBumper())
-        .whileTrue(joystickApproach(() -> FieldConstants.getNearestReefFace(drive.getPose())));
+        // Driver Left Bumper + Right Bumper: Approach Nearest Reef Face
+        driverController
+            .leftBumper()
+            .and(driverController.rightBumper())
+            .whileTrue(joystickApproach(() -> FieldConstants.getNearestReefFace(drive.getPose())));
 
-    /*
-     * // elevator sysID routines
-     * controller.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
-     *
-     * controller.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
-     * controller.y().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-     * controller.a().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-     * controller.b().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
-     * controller.x().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-     */
+        /*
+         * // elevator sysID routines
+         * controller.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+         *
+         * controller.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+         * controller.y().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+         * controller.a().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+         * controller.b().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
+         * controller.x().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+         */
 
-  }
-
-  private Command joystickDrive() {
-    return DriveCommands.joystickDrive(
-        drive,
-        () -> -driverController.getLeftY() * speedRate,
-        () -> -driverController.getLeftX() * speedRate,
-        () -> -driverController.getRightX() * speedRate);
-  }
-
-  private Command joystickDriveAtAngle(Supplier<Rotation2d> angle) {
-    return DriveCommands.joystickDriveAtAngle(
-        drive, () -> -driverController.getLeftY(), () -> -driverController.getLeftX(), angle);
-  }
-
-  private Command joystickApproach(Supplier<Pose2d> approachPose) {
-    return DriveCommands.joystickApproach(drive, () -> -driverController.getLeftY(), approachPose);
-  }
-
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    return autoChooser.get();
-  }
-
-  public CommandXboxController getdriverControllerCommand() {
-    return driverController;
-  }
-
-  public Superstructure getSuperstructure() {
-    return superstructure;
-  }
-
-  /** Updates the alerts for disconnected controllers. */
-  public void checkControllers() {
-    Elastic.Notification notification =
-        new Elastic.Notification(
-            Elastic.Notification.NotificationLevel.ERROR,
-            "Kontrolcü Bağlı Değil!",
-            "Kontrolcülerin bağlı olup olmadıklarını kontrol edin");
-
-    if (!driverController.isConnected()) {
-      Elastic.sendNotification(notification);
     }
-  }
+
+    private Command joystickDrive()
+    {
+        return DriveCommands.joystickDrive(
+            drive,
+            () -> -driverController.getLeftY() * speedRate,
+            () -> -driverController.getLeftX() * speedRate,
+            () -> -driverController.getRightX() * speedRate);
+    }
+
+    private Command joystickDriveAtAngle(Supplier<Rotation2d> angle)
+    {
+        return DriveCommands.joystickDriveAtAngle(
+            drive, () -> -driverController.getLeftY(), () -> -driverController.getLeftX(), angle);
+    }
+
+    private Command joystickApproach(Supplier<Pose2d> approachPose)
+    {
+        return DriveCommands.joystickApproach(drive, () -> -driverController.getLeftY(),
+            approachPose);
+    }
+
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
+     */
+    public Command getAutonomousCommand()
+    {
+        return autoChooser.get();
+    }
+
+    public CommandXboxController getdriverControllerCommand()
+    {
+        return driverController;
+    }
+
+    public Superstructure getSuperstructure()
+    {
+        return superstructure;
+    }
+
+    /** Updates the alerts for disconnected controllers. */
+    public void checkControllers()
+    {
+        Elastic.Notification notification =
+            new Elastic.Notification(
+                Elastic.Notification.NotificationLevel.ERROR,
+                "Kontrolcü Bağlı Değil!",
+                "Kontrolcülerin bağlı olup olmadıklarını kontrol edin");
+
+        if (!driverController.isConnected()) {
+            Elastic.sendNotification(notification);
+        }
+    }
 }

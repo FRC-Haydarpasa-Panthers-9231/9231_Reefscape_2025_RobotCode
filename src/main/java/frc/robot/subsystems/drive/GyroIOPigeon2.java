@@ -31,7 +31,9 @@ public class GyroIOPigeon2 implements GyroIO {
       new Pigeon2(
           TunerConstants.DrivetrainConstants.Pigeon2Id,
           TunerConstants.DrivetrainConstants.CANBusName);
-  private final StatusSignal<Angle> yaw = pigeon.getYaw();
+  private final StatusSignal<Angle> yaw = pigeon.getYaw().clone();
+  private final StatusSignal<Angle> pitch = pigeon.getPitch().clone();
+  private final StatusSignal<Angle> roll = pigeon.getRoll().clone();
   private final Queue<Double> yawPositionQueue;
   private final Queue<Double> yawTimestampQueue;
   private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
@@ -51,6 +53,9 @@ public class GyroIOPigeon2 implements GyroIO {
     inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
     inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
     inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
+    inputs.yaw = yaw.getValueAsDouble();
+    inputs.pitch = pitch.getValueAsDouble();
+    inputs.roll = roll.getValueAsDouble();
 
     inputs.odometryYawTimestamps =
         yawTimestampQueue.stream().mapToDouble((Double value) -> value).toArray();

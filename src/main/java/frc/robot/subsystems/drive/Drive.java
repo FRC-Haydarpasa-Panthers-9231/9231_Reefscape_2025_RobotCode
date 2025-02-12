@@ -39,10 +39,14 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -56,6 +60,8 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
+  private final Field2d m_field = new Field2d();
+
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY =
       new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
@@ -118,6 +124,8 @@ public class Drive extends SubsystemBase {
     modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
     modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
 
+    SmartDashboard.putData("Field", m_field);
+
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
 
@@ -156,6 +164,39 @@ public class Drive extends SubsystemBase {
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+
+    SmartDashboard.putData(
+        "Swerve Drive",
+        new Sendable() {
+
+          @Override
+          public void initSendable(SendableBuilder builder) {
+
+            builder.setSmartDashboardType("SwerveDrive");
+
+            builder.addDoubleProperty(
+                "Front Left Angle", () -> getModuleStates()[0].angle.getRadians(), null);
+            builder.addDoubleProperty(
+                "Front Left Velocity", () -> getModuleStates()[0].speedMetersPerSecond, null);
+
+            builder.addDoubleProperty(
+                "Front Right Angle", () -> getModuleStates()[1].angle.getRadians(), null);
+            builder.addDoubleProperty(
+                "Front Right Velocity", () -> getModuleStates()[1].speedMetersPerSecond, null);
+
+            builder.addDoubleProperty(
+                "Back Left Angle", () -> getModuleStates()[2].angle.getRadians(), null);
+            builder.addDoubleProperty(
+                "Back Left Velocity", () -> getModuleStates()[2].speedMetersPerSecond, null);
+
+            builder.addDoubleProperty(
+                "Back Right Angle", () -> getModuleStates()[3].angle.getRadians(), null);
+            builder.addDoubleProperty(
+                "Back Right Velocity", () -> getModuleStates()[3].speedMetersPerSecond, null);
+
+            builder.addDoubleProperty("Robot Angle", () -> getRotation().getRadians(), null);
+          }
+        });
   }
 
   @Override
@@ -215,6 +256,8 @@ public class Drive extends SubsystemBase {
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+
+    m_field.setRobotPose(getPose());
   }
 
   /**
@@ -328,6 +371,7 @@ public class Drive extends SubsystemBase {
   }
 
   /** Returns the current odometry rotation. */
+  @AutoLogOutput(key = "Odometry/Rotations")
   public Rotation2d getRotation() {
     return getPose().getRotation();
   }

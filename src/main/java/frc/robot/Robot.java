@@ -16,6 +16,7 @@ package frc.robot;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -134,6 +135,11 @@ public class Robot extends LoggedRobot {
     }
     // Return to normal thread priority
     Threads.setCurrentThreadPriority(false, 10);
+  }
+
+  @Override
+  public void robotInit() {
+    CameraServer.startAutomaticCapture();
   }
 
   /** This function is called once when the robot is disabled. */

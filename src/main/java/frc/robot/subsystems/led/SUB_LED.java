@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** AddressableLedStrip, robotun LED şeridini kontrol etmek için kullanılan bir alt sistemdir. */
-public class AddressableLedStrip extends SubsystemBase {
+public class SUB_LED extends SubsystemBase {
 
   private final AddressableLED ledStrip; // LED şeridini temsil eden nesne
   private final AddressableLEDBuffer ledBuffer; // LED şeridinin renk verilerini tutan tampon
@@ -46,7 +46,7 @@ public class AddressableLedStrip extends SubsystemBase {
    * @param port LED şeridinin bağlı olduğu PWM portu
    * @param length LED şeridinin uzunluğu
    */
-  public AddressableLedStrip(int port, int length) {
+  public SUB_LED(int port, int length) {
     this.length = length;
     ledStrip = new AddressableLED(port);
     ledBuffer = new AddressableLEDBuffer(length);
