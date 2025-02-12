@@ -32,7 +32,7 @@ public class IO_ElevatorRollerSim implements IO_ElevatorRollerBase {
   }
 
   @Override
-  public void setElevatorRollerVoltage(double speed) {
+  public void setElevatorRollerSpeed(double speed) {
     elevatorRoller1MotorAppliedVolts = MathUtil.clamp(12 * speed, -12, 12);
     elevatorRoller2MotorAppliedVolts = MathUtil.clamp(12 * speed, -12, 12);
 

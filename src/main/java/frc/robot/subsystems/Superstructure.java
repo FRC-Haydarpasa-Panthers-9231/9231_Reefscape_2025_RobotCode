@@ -1,3 +1,4 @@
+// Gerekli WPILib sınıfları ve robot alt sistemleri dahil edilir
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,18 +15,16 @@ import org.littletonrobotics.junction.Logger;
 public class Superstructure extends SubsystemBase {
 
   private final Drive swerve;
-
   private SUB_Elevator elevator;
   private SUB_ElevatoRoller elevatorRoller;
-
   private final SUB_ProcessorPivot processorPivot;
   private final SUB_ProcessorRoller processorRoller;
-
   private RobotContainer container;
 
+  // Superstructure için istenilen durumlar tanımlanır
   public enum WantedSuperState {
-    ZERO_STATE,
-    IDLE,
+    ZERO_STATE, // Tüm bileşenlerin sıfırlandığı durum
+    IDLE, // Bekleme durumu
     CORAL_STAGE_1,
     CORAL_STAGE_2,
     CORAL_STAGE_3,
@@ -36,6 +35,7 @@ public class Superstructure extends SubsystemBase {
     ALGEA_PROCESSOR,
   }
 
+  // Superstructure’ın current durumları tanımlanır
   public enum CurrentSuperState {
     ZERO_STATE,
     IDLE,
@@ -62,7 +62,7 @@ public class Superstructure extends SubsystemBase {
       RobotContainer container) {
     this.swerve = swerve;
     this.elevator = elevator;
-    this.elevatorRoller = elevatorRoller;
+    this.elevatorRoller = elevatoRoller;
     this.processorPivot = processorPivot;
     this.processorRoller = processorRoller;
     this.container = container;
@@ -70,120 +70,128 @@ public class Superstructure extends SubsystemBase {
 
   @Override
   public void periodic() {
-
+    // current durumu kontrol et ve gerekli geçişleri yap
     currentSuperState = handleStateTransitions();
+    // Duruma özel stateleri uygula
     applyStates();
 
+    // wanted ve current state'i kaydet
     Logger.recordOutput("DesiredSuperstate", wantedSuperState);
     if (currentSuperState != previousSuperState) {
       Logger.recordOutput("CurrentSuperstate", currentSuperState);
     }
   }
 
+  // wanted duruma göre geçiş yapılması gereken current durumu belirler
   private CurrentSuperState handleStateTransitions() {
-
-    previousSuperState = currentSuperState;
+    previousSuperState = currentSuperState; // Önceki durumu saklar
     switch (wantedSuperState) {
       case ZERO_STATE:
-        currentSuperState = CurrentSuperState.ZERO_STATE;
+        currentSuperState = CurrentSuperState.ZERO_STATE; // Tüm bileşenler sıfırlanır
         break;
 
       case IDLE:
-        currentSuperState = CurrentSuperState.IDLE;
+        currentSuperState = CurrentSuperState.IDLE; // Bekleme durumuna geçilir
         break;
 
       case CORAL_STAGE_1:
-        currentSuperState = CurrentSuperState.CORAL_STAGE_1;
+        currentSuperState = CurrentSuperState.CORAL_STAGE_1; // Mercan aşaması 1’e geçilir
         break;
 
       case CORAL_STAGE_2:
-        currentSuperState = CurrentSuperState.CORAL_STAGE_2;
+        currentSuperState = CurrentSuperState.CORAL_STAGE_2; // Mercan aşaması 2’ye geçilir
         break;
 
       case CORAL_STAGE_3:
-        currentSuperState = CurrentSuperState.CORAL_STAGE_3;
+        currentSuperState = CurrentSuperState.CORAL_STAGE_3; // Mercan aşaması 3’e geçilir
         break;
 
       case CORAL_STAGE_4:
-        currentSuperState = CurrentSuperState.CORAL_STAGE_4;
+        currentSuperState = CurrentSuperState.CORAL_STAGE_4; // Mercan aşaması 4’e geçilir
         break;
 
       case ALGEA_STAGE_1:
-        currentSuperState = CurrentSuperState.ALGEA_STAGE_1;
+        currentSuperState = CurrentSuperState.ALGEA_STAGE_1; // Alg aşaması 1’e geçilir
         break;
 
       case ALGEA_STAGE_2:
-        currentSuperState = CurrentSuperState.ALGEA_STAGE_2;
+        currentSuperState = CurrentSuperState.ALGEA_STAGE_2; // Alg aşaması 2’ye geçilir
         break;
 
       case ALGEA_GROUND:
-        currentSuperState = CurrentSuperState.ALGEA_GROUND;
+        currentSuperState = CurrentSuperState.ALGEA_GROUND; // Alg yerden alma aşamasına
+        // geçilir
         break;
 
       case ALGEA_PROCESSOR:
-        currentSuperState = CurrentSuperState.ALGEA_PROCESSOR;
+        currentSuperState = CurrentSuperState.ALGEA_PROCESSOR; // Alg işleyici aşamasına
+        // geçilir
         break;
 
       default:
-        currentSuperState = CurrentSuperState.ZERO_STATE;
+        currentSuperState = CurrentSuperState.ZERO_STATE; // Varsayılan durum sıfırlanır
     }
     return currentSuperState;
   }
 
+  // Belirlenen duruma uygun işlemleri uygular
   private void applyStates() {
     switch (currentSuperState) {
       case ZERO_STATE:
-        handleZeroStates();
+        handleZeroStates(); // Sıfırlama işlemleri
         break;
 
       case IDLE:
-        handleIdling();
+        handleIdling(); // Bekleme işlemleri
         break;
 
       case CORAL_STAGE_1:
-        handleCoralStage1();
+        handleCoralStage1(); // Mercan aşaması 1 işlemleri
         break;
 
       case CORAL_STAGE_2:
-        handleCoralStage2();
+        handleCoralStage2(); // Mercan aşaması 2 işlemleri
         break;
 
       case CORAL_STAGE_3:
-        handleCoralStage3();
+        handleCoralStage3(); // Mercan aşaması 3 işlemleri
         break;
 
       case CORAL_STAGE_4:
-        handleCoralStage4();
+        handleCoralStage4(); // Mercan aşaması 4 işlemleri
         break;
 
       case ALGEA_STAGE_1:
-        handleAlgeaStage1();
+        handleAlgeaStage1(); // Alg aşaması 1 işlemleri
         break;
 
       case ALGEA_STAGE_2:
-        handleAlgeaStage2();
+        handleAlgeaStage2(); // Alg aşaması 2 işlemleri
         break;
 
       case ALGEA_GROUND:
-        handleAlgeaGround();
+        handleAlgeaGround(); // Alg yerden alma işlemleri
         break;
 
       case ALGEA_PROCESSOR:
-        handleAlgeaProcessor();
+        handleAlgeaProcessor(); // Alg işleyici işlemleri
         break;
     }
   }
 
+  // Sıfırlama işlemleri
   private void handleZeroStates() {
     elevator.setWantedState(SUB_Elevator.WantedState.ZERO_ELEVATOR);
     processorRoller.setWantedState(SUB_ProcessorRoller.WantedState.OFF);
   }
 
+  // Bekleme işlemleri
   private void handleIdling() {
     elevator.setWantedState(SUB_Elevator.WantedState.ZERO_ELEVATOR);
     processorRoller.setWantedState(SUB_ProcessorRoller.WantedState.OFF);
   }
 
+  // Mercan aşamaları işlemleri
   private void handleCoralStage1() {
     elevator.setWantedState(SUB_Elevator.WantedState.CORAL_STAGE_1);
   }
@@ -200,6 +208,7 @@ public class Superstructure extends SubsystemBase {
     elevator.setWantedState(SUB_Elevator.WantedState.CORAL_STAGE_4);
   }
 
+  // Alg aşamaları işlemleri
   private void handleAlgeaStage1() {
     elevator.setWantedState(SUB_Elevator.WantedState.ALGEA_STAGE_1);
   }
@@ -216,11 +225,19 @@ public class Superstructure extends SubsystemBase {
     elevator.setWantedState(SUB_Elevator.WantedState.ALGEA_PROCESSOR);
   }
 
-  /** State pushers */
+  /**
+   * @param wantedSuperState İstenilen durumu ayarlar
+   */
   public void setWantedSuperState(WantedSuperState wantedSuperState) {
     this.wantedSuperState = wantedSuperState;
   }
 
+  /**
+   * İstenilen durumu komut içinde ayarlar.
+   *
+   * @param wantedSuperState istenilen durum
+   * @return Komut döndürür.
+   */
   public Command setWantedSuperStateCommand(WantedSuperState wantedSuperState) {
     return new InstantCommand(() -> setWantedSuperState(wantedSuperState));
   }

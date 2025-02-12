@@ -78,7 +78,7 @@ public class SUB_Elevator extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
 
-    // Update tunable numbers
+    // Tuning mode açık ise değerleri elastic dashboard üzerinden değiştirip deneyebiliriz.
     if (kG.hasChanged(hashCode())
         || kS.hasChanged(hashCode())
         || kV.hasChanged(hashCode())
@@ -91,16 +91,20 @@ public class SUB_Elevator extends SubsystemBase {
 
     SystemState newState = handleStateTransition();
 
+    // Eğer yeni state eski state ile aynı değilse
     if (newState != systemState) {
+      // state'i günceller
       Logger.recordOutput("Elevator/SystemState", newState.toString());
       systemState = newState;
     }
 
+    // eğer robot kapalıysa
     if (DriverStation.isDisabled()) {
-      // TODO: kapalı durumdaki state'i yaz
+      // IS_OFF state'i motorları durdurur
       systemState = SystemState.IS_OFF;
     }
 
+    // IMPORTANT:
     switch (systemState) {
       case IS_OFF:
         handleIsOff();

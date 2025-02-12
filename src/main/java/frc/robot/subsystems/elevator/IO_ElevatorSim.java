@@ -37,8 +37,8 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
   private final MotionMagicVoltage motionMagicPositionRequest = new MotionMagicVoltage(0.0);
 
   public IO_ElevatorSim() {
-    elevatorMotor = new TalonFX(Constants.Elevator.ELEVATOR_MOTOR1_PORT);
-    followerElevatorMotor = new TalonFX(Constants.Elevator.ELEVATOR_MOTOR2_PORT);
+    elevatorMotor = new TalonFX(Constants.Elevator.kElevatorMotor1Port);
+    followerElevatorMotor = new TalonFX(Constants.Elevator.kElevatorMotor2Port);
 
     followerElevatorMotor.setControl(new Follower(elevatorMotor.getDeviceID(), true));
 
@@ -60,16 +60,10 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
 
     config.SoftwareLimitSwitch.withForwardSoftLimitEnable(true)
         .withForwardSoftLimitThreshold(
-            PantherUtil.metersToRotations(
-                Constants.Elevator.kMaxElevatorHeightMeters,
-                Constants.Elevator.kElevatorDrumRadius,
-                1))
+            PantherUtil.metersToRotations(Constants.Elevator.kMaxElevatorHeightMeters))
         .withReverseSoftLimitEnable(true)
         .withReverseSoftLimitThreshold(
-            PantherUtil.metersToRotations(
-                Constants.Elevator.kMinElevatorHeightMeters,
-                Constants.Elevator.kElevatorDrumRadius,
-                1));
+            PantherUtil.metersToRotations(Constants.Elevator.kMinElevatorHeightMeters));
 
     config.Voltage.PeakForwardVoltage = 12.0;
     config.Voltage.PeakReverseVoltage = -12;
@@ -89,7 +83,8 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
     // (0.1
     // seconds)
 
-    PhoenixUtil.tryUntilOk(5, () -> elevatorMotor.getConfigurator().apply(config));
+    PhoenixUtil.tryUntilOk(
+        5, () -> elevatorMotor.getConfigurator().apply(config), super.getClass().getName());
 
     elevatorSim =
         new ElevatorSim(
@@ -107,7 +102,7 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
 
   @Override
   public void updateInputs(ElevatorInputs inputs) {
-    // Get the simulation state for the lead motor
+    // Ana motorun simulasyon durumunu al
     var simState = elevatorMotor.getSimState();
 
     // set the supply (battery) voltage for the lead motor simulation state
@@ -118,7 +113,6 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
     elevatorSim.setInputVoltage(motorVoltage);
     elevatorSim.update(0.020);
 
-    // meters / 2πr = drum rotations, drum rotations * gear ratio = rotor rotations
     simState.setRawRotorPosition(
         elevatorSim.getPositionMeters()
             / (2 * Math.PI * Constants.Elevator.kElevatorDrumRadius)
@@ -159,8 +153,12 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
 
   @Override
   public void setElevatorVoltage(double volts) {
-
     elevatorMotor.setControl(voltageRequest.withOutput(volts));
+  }
+
+  @Override
+  public void setElevatorSpeed(double speed) {
+    elevatorMotor.set(speed);
   }
 
   @Override
@@ -185,6 +183,7 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
     config.Slot0.kP = kP;
     config.Slot0.kI = kI;
     config.Slot0.kD = kD;
-    PhoenixUtil.tryUntilOk(5, () -> elevatorMotor.getConfigurator().apply(config));
+    PhoenixUtil.tryUntilOk(
+        5, () -> elevatorMotor.getConfigurator().apply(config), super.getClass().getName());
   }
 }

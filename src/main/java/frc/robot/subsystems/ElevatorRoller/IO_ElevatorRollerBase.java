@@ -15,7 +15,11 @@ public interface IO_ElevatorRollerBase {
 
   void updateInputs(ElevatorRollerInputs inputs);
 
-  public void setElevatorRollerVoltage(double speed);
+  /**
+   * @param speed Çalıştırılmak istenen hız
+   */
+  public void setElevatorRollerSpeed(double speed);
 
+  /** Motorları Durdurur */
   public void stopMotors();
 }

@@ -17,9 +17,9 @@ public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
 
   public IO_ElevatorRollerReal() {
     elevatorRoller1Motor =
-        new SparkMax(Constants.ElevatorRoller.ELEVATOR_ROLLER_MOTOR1_PORT, MotorType.kBrushless);
+        new SparkMax(Constants.ElevatorRoller.kElevatorRollerMotor1Port, MotorType.kBrushless);
     elevatorRoller2Motor =
-        new SparkMax(Constants.ElevatorRoller.ELEVATOR_ROLLER_MOTOR2_PORT, MotorType.kBrushless);
+        new SparkMax(Constants.ElevatorRoller.kElevatorRollerMotor2Port, MotorType.kBrushless);
 
     SparkUtil.tryUntilOk(
         elevatorRoller1Motor,
@@ -31,7 +31,8 @@ public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
                     .smartCurrentLimit(50)
                     .inverted(false),
                 ResetMode.kNoResetSafeParameters,
-                PersistMode.kPersistParameters));
+                PersistMode.kPersistParameters),
+        super.getClass().getName());
 
     SparkUtil.tryUntilOk(
         elevatorRoller2Motor,
@@ -44,7 +45,8 @@ public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
                     .inverted(true)
                     .follow(elevatorRoller1Motor),
                 ResetMode.kNoResetSafeParameters,
-                PersistMode.kPersistParameters));
+                PersistMode.kPersistParameters),
+        super.getClass().getName());
   }
 
   @Override
@@ -59,7 +61,7 @@ public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
   }
 
   @Override
-  public void setElevatorRollerVoltage(double speed) {
+  public void setElevatorRollerSpeed(double speed) {
     elevatorRoller1Motor.setVoltage(MathUtil.clamp(12 * speed, -12, 12));
     elevatorRoller2Motor.setVoltage(MathUtil.clamp(12 * speed, -12, 12));
   }

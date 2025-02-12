@@ -23,7 +23,7 @@ public class IO_ProcessorRollerSim implements IO_ProcessorRollerBase {
   }
 
   @Override
-  public void setProcessorRollerVoltage(double speed) {
+  public void setProcessorRollerSpeed(double speed) {
     processorRoller1MotorAppliedVolts = MathUtil.clamp(12 * speed, -12, 12);
     processorRoller1Motor.setInputVoltage(processorRoller1MotorAppliedVolts);
   }

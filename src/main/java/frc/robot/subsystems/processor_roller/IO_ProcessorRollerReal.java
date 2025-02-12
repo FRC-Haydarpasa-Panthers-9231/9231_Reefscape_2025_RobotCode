@@ -16,7 +16,7 @@ public class IO_ProcessorRollerReal implements IO_ProcessorRollerBase {
 
   public IO_ProcessorRollerReal() {
     processorRoller =
-        new SparkMax(Constants.ElevatorRoller.ELEVATOR_ROLLER_MOTOR1_PORT, MotorType.kBrushless);
+        new SparkMax(Constants.ElevatorRoller.kElevatorRollerMotor1Port, MotorType.kBrushless);
 
     SparkUtil.tryUntilOk(
         processorRoller,
@@ -28,7 +28,8 @@ public class IO_ProcessorRollerReal implements IO_ProcessorRollerBase {
                     .smartCurrentLimit(50)
                     .inverted(false),
                 ResetMode.kNoResetSafeParameters,
-                PersistMode.kPersistParameters));
+                PersistMode.kPersistParameters),
+        super.getClass().getName());
   }
 
   @Override
@@ -39,7 +40,7 @@ public class IO_ProcessorRollerReal implements IO_ProcessorRollerBase {
   }
 
   @Override
-  public void setProcessorRollerVoltage(double speed) {
+  public void setProcessorRollerSpeed(double speed) {
     processorRoller.setVoltage(MathUtil.clamp(12 * speed, -12, 12));
   }
 

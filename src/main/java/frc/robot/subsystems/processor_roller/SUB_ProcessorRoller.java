@@ -6,82 +6,89 @@ import org.littletonrobotics.junction.Logger;
 
 public class SUB_ProcessorRoller extends SubsystemBase {
 
-  private final IO_ProcessorRollerBase io;
-  public final ProcessorRollerInputsAutoLogged inputs = new ProcessorRollerInputsAutoLogged();
+    private final IO_ProcessorRollerBase io;
+    public final ProcessorRollerInputsAutoLogged inputs = new ProcessorRollerInputsAutoLogged();
 
-  public enum WantedState {
-    OFF,
-    SCORING,
-    FEED
-  }
-
-  public enum SystemState {
-    IS_OFF,
-    SCORING,
-    FEEDING
-  }
-
-  private WantedState wantedState = WantedState.OFF;
-  private SystemState systemState = SystemState.IS_OFF;
-
-  public SUB_ProcessorRoller(IO_ProcessorRollerBase io) {
-    this.io = io;
-  }
-
-  @Override
-  public void periodic() {
-    SystemState newState = handleStateTransition();
-
-    if (newState != systemState) {
-      Logger.recordOutput("ProcessorRoller/SystemState", newState.toString());
-      systemState = newState;
+    public enum WantedState {
+        OFF,
+        SCORE,
+        FEED
     }
 
-    if (DriverStation.isDisabled()) {
-      systemState = SystemState.IS_OFF;
+    public enum SystemState {
+        IS_OFF,
+        SCORING,
+        FEEDING
     }
 
-    switch (systemState) {
-      case IS_OFF:
-        handleOff();
-        break;
-      case SCORING:
-        handleScoring();
-        break;
-      case FEEDING:
-        handleFeeding();
-        break;
+    private WantedState wantedState = WantedState.OFF;
+    private SystemState systemState = SystemState.IS_OFF;
+
+    public SUB_ProcessorRoller(IO_ProcessorRollerBase io)
+    {
+        this.io = io;
     }
 
-    Logger.recordOutput("ProcessorRoller/WantedState", wantedState);
-  }
+    @Override
+    public void periodic()
+    {
+        SystemState newState = handleStateTransition();
 
-  private SystemState handleStateTransition() {
-    return switch (wantedState) {
-      case SCORING -> SystemState.SCORING;
-      case FEED -> SystemState.FEEDING;
-      case OFF -> SystemState.IS_OFF;
-      default -> SystemState.IS_OFF;
-    };
-  }
+        if (newState != systemState) {
+            Logger.recordOutput("ProcessorRoller/SystemState", newState.toString());
+            systemState = newState;
+        }
 
-  private void handleOff() {
-    io.stopMotor();
-  }
+        if (DriverStation.isDisabled()) {
+            systemState = SystemState.IS_OFF;
+        }
 
-  private void handleFeeding() {
-    io.setProcessorRollerVoltage(-6);
-  }
+        switch (systemState) {
+            case IS_OFF:
+                handleOff();
+                break;
+            case SCORING:
+                handleScoring();
+                break;
+            case FEEDING:
+                handleFeeding();
+                break;
+        }
 
-  private void handleScoring() {
-    io.setProcessorRollerVoltage(6);
-  }
+        Logger.recordOutput("ProcessorRoller/WantedState", wantedState);
+    }
 
-  public void setWantedState(WantedState wantedState) {
-    this.wantedState = wantedState;
-  }
+    private SystemState handleStateTransition()
+    {
+        return switch (wantedState) {
+            case SCORE -> SystemState.SCORING;
+            case FEED -> SystemState.FEEDING;
+            default -> SystemState.IS_OFF;
+        };
+    }
 
-  public void stopMotor() {
-    io.stopMotor();
-  }
+    private void handleOff()
+    {
+        io.stopMotor();
+    }
+
+    private void handleFeeding()
+    {
+        io.setProcessorRollerSpeed(-6);
+    }
+
+    private void handleScoring()
+    {
+        io.setProcessorRollerSpeed(6);
+    }
+
+    public void setWantedState(WantedState wantedState)
+    {
+        this.wantedState = wantedState;
+    }
+
+    public void stopMotor()
+    {
+        io.stopMotor();
+    }
 }

@@ -23,7 +23,7 @@ public class IO_ProcessorPivotReal implements IO_ProcessorPivotBase {
 
   public IO_ProcessorPivotReal() {
     processorPivot =
-        new SparkMax(Constants.ProcessorPivot.PROCESSOR_PIVOT_MOTOR_PORT, MotorType.kBrushless);
+        new SparkMax(Constants.ProcessorPivot.kProcessorPivotMotorPort, MotorType.kBrushless);
 
     SparkUtil.tryUntilOk(
         processorPivot,
@@ -32,15 +32,16 @@ public class IO_ProcessorPivotReal implements IO_ProcessorPivotBase {
             processorPivot.configure(
                 config.idleMode(IdleMode.kBrake).smartCurrentLimit(50).inverted(false),
                 ResetMode.kNoResetSafeParameters,
-                PersistMode.kPersistParameters));
+                PersistMode.kPersistParameters),
+        super.getClass().getName());
 
     config
         .closedLoop
         .p(0)
         .i(0)
         .d(0)
-        .minOutput(Constants.ProcessorPivot.PROCESSOR_PIVOT_MIN_OUTPUT)
-        .maxOutput(Constants.ProcessorPivot.PROCESSOR_PIVOT_MAX_OUTPUT);
+        .minOutput(Constants.ProcessorPivot.kProcessorPivotMinOutput)
+        .maxOutput(Constants.ProcessorPivot.kProcessorPivotMaxOutput);
 
     m_controller = processorPivot.getClosedLoopController();
   }

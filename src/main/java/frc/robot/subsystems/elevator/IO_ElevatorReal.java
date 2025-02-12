@@ -23,8 +23,8 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
   private final VoltageOut voltageRequest = new VoltageOut(0.0).withUpdateFreqHz(0.0);
 
   public IO_ElevatorReal() {
-    elevatorMotor = new TalonFX(Constants.Elevator.ELEVATOR_MOTOR1_PORT);
-    followerElevatorMotor = new TalonFX(Constants.Elevator.ELEVATOR_MOTOR2_PORT);
+    elevatorMotor = new TalonFX(Constants.Elevator.kElevatorMotor1Port);
+    followerElevatorMotor = new TalonFX(Constants.Elevator.kElevatorMotor2Port);
 
     followerElevatorMotor.setControl(new Follower(elevatorMotor.getDeviceID(), true));
 
@@ -35,9 +35,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
     configLeader.Feedback.SensorToMechanismRatio = Constants.Elevator.kElevatorGearing;
 
-    configLeader.TorqueCurrent.PeakForwardTorqueCurrent = 120.0;
-    configLeader.TorqueCurrent.PeakReverseTorqueCurrent = -120.0;
-    configLeader.CurrentLimits.StatorCurrentLimit = 120.0;
+    configLeader.CurrentLimits.StatorCurrentLimit = 80.0;
     configLeader.CurrentLimits.StatorCurrentLimitEnable = true;
     configLeader
         .CurrentLimits
@@ -47,16 +45,10 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
         .SoftwareLimitSwitch
         .withForwardSoftLimitEnable(true)
         .withForwardSoftLimitThreshold(
-            PantherUtil.metersToRotations(
-                Constants.Elevator.kMaxElevatorHeightMeters,
-                Constants.Elevator.kElevatorDrumRadius,
-                Constants.Elevator.kElevatorGearing))
+            PantherUtil.metersToRotations(Constants.Elevator.kMaxElevatorHeightMeters))
         .withReverseSoftLimitEnable(true)
         .withReverseSoftLimitThreshold(
-            PantherUtil.metersToRotations(
-                Constants.Elevator.kMinElevatorHeightMeters,
-                Constants.Elevator.kElevatorDrumRadius,
-                Constants.Elevator.kElevatorGearing));
+            PantherUtil.metersToRotations(Constants.Elevator.kMinElevatorHeightMeters));
     configLeader.Voltage.PeakForwardVoltage = 12.0;
     configLeader.Voltage.PeakReverseVoltage = -12;
     // configLeader.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
@@ -67,7 +59,8 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
     configLeader.MotionMagic.MotionMagicJerk = 1600; // Target
 
-    PhoenixUtil.tryUntilOk(5, () -> elevatorMotor.getConfigurator().apply(configLeader));
+    PhoenixUtil.tryUntilOk(
+        5, () -> elevatorMotor.getConfigurator().apply(configLeader), super.getClass().getName());
   }
 
   @Override
@@ -99,6 +92,11 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
   }
 
   @Override
+  public void setElevatorSpeed(double speed) {
+    elevatorMotor.set(speed);
+  }
+
+  @Override
   public void stopMotor() {
     elevatorMotor.stopMotor();
     followerElevatorMotor.stopMotor();
@@ -120,6 +118,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
     configLeader.Slot0.kP = kP;
     configLeader.Slot0.kI = kI;
     configLeader.Slot0.kD = kD;
-    PhoenixUtil.tryUntilOk(5, () -> elevatorMotor.getConfigurator().apply(configLeader));
+    PhoenixUtil.tryUntilOk(
+        5, () -> elevatorMotor.getConfigurator().apply(configLeader), super.getClass().getName());
   }
 }

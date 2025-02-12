@@ -12,7 +12,13 @@ public interface IO_ProcessorRollerBase {
 
   void updateInputs(ProcessorRollerInputs inputs);
 
-  public void setProcessorRollerVoltage(double speed);
+  /**
+   * Motorun hızını ayarlar.
+   *
+   * @param speed Çalıştırılmak istenen hız değeri. [-1,1] arasında değer alır.
+   */
+  public void setProcessorRollerSpeed(double speed);
 
+  /** Motoru durdurur */
   public void stopMotor();
 }

@@ -10,15 +10,17 @@ public class SUB_ElevatoRoller extends SubsystemBase {
   public final ElevatorRollerInputsAutoLogged inputs = new ElevatorRollerInputsAutoLogged();
 
   public enum WantedState {
-    ZERO_ELEVATOR
+    OFF,
+    OUTTAKE,
   }
 
   public enum SystemState {
-    ZEROING
+    IS_OFF,
+    OUTTAKING
   }
 
-  private WantedState wantedState = WantedState.ZERO_ELEVATOR;
-  private SystemState systemState = SystemState.ZEROING;
+  private WantedState wantedState = WantedState.OFF;
+  private SystemState systemState = SystemState.IS_OFF;
 
   public SUB_ElevatoRoller(IO_ElevatorRollerBase io) {
     this.io = io;
@@ -28,40 +30,60 @@ public class SUB_ElevatoRoller extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
+
     SystemState newState = handleStateTransition();
 
+    // Eğer yeni state eski state ile aynı değilse
     if (newState != systemState) {
+      // state'i günceller
       Logger.recordOutput("ElevatorRoller/SystemState", newState.toString());
       systemState = newState;
     }
 
+    // eğer robot kapalıysa
     if (DriverStation.isDisabled()) {
-      // TODO: kapalı durumdaki state'i yaz
-      // systemState = SystemState.ZEROING;
+      // IS_OFF state'i motorları durdurur
+      systemState = SystemState.IS_OFF;
     }
 
+    // State durumunda ne yapılacağını ayarlar.
     switch (systemState) {
-      case ZEROING:
-        handleZeroing();
+      case IS_OFF:
+        handleIsOff();
+        break;
+      case OUTTAKING:
+        handleOuttaking();
         break;
     }
 
     Logger.recordOutput("ElevatorRoller/WantedState", wantedState);
   }
 
-  @Override
-  public void simulationPeriodic() {}
-
+  /**
+   * State geçişlerini ayarlar. Ne kadar state varsa burada olmak zorunda.
+   *
+   * @return System State döndürür
+   */
   private SystemState handleStateTransition() {
     return switch (wantedState) {
-      default -> SystemState.ZEROING;
+      case OFF -> SystemState.OUTTAKING;
+      default -> SystemState.IS_OFF;
     };
   }
 
-  private void handleZeroing() {
-    // io.runPosition(0);
+  // ElevatorRoller motorlarını durdurur
+  private void handleIsOff() {
+    io.stopMotors();
   }
 
+  // ElevatorRoller'ın hızını ayarlar.
+  private void handleOuttaking() {
+    io.setElevatorRollerSpeed(0.5);
+  }
+
+  /**
+   * @param wantedState Elevator Roller'ın olması istenen durumu
+   */
   public void setWantedState(WantedState wantedState) {
     this.wantedState = wantedState;
   }

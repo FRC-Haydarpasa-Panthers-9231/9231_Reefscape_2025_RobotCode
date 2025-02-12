@@ -8,8 +8,8 @@ public final class Constants {
   public static final boolean tuningMode = true;
 
   public static class Elevator {
-    public static final int ELEVATOR_MOTOR1_PORT = 9;
-    public static final int ELEVATOR_MOTOR2_PORT = 10;
+    public static final int kElevatorMotor1Port = 9;
+    public static final int kElevatorMotor2Port = 10;
 
     public static final double kElevatorGearing = 25;
     public static final double kCarriageMass = 18;
@@ -18,28 +18,27 @@ public final class Constants {
     public static final double kMaxElevatorHeightMeters = 1.6075;
     public static final double kDefaultSetpoint = 0;
 
-    // Yazılımsal limit için maksimum ve minimum pozisyon değerleri
-    public static final double ELEVATOR_MAX_POSITION_RAD = 0; // Örnek: 90 derece
-    public static final double ELEVATOR_MIN_POSITION_RAD = 100; // Örnek: 0 derece
+    public static final int kElevatorTeeth = 17;
+    public static final double kElevatorPitch = 6.35;
   }
 
   public static class ElevatorRoller {
-    public static final int ELEVATOR_ROLLER_MOTOR1_PORT = 11;
-    public static final int ELEVATOR_ROLLER_MOTOR2_PORT = 12;
+    public static final int kElevatorRollerMotor1Port = 11;
+    public static final int kElevatorRollerMotor2Port = 12;
   }
 
   public static class ProcessorPivot {
-    public static final int PROCESSOR_PIVOT_MOTOR_PORT = 13;
-    public static final int PROCESSOR_PIVOT_ENCODER_CHANNEL = 14;
-    public static final double PROCESSOR_PIVOT_MIN_OUTPUT = 0;
-    public static final double PROCESSOR_PIVOT_MAX_OUTPUT = 2;
+    public static final int kProcessorPivotMotorPort = 13;
+    public static final int kProcessorPivotEncoderChannel = 14;
+    public static final double kProcessorPivotMinOutput = 0;
+    public static final double kProcessorPivotMaxOutput = 2;
 
-    public static final double PROCESSOR_PIVOT_MIN_ANGLE_RAD = 0;
-    public static final double PROCESSOR_PIVOT_MAX_ANGLE_RAD = 50;
+    public static final double kProcessorPivotMinAngleRad = 0;
+    public static final double kProcessorPivotMaxAngleRad = 50;
 
     public static final double kGearing = 1;
-    public static final double armLength = 1;
-    public static final double mass = 1;
+    public static final double kArmLength = 1;
+    public static final double kMass = 1;
 
     // TODO: BUNU BUL
     // distance per pulse = (angle per revolution) / (pulses per revolution)

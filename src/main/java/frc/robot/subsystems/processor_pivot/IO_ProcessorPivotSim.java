@@ -25,7 +25,7 @@ public class IO_ProcessorPivotSim implements IO_ProcessorPivotBase {
   DCMotor maxGearbox = DCMotor.getNEO(1);
 
   SparkMax sparkMax =
-      new SparkMax(Constants.ProcessorPivot.PROCESSOR_PIVOT_MOTOR_PORT, MotorType.kBrushless);
+      new SparkMax(Constants.ProcessorPivot.kProcessorPivotMotorPort, MotorType.kBrushless);
 
   SparkMaxConfig config = new SparkMaxConfig();
   SparkMaxSim maxSim = new SparkMaxSim(sparkMax, maxGearbox);
@@ -39,10 +39,10 @@ public class IO_ProcessorPivotSim implements IO_ProcessorPivotBase {
           maxGearbox,
           Constants.ProcessorPivot.kGearing,
           SingleJointedArmSim.estimateMOI(
-              Constants.ProcessorPivot.armLength, Constants.ProcessorPivot.mass),
-          Constants.ProcessorPivot.armLength,
-          Constants.ProcessorPivot.PROCESSOR_PIVOT_MIN_ANGLE_RAD,
-          Constants.ProcessorPivot.PROCESSOR_PIVOT_MAX_ANGLE_RAD,
+              Constants.ProcessorPivot.kArmLength, Constants.ProcessorPivot.kMass),
+          Constants.ProcessorPivot.kArmLength,
+          Constants.ProcessorPivot.kProcessorPivotMinAngleRad,
+          Constants.ProcessorPivot.kProcessorPivotMaxAngleRad,
           false,
           0);
 
