@@ -15,15 +15,6 @@ public final class Constants {
   public static class ProcessorPivot {
     public static final int kProcessorPivotMotorPort = 13;
     public static final int kProcessorPivotEncoderChannel = 14;
-    public static final double kProcessorPivotMinOutput = 0;
-    public static final double kProcessorPivotMaxOutput = 2;
-
-    public static final double kProcessorPivotMinAngleRad = 0;
-    public static final double kProcessorPivotMaxAngleRad = 50;
-
-    public static final double kGearing = 1;
-    public static final double kArmLength = 1;
-    public static final double kMass = 1;
 
     // TODO: BUNU BUL
     // distance per pulse = (angle per revolution) / (pulses per revolution)

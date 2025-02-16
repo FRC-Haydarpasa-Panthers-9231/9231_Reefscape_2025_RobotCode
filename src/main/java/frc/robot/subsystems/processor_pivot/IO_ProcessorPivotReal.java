@@ -10,7 +10,6 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.util.Units;
-import frc.robot.Constants;
 import frc.robot.util.SparkUtil;
 
 public class IO_ProcessorPivotReal implements IO_ProcessorPivotBase {
@@ -23,31 +22,55 @@ public class IO_ProcessorPivotReal implements IO_ProcessorPivotBase {
 
   public IO_ProcessorPivotReal() {
     processorPivot =
-        new SparkMax(Constants.ProcessorPivot.kProcessorPivotMotorPort, MotorType.kBrushless);
+        new SparkMax(ProcessorPivotConstants.kProcessorPivotMotorID, MotorType.kBrushless);
 
     SparkUtil.tryUntilOk(
         processorPivot,
         5,
         () ->
             processorPivot.configure(
-                config.idleMode(IdleMode.kBrake).smartCurrentLimit(50).inverted(false),
+                config
+                    .idleMode(IdleMode.kBrake)
+                    .smartCurrentLimit(50)
+                    .inverted(ProcessorPivotConstants.kIsInverted),
                 ResetMode.kNoResetSafeParameters,
                 PersistMode.kPersistParameters),
         super.getClass().getName());
 
     config
         .closedLoop
-        .p(0)
-        .i(0)
-        .d(0)
-        .minOutput(Constants.ProcessorPivot.kProcessorPivotMinOutput)
-        .maxOutput(Constants.ProcessorPivot.kProcessorPivotMaxOutput);
+        .p(ProcessorPivotConstants.kP)
+        .i(ProcessorPivotConstants.kI)
+        .d(ProcessorPivotConstants.kD)
+        .minOutput(ProcessorPivotConstants.kProcessorPivotMinOutput)
+        .maxOutput(ProcessorPivotConstants.kProcessorPivotMaxOutput);
+    config
+        .softLimit
+        .reverseSoftLimitEnabled(true)
+        .forwardSoftLimitEnabled(true)
+        .forwardSoftLimit(ProcessorPivotConstants.kProcessorPivotMaxAngle)
+        .reverseSoftLimit(ProcessorPivotConstants.kProcessorPivotMinAngle);
 
+    config
+        .idleMode(ProcessorPivotConstants.kBrake ? IdleMode.kBrake : IdleMode.kCoast)
+        .smartCurrentLimit(50)
+        .inverted(ProcessorPivotConstants.kIsInverted);
+
+    SparkUtil.tryUntilOk(
+        processorPivot,
+        5,
+        () ->
+            processorPivot.configure(
+                config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters),
+        super.getClass().getName());
+
+    processorPivot.configure(
+        config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
     m_controller = processorPivot.getClosedLoopController();
   }
 
   @Override
-  public void setMotorSpeed(double speed) {
+  public void setSpeed(double speed) {
     processorPivot.set(speed);
   }
 

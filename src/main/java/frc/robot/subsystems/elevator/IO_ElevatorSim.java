@@ -1,6 +1,7 @@
 package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.Amps;
+import static frc.robot.subsystems.elevator.ElevatorConstants.kElevatorGearing;
 import static frc.robot.subsystems.elevator.ElevatorConstants.kElevatorTeeth;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -84,7 +85,7 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-
+    config.Feedback.SensorToMechanismRatio = ElevatorConstants.kElevatorGearing;
     config.CurrentLimits.withSupplyCurrentLimitEnable(true).withSupplyCurrentLimit(Amps.of(50));
     /**
      * config.SoftwareLimitSwitch.withForwardSoftLimitEnable(true) .withForwardSoftLimitThreshold(
@@ -96,19 +97,9 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
     config.Voltage.PeakReverseVoltage = -12;
 
     config.MotionMagic.MotionMagicCruiseVelocity = 80; // Target
-    // cruise
-    // velocity
-    // of
-    // 80
-    // rps
-    config.MotionMagic.MotionMagicAcceleration = 160; // Target acceleration of 160 rps/s (0.5
-    // seconds)
+
+    config.MotionMagic.MotionMagicAcceleration = 160;
     config.MotionMagic.MotionMagicJerk = 1600; // Target
-    // jerk of
-    // 1600
-    // rps/s/s
-    // (0.1
-    // seconds)
 
     PhoenixUtil.tryUntilOk(
         5, () -> elevatorMotorLead.getConfigurator().apply(config), super.getClass().getName());
@@ -159,8 +150,10 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
     inputs.positionRotations = elevatorPositionStatusSignal.getValueAsDouble();
 
     inputs.positionMeters =
-        PantherUtil.rotationsToMeters(elevatorPositionStatusSignal.getValueAsDouble());
+        PantherUtil.rotationsToMeters(
+            elevatorPositionStatusSignal.getValueAsDouble() * kElevatorGearing);
 
+    Logger.recordOutput("Elevator/elevatorSimMeters", elevatorSim.getPositionMeters());
     // Ana motorun simulasyon durumunu al
     var simState = elevatorMotorLead.getSimState();
 
@@ -173,10 +166,13 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
     elevatorSim.update(0.020);
 
     simState.setRawRotorPosition(
-        elevatorSim.getPositionMeters() / (2 * ElevatorConstants.kElevatorPitch * kElevatorTeeth));
+        elevatorSim.getPositionMeters()
+            / (2 * ElevatorConstants.kElevatorPitch * kElevatorTeeth)
+            * kElevatorGearing);
     simState.setRotorVelocity(
         elevatorSim.getVelocityMetersPerSecond()
-            / (2 * ElevatorConstants.kElevatorPitch * kElevatorTeeth));
+            / (2 * ElevatorConstants.kElevatorPitch * kElevatorTeeth)
+            * kElevatorGearing);
 
     m_Mech.updateElevator(elevatorSim.getPositionMeters());
 

@@ -7,7 +7,7 @@
 
 // adapted for 3061-lib
 
-package frc.lib.team6328.util;
+package frc.robot.util;
 
 import static frc.robot.Constants.*;
 

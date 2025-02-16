@@ -18,7 +18,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.lib.team3015.subsystem.FaultReporter;
-import frc.lib.team6328.util.LoggedTunableNumber;
+import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PantherUtil;
 import frc.robot.util.PhoenixUtil;
 

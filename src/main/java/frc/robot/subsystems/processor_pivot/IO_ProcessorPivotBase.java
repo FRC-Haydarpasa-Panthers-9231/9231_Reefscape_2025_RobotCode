@@ -23,7 +23,7 @@ public interface IO_ProcessorPivotBase {
    *
    * @param speed Çalıştırılmak istenen hız değeri. Değer 0 ile 1 arasında
    */
-  public void setMotorSpeed(double speed);
+  public void setSpeed(double speed);
 
   /**
    * Kolun pozisyonunu ayarlar.

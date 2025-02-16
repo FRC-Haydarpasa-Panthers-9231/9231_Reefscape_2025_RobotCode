@@ -18,14 +18,13 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-import frc.robot.Constants;
 
 public class IO_ProcessorPivotSim implements IO_ProcessorPivotBase {
 
   DCMotor maxGearbox = DCMotor.getNEO(1);
 
   SparkMax sparkMax =
-      new SparkMax(Constants.ProcessorPivot.kProcessorPivotMotorPort, MotorType.kBrushless);
+      new SparkMax(ProcessorPivotConstants.kProcessorPivotMotorID, MotorType.kBrushless);
 
   SparkMaxConfig config = new SparkMaxConfig();
   SparkMaxSim maxSim = new SparkMaxSim(sparkMax, maxGearbox);
@@ -37,13 +36,13 @@ public class IO_ProcessorPivotSim implements IO_ProcessorPivotBase {
   private final SingleJointedArmSim m_armSim =
       new SingleJointedArmSim(
           maxGearbox,
-          Constants.ProcessorPivot.kGearing,
+          ProcessorPivotConstants.kGearing,
           SingleJointedArmSim.estimateMOI(
-              Constants.ProcessorPivot.kArmLength, Constants.ProcessorPivot.kMass),
-          Constants.ProcessorPivot.kArmLength,
-          Constants.ProcessorPivot.kProcessorPivotMinAngleRad,
-          Constants.ProcessorPivot.kProcessorPivotMaxAngleRad,
-          false,
+              ProcessorPivotConstants.kArmLength, ProcessorPivotConstants.kMass),
+          ProcessorPivotConstants.kArmLength,
+          Units.rotationsToRadians(ProcessorPivotConstants.kProcessorPivotMinAngle),
+          Units.rotationsToRadians(ProcessorPivotConstants.kProcessorPivotMaxAngle),
+          true,
           0);
 
   private final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
@@ -83,7 +82,7 @@ public class IO_ProcessorPivotSim implements IO_ProcessorPivotBase {
   }
 
   @Override
-  public void setMotorSpeed(double speed) {
+  public void setSpeed(double speed) {
     maxSim.setAppliedOutput(speed);
   }
 
