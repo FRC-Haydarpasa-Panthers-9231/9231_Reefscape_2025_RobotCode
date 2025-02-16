@@ -1,6 +1,7 @@
 package frc.robot.subsystems.processor_roller;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
@@ -82,5 +83,9 @@ public class SUB_ProcessorRoller extends SubsystemBase {
 
   public void stopMotor() {
     io.stopMotor();
+  }
+
+  public Command setStateCommand(WantedState state) {
+    return runOnce(() -> this.wantedState = state);
   }
 }

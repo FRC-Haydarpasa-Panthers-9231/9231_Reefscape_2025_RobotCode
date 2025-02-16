@@ -1,36 +1,24 @@
 package frc.robot.util;
 
-import frc.robot.Constants;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 
 public class PantherUtil {
 
-  /**
-   * Rotasyon cinsinden pozisyonu metreye çevirir.
-   *
-   * @param positionRotations Rotasyon cinsinden pozisyon.
-   * @param teeth Zincir dişlisinin diş sayısı.
-   * @param pitch Zincirin adımı (metre cinsinden).
-   * @return Metre cinsinden yükseklik.
-   */
+  /** Converts mechanism rotations to meters. */
   public static double rotationsToMeters(double positionRotations) {
-    // Motorun bir turunda asansörün yükselme miktarı = 2 * (teeth * pitch)
     double distancePerRotation =
-        2 * (Constants.Elevator.kElevatorTeeth * Constants.Elevator.kElevatorPitch);
+        (2 * ElevatorConstants.kElevatorTeeth * ElevatorConstants.kElevatorPitch)
+            / ElevatorConstants.kElevatorGearing; // Gear ratio uygulanıyor
+
     return positionRotations * distancePerRotation;
   }
 
-  /**
-   * Metre cinsinden yüksekliği rotasyona çevirir.
-   *
-   * @param positionMeters Metre cinsinden yükseklik.
-   * @param teeth Zincir dişlisinin diş sayısı.
-   * @param pitch Zincirin adımı (metre cinsinden).
-   * @return Rotasyon cinsinden pozisyon.
-   */
-  public static double metersToRotations(double positionMeters) {
-    // Motorun bir turunda asansörün yükselme miktarı = 2 * (teeth * pitch)
+  /** Converts meters to mechanism rotations. */
+  public static double metersToRotations(double meters) {
     double distancePerRotation =
-        2 * (Constants.Elevator.kElevatorTeeth * Constants.Elevator.kElevatorPitch);
-    return positionMeters / distancePerRotation;
+        (2 * ElevatorConstants.kElevatorTeeth * ElevatorConstants.kElevatorPitch)
+            / ElevatorConstants.kElevatorGearing; // Gear ratio uygulanıyor
+
+    return meters / distancePerRotation;
   }
 }

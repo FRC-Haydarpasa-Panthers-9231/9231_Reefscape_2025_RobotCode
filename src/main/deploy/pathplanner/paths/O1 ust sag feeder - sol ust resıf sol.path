@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.9877499999999997,
+        "y": 5.2925
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.53300567500543,
+        "y": 4.76198491178669
+      },
+      "isLocked": false,
+      "linkedName": "sol ust mercan sol"
+    },
+    {
+      "anchor": {
+        "x": 1.6769999999999998,
+        "y": 7.320499999999999
+      },
+      "prevControl": {
+        "x": 1.2531221863838982,
+        "y": 7.677257902195996
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "ust sag feeder "
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 128.8113840371462
+  },
+  "reversed": false,
+  "folder": "ortadan",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -62.051644565699554
+  },
+  "useDefaultConstraints": true
+}

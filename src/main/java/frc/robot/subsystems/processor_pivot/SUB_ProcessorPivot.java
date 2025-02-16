@@ -1,8 +1,9 @@
 package frc.robot.subsystems.processor_pivot;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.LoggedTunableNumber;
+import frc.lib.team6328.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
 public class SUB_ProcessorPivot extends SubsystemBase {
@@ -91,11 +92,13 @@ public class SUB_ProcessorPivot extends SubsystemBase {
     };
   }
 
-  private void handleZeroing() {
-    // io.runPosition(0);
-  }
+  private void handleZeroing() {}
 
   public void setWantedState(WantedState wantedState) {
     this.wantedState = wantedState;
+  }
+
+  public Command setStateCommand(WantedState state) {
+    return runOnce(() -> this.wantedState = state);
   }
 }

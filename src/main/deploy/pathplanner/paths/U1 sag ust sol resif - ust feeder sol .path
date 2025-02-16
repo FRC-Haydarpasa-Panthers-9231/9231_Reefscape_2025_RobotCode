@@ -1,0 +1,59 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.031000000000001,
+        "y": 5.28275
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.043532786885247,
+        "y": 5.972362704918034
+      },
+      "isLocked": false,
+      "linkedName": "sag ust sol branch"
+    },
+    {
+      "anchor": {
+        "x": 0.6727499999951331,
+        "y": 6.67700000000495
+      },
+      "prevControl": {
+        "x": 1.0304530788403028,
+        "y": 6.461056984289891
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "ust feeder sol"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.07927031509121127,
+      "rotationDegrees": -114.80890609508585
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 126.46923439005187
+  },
+  "reversed": false,
+  "folder": "üstten",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -118.61045966596518
+  },
+  "useDefaultConstraints": true
+}

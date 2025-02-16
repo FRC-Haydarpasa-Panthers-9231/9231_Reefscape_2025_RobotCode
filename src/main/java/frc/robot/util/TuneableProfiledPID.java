@@ -6,6 +6,7 @@ package frc.robot.util;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import frc.lib.team6328.util.LoggedTunableNumber;
 
 /** Add your docs here. */
 public class TuneableProfiledPID extends ProfiledPIDController {

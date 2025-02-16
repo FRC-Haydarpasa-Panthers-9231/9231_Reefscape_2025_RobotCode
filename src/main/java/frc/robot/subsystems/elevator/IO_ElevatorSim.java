@@ -1,7 +1,10 @@
 package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.Amps;
+import static frc.robot.subsystems.elevator.ElevatorConstants.kElevatorTeeth;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -14,9 +17,12 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
-import frc.robot.Constants;
 import frc.robot.util.PantherUtil;
 import frc.robot.util.PhoenixUtil;
 import frc.robot.util.sim.MotionProfiledElevatorMechanism;
@@ -25,8 +31,8 @@ import org.littletonrobotics.junction.Logger;
 
 public class IO_ElevatorSim implements IO_ElevatorBase {
 
-  private final TalonFX elevatorMotor;
-  private final TalonFX followerElevatorMotor;
+  private final TalonFX elevatorMotorLead;
+  private final TalonFX elevatorMotorFollower;
   private final TalonFXConfiguration config = new TalonFXConfiguration();
 
   public static ElevatorSim elevatorSim;
@@ -36,19 +42,42 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
 
   private final MotionMagicVoltage motionMagicPositionRequest = new MotionMagicVoltage(0.0);
 
-  public IO_ElevatorSim() {
-    elevatorMotor = new TalonFX(Constants.Elevator.kElevatorMotor1Port);
-    followerElevatorMotor = new TalonFX(Constants.Elevator.kElevatorMotor2Port);
+  private StatusSignal<Current> leadStatorCurrent;
+  private StatusSignal<Current> followerStatorCurrent;
 
-    followerElevatorMotor.setControl(new Follower(elevatorMotor.getDeviceID(), true));
+  private StatusSignal<Voltage> leadVoltageSupplied;
+  private StatusSignal<Voltage> followerVoltageSupplied;
+
+  private StatusSignal<Current> leadSupplyCurrent;
+  private StatusSignal<Current> followerSupplyCurrent;
+
+  private StatusSignal<Angle> elevatorPositionStatusSignal;
+
+  private StatusSignal<Temperature> elevatorLeadTempStatusSignal;
+  private StatusSignal<Temperature> elevatorFollowerTempStatusSignal;
+
+  public IO_ElevatorSim() {
+    elevatorMotorLead = new TalonFX(ElevatorConstants.kElevatorMotorLeadID);
+    elevatorMotorFollower = new TalonFX(ElevatorConstants.kElevatorMotorFollowerID);
+
+    elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
+
+    leadStatorCurrent = elevatorMotorLead.getStatorCurrent();
+    followerStatorCurrent = elevatorMotorFollower.getStatorCurrent();
+
+    leadVoltageSupplied = elevatorMotorLead.getMotorVoltage();
+    followerVoltageSupplied = elevatorMotorFollower.getMotorVoltage();
+
+    leadSupplyCurrent = elevatorMotorLead.getSupplyCurrent();
+    followerSupplyCurrent = elevatorMotorFollower.getSupplyCurrent();
+
+    elevatorPositionStatusSignal = elevatorMotorLead.getPosition();
+
+    elevatorLeadTempStatusSignal = elevatorMotorLead.getDeviceTemp();
+    elevatorFollowerTempStatusSignal = elevatorMotorFollower.getDeviceTemp();
 
     config.Slot0 =
         new Slot0Configs().withKP(50).withKI(5).withKD(1).withKV(0).withKS(0).withKA(0).withKG(0.1);
-
-    config.Feedback.SensorToMechanismRatio = Constants.Elevator.kElevatorGearing;
-
-    config.TorqueCurrent.PeakForwardTorqueCurrent = 120.0;
-    config.TorqueCurrent.PeakReverseTorqueCurrent = -120.0;
 
     config.CurrentLimits.StatorCurrentLimit = 120.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -57,14 +86,12 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     config.CurrentLimits.withSupplyCurrentLimitEnable(true).withSupplyCurrentLimit(Amps.of(50));
-
-    config.SoftwareLimitSwitch.withForwardSoftLimitEnable(true)
-        .withForwardSoftLimitThreshold(
-            PantherUtil.metersToRotations(Constants.Elevator.kMaxElevatorHeightMeters))
-        .withReverseSoftLimitEnable(true)
-        .withReverseSoftLimitThreshold(
-            PantherUtil.metersToRotations(Constants.Elevator.kMinElevatorHeightMeters));
-
+    /**
+     * config.SoftwareLimitSwitch.withForwardSoftLimitEnable(true) .withForwardSoftLimitThreshold(
+     * PantherUtil.metersToRotations(ElevatorConstants.kMaxElevatorHeightMeters))
+     * .withReverseSoftLimitEnable(true) .withReverseSoftLimitThreshold(
+     * PantherUtil.metersToRotations(ElevatorConstants.kMinElevatorHeightMeters));
+     */
     config.Voltage.PeakForwardVoltage = 12.0;
     config.Voltage.PeakReverseVoltage = -12;
 
@@ -84,106 +111,121 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
     // seconds)
 
     PhoenixUtil.tryUntilOk(
-        5, () -> elevatorMotor.getConfigurator().apply(config), super.getClass().getName());
+        5, () -> elevatorMotorLead.getConfigurator().apply(config), super.getClass().getName());
 
     elevatorSim =
         new ElevatorSim(
             DCMotor.getKrakenX60(2),
-            Constants.Elevator.kElevatorGearing,
-            Constants.Elevator.kCarriageMass,
-            Constants.Elevator.kElevatorDrumRadius,
-            Constants.Elevator.kMinElevatorHeightMeters,
-            Constants.Elevator.kMaxElevatorHeightMeters,
+            ElevatorConstants.kElevatorGearing,
+            ElevatorConstants.kCarriageMass,
+            ElevatorConstants.kElevatorDrumRadius,
+            ElevatorConstants.kMinElevatorHeightMeters.magnitude(),
+            ElevatorConstants.kMaxElevatorHeightMeters.magnitude(),
             false,
-            Constants.Elevator.kDefaultSetpoint);
+            ElevatorConstants.kDefaultSetpoint);
 
     m_Mech = new MotionProfiledElevatorMechanism("Elevator");
   }
 
   @Override
   public void updateInputs(ElevatorInputs inputs) {
+    BaseStatusSignal.refreshAll(
+        elevatorPositionStatusSignal,
+        leadStatorCurrent,
+        followerStatorCurrent,
+        leadSupplyCurrent,
+        followerSupplyCurrent,
+        leadVoltageSupplied,
+        followerVoltageSupplied,
+        elevatorLeadTempStatusSignal,
+        elevatorFollowerTempStatusSignal);
+
+    inputs.voltageSuppliedLead = leadVoltageSupplied.getValueAsDouble();
+    inputs.voltageSuppliedFollower = followerVoltageSupplied.getValueAsDouble();
+
+    inputs.statorCurrentAmpsLead = leadStatorCurrent.getValueAsDouble();
+    inputs.statorCurrentAmpsFollower = followerStatorCurrent.getValueAsDouble();
+
+    inputs.supplyCurrentAmpsLead = leadSupplyCurrent.getValueAsDouble();
+    inputs.supplyCurrentAmpsFollower = followerSupplyCurrent.getValueAsDouble();
+
+    inputs.leadTempCelsius = elevatorLeadTempStatusSignal.getValueAsDouble();
+    inputs.followerTempCelsius = elevatorFollowerTempStatusSignal.getValueAsDouble();
+
+    inputs.closedLoopError = elevatorMotorLead.getClosedLoopError().getValueAsDouble();
+
+    inputs.closedLoopReference = elevatorMotorLead.getClosedLoopReference().getValueAsDouble();
+
+    inputs.positionRotations = elevatorPositionStatusSignal.getValueAsDouble();
+
+    inputs.positionMeters =
+        PantherUtil.rotationsToMeters(elevatorPositionStatusSignal.getValueAsDouble());
+
     // Ana motorun simulasyon durumunu al
-    var simState = elevatorMotor.getSimState();
+    var simState = elevatorMotorLead.getSimState();
 
     // set the supply (battery) voltage for the lead motor simulation state
     simState.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-    var motorVoltage = elevatorMotor.getMotorVoltage().getValueAsDouble();
+    var motorVoltage = elevatorMotorLead.getMotorVoltage().getValueAsDouble();
 
     elevatorSim.setInputVoltage(motorVoltage);
     elevatorSim.update(0.020);
 
     simState.setRawRotorPosition(
-        elevatorSim.getPositionMeters()
-            / (2 * Math.PI * Constants.Elevator.kElevatorDrumRadius)
-            * Constants.Elevator.kElevatorGearing);
+        elevatorSim.getPositionMeters() / (2 * ElevatorConstants.kElevatorPitch * kElevatorTeeth));
     simState.setRotorVelocity(
         elevatorSim.getVelocityMetersPerSecond()
-            / (2 * Math.PI * Constants.Elevator.kElevatorDrumRadius)
-            * Constants.Elevator.kElevatorGearing);
+            / (2 * ElevatorConstants.kElevatorPitch * kElevatorTeeth));
 
     m_Mech.updateElevator(elevatorSim.getPositionMeters());
 
     Logger.recordOutput(
         "FinalComponentPoses1",
         new Pose3d[] {
-          new Pose3d(0.07, 0.01, 0.146 + elevatorSim.getPositionMeters(), new Rotation3d(0, 0, 0))
+          new Pose3d(
+              0.07, 0.01, 0.146 + elevatorSim.getPositionMeters() / 2, new Rotation3d(0, 0, 0))
         });
 
     Logger.recordOutput(
         "FinalComponentPoses2",
         new Pose3d[] {
-          new Pose3d(
-              0.1, 0.006, 0.178 + (elevatorSim.getPositionMeters() * 2), new Rotation3d(0, 0, 0))
+          new Pose3d(0.1, 0.006, 0.178 + (elevatorSim.getPositionMeters()), new Rotation3d(0, 0, 0))
         });
 
     Logger.recordOutput(
         "FinalComponentPoses3",
         new Pose3d[] {
-          new Pose3d(
-              0.32, 0.01, 0.501 + (elevatorSim.getPositionMeters() * 2), new Rotation3d(0, 0, 0))
+          new Pose3d(0.32, 0.01, 0.501 + (elevatorSim.getPositionMeters()), new Rotation3d(0, 0, 0))
         });
-
-    inputs.elevatorAppliedVolts =
-        new double[] {elevatorMotor.getMotorVoltage().getValueAsDouble(), 0.0};
-
-    inputs.elevatorPositionRad =
-        Units.rotationsToRadians(elevatorMotor.getPosition().getValueAsDouble());
   }
 
   @Override
   public void setElevatorVoltage(double volts) {
-    elevatorMotor.setControl(voltageRequest.withOutput(volts));
+    elevatorMotorLead.setControl(voltageRequest.withOutput(volts));
   }
 
   @Override
   public void setElevatorSpeed(double speed) {
-    elevatorMotor.set(speed);
+    elevatorMotorLead.set(speed);
   }
 
   @Override
   public void stopMotor() {
-    followerElevatorMotor.stopMotor();
-    elevatorMotor.stopMotor();
+    elevatorMotorFollower.stopMotor();
+    elevatorMotorLead.stopMotor();
   }
 
   @Override
-  public void runPosition(double positionRad) {
-    elevatorMotor.setControl(
+  public void runPositionRads(double positionRad) {
+    elevatorMotorLead.setControl(
         motionMagicPositionRequest.withPosition(Units.radiansToRotations(positionRad)));
   }
 
   @Override
-  public void setSlot0(
-      double kG, double kS, double kV, double kA, double kP, double kI, double kD) {
-    config.Slot0.kG = kG;
-    config.Slot0.kS = kS;
-    config.Slot0.kV = kV;
-    config.Slot0.kA = kA;
-    config.Slot0.kP = kP;
-    config.Slot0.kI = kI;
-    config.Slot0.kD = kD;
-    PhoenixUtil.tryUntilOk(
-        5, () -> elevatorMotor.getConfigurator().apply(config), super.getClass().getName());
+  public void runPositionMeters(double positionMeters) {
+    elevatorMotorLead.setControl(
+        motionMagicPositionRequest.withPosition(
+            PantherUtil.metersToRotations(Units.radiansToRotations(positionMeters))));
   }
 }

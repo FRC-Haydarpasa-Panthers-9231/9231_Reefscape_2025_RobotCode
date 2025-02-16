@@ -1,0 +1,59 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.04075,
+        "y": 2.7575
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.416750000002192,
+        "y": 2.2504999999950974
+      },
+      "isLocked": false,
+      "linkedName": "sag alt sol branch"
+    },
+    {
+      "anchor": {
+        "x": 0.7410000000021342,
+        "y": 1.3437499999979559
+      },
+      "prevControl": {
+        "x": 0.970267514065443,
+        "y": 1.4434315278515681
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "alt feeder sol "
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.2564315352697058,
+      "rotationDegrees": 114.37070549972242
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -126.54497232282257
+  },
+  "reversed": false,
+  "folder": "alttan",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 119.19748604606451
+  },
+  "useDefaultConstraints": true
+}

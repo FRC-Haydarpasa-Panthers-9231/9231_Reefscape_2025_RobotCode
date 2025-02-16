@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.12975,
+        "y": 4.181
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.690307196139635,
+        "y": 5.034512074077808
+      },
+      "isLocked": false,
+      "linkedName": "sol mercan sol branch"
+    },
+    {
+      "anchor": {
+        "x": 0.6727499999951331,
+        "y": 6.67700000000495
+      },
+      "prevControl": {
+        "x": 1.0763494016295743,
+        "y": 6.279035919137601
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "ust feeder sol"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 126.46923439005187
+  },
+  "reversed": false,
+  "folder": "üstten",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}

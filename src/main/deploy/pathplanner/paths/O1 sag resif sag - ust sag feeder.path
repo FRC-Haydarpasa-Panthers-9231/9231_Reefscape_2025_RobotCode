@@ -3,53 +3,48 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.826329893715316,
-        "y": 4.202993285487075
+        "x": 5.859749999999999,
+        "y": 4.17125
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.839681931512541,
-        "y": 4.960113619643098
+        "x": 5.918249999998725,
+        "y": 5.6044999999953715
       },
       "isLocked": false,
-      "linkedName": "ortadan stage son"
+      "linkedName": "sag resif sag"
     },
     {
       "anchor": {
-        "x": 5.826329893715316,
-        "y": 5.061936475413223
+        "x": 4.874999999998724,
+        "y": 6.140749999995371
       },
       "prevControl": {
-        "x": 5.878882021570727,
-        "y": 4.800105862454828
+        "x": 5.635499999998723,
+        "y": 5.818999999995371
       },
       "nextControl": {
-        "x": 5.776439042184571,
-        "y": 5.310507803928251
+        "x": 4.103970632768297,
+        "y": 6.466954732285169
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.234733606557377,
-        "y": 6.979969262295082
+        "x": 1.6769999999999998,
+        "y": 7.320499999999999
       },
       "prevControl": {
-        "x": 0.9885374458837903,
-        "y": 7.023414060252783
+        "x": 2.6910000000000003,
+        "y": 7.028
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "ust sag feeder "
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 1,
-      "rotationDegrees": 178.5688146742316
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -63,13 +58,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 124.9920201985587
+    "rotation": 128.8113840371462
   },
   "reversed": false,
-  "folder": null,
+  "folder": "ortadan",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 179.19414871540997
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

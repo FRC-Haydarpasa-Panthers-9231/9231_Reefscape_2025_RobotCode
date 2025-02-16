@@ -1,13 +1,16 @@
-// Copyright (c) 2025 FRC 6328
+// Copyright (c) 2024 FRC 6328
 // http://github.com/Mechanical-Advantage
 //
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package frc.robot.util;
+// adapted for 3061-lib
 
-import frc.robot.Constants;
+package frc.lib.team6328.util;
+
+import static frc.robot.Constants.*;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +23,7 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
  * value not in dashboard.
  */
 public class LoggedTunableNumber implements DoubleSupplier {
-  private static final String tableKey = "/Tuning";
+  private static final String TABLE_KEY = "/Tuning";
 
   private final String key;
   private boolean hasDefault = false;
@@ -34,7 +37,7 @@ public class LoggedTunableNumber implements DoubleSupplier {
    * @param dashboardKey Key on dashboard
    */
   public LoggedTunableNumber(String dashboardKey) {
-    this.key = tableKey + "/" + dashboardKey;
+    this.key = TABLE_KEY + "/" + dashboardKey;
   }
 
   /**
@@ -57,7 +60,7 @@ public class LoggedTunableNumber implements DoubleSupplier {
     if (!hasDefault) {
       hasDefault = true;
       this.defaultValue = defaultValue;
-      if (Constants.tuningMode) {
+      if (tuningMode) {
         dashboardNumber = new LoggedNetworkNumber(key, defaultValue);
       }
     }
@@ -72,7 +75,7 @@ public class LoggedTunableNumber implements DoubleSupplier {
     if (!hasDefault) {
       return 0.0;
     } else {
-      return Constants.tuningMode ? dashboardNumber.get() : defaultValue;
+      return tuningMode ? dashboardNumber.get() : defaultValue;
     }
   }
 

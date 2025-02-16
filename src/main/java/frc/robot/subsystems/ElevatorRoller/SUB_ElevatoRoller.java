@@ -1,6 +1,7 @@
 package frc.robot.subsystems.ElevatorRoller;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
@@ -86,5 +87,9 @@ public class SUB_ElevatoRoller extends SubsystemBase {
    */
   public void setWantedState(WantedState wantedState) {
     this.wantedState = wantedState;
+  }
+
+  public Command setStateCommand(WantedState state) {
+    return runOnce(() -> this.wantedState = state);
   }
 }

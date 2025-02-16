@@ -1,26 +1,23 @@
 package frc.robot.subsystems.elevator;
 
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
+import static frc.robot.subsystems.elevator.ElevatorConstants.*;
 
 import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.util.LoggedTunableNumber;
+import frc.lib.team6328.util.LoggedTunableNumber;
+import frc.robot.subsystems.elevator.ElevatorConstants.ReefBranch;
 import org.littletonrobotics.junction.Logger;
 
 public class SUB_Elevator extends SubsystemBase {
 
-  private static final LoggedTunableNumber kG = new LoggedTunableNumber("Elevator/kG", 1);
-  private static final LoggedTunableNumber kS = new LoggedTunableNumber("Elevator/kS", 0);
-  private static final LoggedTunableNumber kV = new LoggedTunableNumber("Elevator/kV", 0);
-  private static final LoggedTunableNumber kA = new LoggedTunableNumber("Elevator/kA", 0);
-  private static final LoggedTunableNumber kP = new LoggedTunableNumber("Elevator/kP", 50);
-  private static final LoggedTunableNumber kI = new LoggedTunableNumber("Elevator/kI", 0);
-  private static final LoggedTunableNumber kD = new LoggedTunableNumber("Elevator/kD", 1);
-  private static final LoggedTunableNumber elevatorGoalPosition =
-      new LoggedTunableNumber("Elevator/elevatorGoalPosition", 0);
+  private final LoggedTunableNumber elevatorHeightMeters =
+      new LoggedTunableNumber("Elevator/Height(meters)", 0);
 
   private static SysIdRoutine sysIdRoutine;
 
@@ -55,11 +52,13 @@ public class SUB_Elevator extends SubsystemBase {
     ALGEA_PROCESSOR,
   }
 
-  private WantedState wantedState = WantedState.IDLE;
+  private WantedState wantedState = WantedState.ZERO_ELEVATOR;
   private SystemState systemState = SystemState.ZEROING;
 
   public SUB_Elevator(IO_ElevatorBase io) {
     this.io = io;
+
+    io.zeroPosition();
 
     sysIdRoutine =
         new SysIdRoutine(
@@ -77,17 +76,6 @@ public class SUB_Elevator extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
-
-    // Tuning mode açık ise değerleri elastic dashboard üzerinden değiştirip deneyebiliriz.
-    if (kG.hasChanged(hashCode())
-        || kS.hasChanged(hashCode())
-        || kV.hasChanged(hashCode())
-        || kA.hasChanged(hashCode())
-        || kP.hasChanged(hashCode())
-        || kI.hasChanged(hashCode())
-        || kD.hasChanged(hashCode())) {
-      io.setSlot0(kG.get(), kS.get(), kV.get(), kA.get(), kP.get(), kI.get(), kD.get());
-    }
 
     SystemState newState = handleStateTransition();
 
@@ -171,18 +159,54 @@ public class SUB_Elevator extends SubsystemBase {
     return sysIdRoutine.dynamic(direction);
   }
 
-  /**
-   * Asansörü belli bir pozisyona götürür.
-   *
-   * @param positionRad başlangıç konumundan motorun radyan cinsinden sabitlenmek istendiği konum.
-   */
-  public void runPosition(double positionRad) {
-    io.runPosition(positionRad);
+  public void runPositonRads(double positionRads) {
+    io.runPositionRads(positionRads);
+  }
+
+  public void runPositionMeters(double positionMeters) {
+    io.runPositionMeters(positionMeters);
   }
 
   /** Asansör motorlarını durdurur. */
   public void stopElevator() {
     io.stopMotor();
+  }
+
+  private Distance reefBranchToDistance(ReefBranch reefBranch) {
+
+    Distance height;
+
+    switch (reefBranch) {
+      case L1:
+        height = L1_HEIGHT;
+        break;
+
+      case L2:
+        height = L2_HEIGHT;
+        break;
+
+      case L3:
+        height = L3_HEIGHT;
+        break;
+
+      case L4:
+        height = L4_HEIGHT;
+        break;
+
+      default:
+        height = ElevatorConstants.kMinElevatorHeightMeters;
+        break;
+    }
+    return height;
+  }
+
+  public boolean isAtPosition(ReefBranch reefBranch) {
+
+    return getPosition().minus(reefBranchToDistance(reefBranch)).abs(Meters) < TOLERANCE_METERS;
+  }
+
+  public Distance getPosition() {
+    return Meters.of(inputs.positionMeters);
   }
 
   private SystemState handleStateTransition() {
@@ -206,46 +230,50 @@ public class SUB_Elevator extends SubsystemBase {
   }
 
   private void handleZeroing() {
-    io.runPosition(0);
+    io.runPositionMeters(0);
   }
 
   private void handleIdling() {
-    io.runPosition(20);
+    io.runPositionMeters(0.3);
   }
 
   private void handleCoralStage1() {
-    io.runPosition(40);
+    io.runPositionMeters(0.6);
   }
 
   private void handleCoralStage2() {
-    io.runPosition(60);
+    io.runPositionMeters(0.9);
   }
 
   private void handleCoralStage3() {
-    io.runPosition(80);
+    io.runPositionMeters(1.2);
   }
 
   private void handleCoralStage4() {
-    io.runPosition(100);
+    io.runPositionMeters(1.4);
   }
 
   private void handleAlgeaStage1() {
-    io.runPosition(30);
+    io.runPositionMeters(30);
   }
 
   private void handleAlgeaStage2() {
-    io.runPosition(60);
+    io.runPositionMeters(60);
   }
 
   private void handleAlgeaGround() {
-    io.runPosition(0);
+    io.runPositionMeters(0);
   }
 
   private void handleAlgeaProcessor() {
-    io.runPosition(0);
+    io.runPositionMeters(0);
   }
 
   public void setWantedState(WantedState wantedState) {
     this.wantedState = wantedState;
+  }
+
+  public Command setStateCommand(WantedState state) {
+    return runOnce(() -> this.wantedState = state);
   }
 }

@@ -6,7 +6,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.MathUtil;
 import frc.robot.Constants;
 import frc.robot.util.SparkUtil;
 
@@ -62,8 +61,8 @@ public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
 
   @Override
   public void setElevatorRollerSpeed(double speed) {
-    elevatorRoller1Motor.setVoltage(MathUtil.clamp(12 * speed, -12, 12));
-    elevatorRoller2Motor.setVoltage(MathUtil.clamp(12 * speed, -12, 12));
+    elevatorRoller1Motor.set(speed);
+    elevatorRoller2Motor.set(speed);
   }
 
   @Override
