@@ -14,12 +14,16 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.led.SUB_LED;
@@ -30,6 +34,8 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import com.ctre.phoenix6.CANBus;
+import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -41,19 +47,35 @@ public class Robot extends LoggedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
 
+    private CANBus canivoreBus;
+
+    private static final double CAN_ERROR_TIME_THRESHOLD = 0.5; // Seconds to disable alert
+    private static final double CANIVORE_ERROR_TIME_THRESHOLD = 0.5;
+
+    private PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
     private final Timer disabledTimer = new Timer();
-    private static final double lowBatteryVoltage = 11.8;
+    private final Timer canInitialErrorTimer = new Timer();
+    private final Timer canErrorTimer = new Timer();
+    private final Timer canivoreErrorTimer = new Timer();
+    private static final double lowBatteryVoltage = 11.3;
     private static final double lowBatteryDisabledTime = 1.5;
     private static final double lowBatteryMinCycleCount = 10;
     private static int lowBatteryCycleCount = 0;
     private final Alert lowBatteryAlert =
         new Alert(
-            "Battery voltage is very low, consider turning off the robot or replacing the battery.",
+            "Akü voltajı düşük, robotu kapatın ve aküyü değiştirin.",
             AlertType.kWarning);
+
+
+    private final Alert canErrorAlert =
+        new Alert("CAN hatası tespit edildi,robot kontrol edilemeyebilir.", AlertType.kError);
+    private final Alert canivoreErrorAlert =
+        new Alert("CANivore hatası tespit edildi, robot kontrol edilemeyebilir.", AlertType.kError);
+    private final Alert logReceiverQueueAlert =
+        new Alert("Logging kapasitesi aşıldı, data daha fazla kaydedilmeyecek.", AlertType.kError);
 
     public Robot()
     {
-        SUB_LED.getInstance();
 
         // Record metadata
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
@@ -96,15 +118,27 @@ public class Robot extends LoggedRobot {
                 break;
         }
 
-        // Start AdvantageKit logger
+        // AdvantageKit logger'ı başlat
         Logger.start();
 
-        // Instantiate our RobotContainer. This will perform all our button bindings,
-        // and put our autonomous chooser on the dashboard.
+        // robot container'ı oluştur.
         robotContainer = new RobotContainer();
+
+        // PDH log
+        if (!Constants.kIsCompetition) {
+            SmartDashboard.putData("PDH", pdh);
+        }
+
+
+
+        // Command schedule'u driver dashoard'a koymak için logladık
+        SmartDashboard.putData(CommandScheduler.getInstance());
+
+        // Pigeon'u dashboard'a koymak için logladık
+        robotContainer.addPigeonToDashboard();
     }
 
-    /** This function is called periodically during all modes. */
+    /** Bu fonksiyon bütün modlarda düzenli olarak çalışır */
     @Override
     public void robotPeriodic()
     {
@@ -119,6 +153,40 @@ public class Robot extends LoggedRobot {
         CommandScheduler.getInstance().run();
 
         robotContainer.updateDashboardOutputs();
+
+
+        logReceiverQueueAlert.set(Logger.getReceiverQueueFault());
+
+        // Check CAN status
+        var canStatus = RobotController.getCANStatus();
+        Logger.recordOutput("CANStatus/OffCount", canStatus.busOffCount);
+        Logger.recordOutput("CANStatus/TxFullCount", canStatus.txFullCount);
+        Logger.recordOutput("CANStatus/ReceiveErrorCount", canStatus.receiveErrorCount);
+        Logger.recordOutput("CANStatus/TransmitErrorCount", canStatus.transmitErrorCount);
+
+        if (canStatus.transmitErrorCount > 0 || canStatus.receiveErrorCount > 0) {
+            canErrorTimer.restart();
+        }
+        canErrorAlert.set(
+            !canErrorTimer.hasElapsed(CAN_ERROR_TIME_THRESHOLD)
+                && canInitialErrorTimer.hasElapsed(CAN_ERROR_TIME_THRESHOLD));
+
+        // Log CANivore status
+        if (Constants.currentMode == Constants.Mode.REAL) {
+            var canivoreStatus = this.canivoreBus.getStatus();
+            Logger.recordOutput("CANivoreStatus/Status", canivoreStatus.Status.getName());
+            Logger.recordOutput("CANivoreStatus/Utilization", canivoreStatus.BusUtilization);
+            Logger.recordOutput("CANivoreStatus/OffCount", canivoreStatus.BusOffCount);
+            Logger.recordOutput("CANivoreStatus/TxFullCount", canivoreStatus.TxFullCount);
+            Logger.recordOutput("CANivoreStatus/ReceiveErrorCount", canivoreStatus.REC);
+            Logger.recordOutput("CANivoreStatus/TransmitErrorCount", canivoreStatus.TEC);
+            if (!canivoreStatus.Status.isOK() || canivoreStatus.REC > 0 || canivoreStatus.TEC > 0) {
+                canivoreErrorTimer.restart();
+            }
+            canivoreErrorAlert.set(
+                !canivoreErrorTimer.hasElapsed(CANIVORE_ERROR_TIME_THRESHOLD)
+                    && canInitialErrorTimer.hasElapsed(CAN_ERROR_TIME_THRESHOLD));
+        }
         // Low battery alert
         lowBatteryCycleCount += 1;
         if (DriverStation.isEnabled()) {
@@ -131,9 +199,7 @@ public class Robot extends LoggedRobot {
             SUB_LED.getInstance().lowBatteryAlert = true;
         }
 
-        if (Robot.isSimulation()) {
-            DriverStation.silenceJoystickConnectionWarning(true);
-        }
+
         // Return to normal thread priority
         Threads.setCurrentThreadPriority(false, 10);
     }
@@ -160,6 +226,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit()
     {
+
         Elastic.selectTab(0);
         autonomousCommand = robotContainer.getAutonomousCommand();
 
@@ -210,7 +277,12 @@ public class Robot extends LoggedRobot {
     /** This function is called once when the robot is first started up. */
     @Override
     public void simulationInit()
-    {}
+    {
+        // Otomatik olarak simulasyonda mavi ittifaka ayarlar
+        DriverStationSim.setAllianceStationId(AllianceStationID.Blue1);
+        DriverStation.silenceJoystickConnectionWarning(true);
+
+    }
 
     /** This function is called periodically whilst in simulation. */
     @Override

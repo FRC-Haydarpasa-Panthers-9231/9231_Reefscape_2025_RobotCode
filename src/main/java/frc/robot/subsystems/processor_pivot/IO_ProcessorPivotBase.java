@@ -8,6 +8,7 @@ public interface IO_ProcessorPivotBase {
   public static class ProcessorPivotInputs {
     public double processorPivotAppliedVolts = 0.0;
     public double processorPivotCurrentAmps = 0.0;
+    public double processorPivotTempCelcius = 0.0;
     public double elevatorPositionRad = 0.0;
   }
 

@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.generated.TunerConstants;
 import java.util.Queue;
 
@@ -46,6 +47,39 @@ public class GyroIOPigeon2 implements GyroIO {
     pigeon.optimizeBusUtilization();
     yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
     yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(pigeon.getYaw());
+  }
+
+  public void addToSmartDashboard() {
+    SmartDashboard.putData(
+        "Gyro",
+        builder -> {
+          builder.setSmartDashboardType("Gyro");
+          builder.addDoubleProperty("Value", this::getCompassHeading, null);
+        });
+  }
+
+  public double getHeading() {
+    return pigeon.getYaw().getValueAsDouble();
+  }
+
+  /**
+   * The heading value from the pigeon increases counterclockwise (0 North, 90 West, 180 South, 270
+   * East) Some features need degrees to look like a compass, increasing clockwise (0 North, 90
+   * East, 180 South, 270 West) with rollover (max value 359.99, min 0)
+   *
+   * <p>Returns heading from pigeon from 0 to 359.99 turning clockwise
+   */
+  public double getCompassHeading() {
+    double heading = getHeading();
+
+    // Get the heading. If the value is negative, need to flip it positive
+    // also need to subtract from 360 to flip value to the correct compass heading
+    heading = heading < 0 ? (0 - heading % 360) : (360 - (heading % 360));
+
+    // 0 degree will result in 360, so set it back to 0
+    heading = heading == 360.0 ? 0 : heading;
+
+    return heading;
   }
 
   @Override

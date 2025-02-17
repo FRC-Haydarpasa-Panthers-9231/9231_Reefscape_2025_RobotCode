@@ -45,7 +45,6 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.IO_ElevatorReal;
 import frc.robot.subsystems.elevator.IO_ElevatorSim;
 import frc.robot.subsystems.elevator.SUB_Elevator;
-import frc.robot.subsystems.led.LedConstants;
 import frc.robot.subsystems.led.SUB_LED;
 import frc.robot.subsystems.processor_pivot.IO_ProcessorPivotReal;
 import frc.robot.subsystems.processor_pivot.IO_ProcessorPivotSim;
@@ -58,10 +57,11 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
-import frc.robot.util.Elastic;
+import frc.robot.util.BeamBreak;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+import edu.wpi.first.wpilibj.RobotController;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -70,6 +70,7 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+
     // Subsystems
     private final Drive drive;
     private final SUB_Elevator elevator;
@@ -77,10 +78,22 @@ public class RobotContainer {
     private final Vision vision;
     private final SUB_ProcessorPivot processorPivot;
     private final SUB_ProcessorRoller processorRoller;
-    private final SUB_LED leds;
+    private final SUB_LED leds = SUB_LED.getInstance();
+    private final BeamBreak beamBreak;
+    // Elastic dashboard'a gyro'yu göstermek için ayrı olarak oluşturduk.
+    private GyroIOPigeon2 pigeon = new GyroIOPigeon2();
 
+    // Robotun kontrolcünün hız değeri. Hız bu değer ile çarpılır. Bu sayede istediğimiz zaman
+    // yavaşlatabiliriz.
     private double speedRate = 1;
-    // Controller
+
+
+    /**
+     * Kontrolcüler. 1. porttaki driver'ın kontrolcüsü
+     * 2.porttaki operator'ün kontrolcüsü
+     * 3.porttaki robotu test ederken extra özelliklere ihtiyaç duyduğumuz ve tuş kalmadığı ya da
+     * diğer kontrolcülerin butonlarını değiştirmek istemediğimiz için kullandığımız kontrolcü
+     */
     private final CommandXboxController driverController =
         new CommandXboxController(Constants.OperatorConstants.kDriverControllerPort);
     private final CommandXboxController operatorController =
@@ -88,31 +101,38 @@ public class RobotContainer {
     private final CommandXboxController debugController =
         new CommandXboxController(Constants.OperatorConstants.kPracticeControllerPort);
 
+
+    // Eğer kontrolcüler bağlı değilse dashboardda uyarı çıkarır
     private final Alert driverDisconnected =
-        new Alert("Driver controller disconnected (port 0).", AlertType.kWarning);
+        new Alert("Driver kontrolcüsünün bağlantısı yok!! (port 0).", AlertType.kWarning);
     private final Alert operatorDisconnected =
-        new Alert("Operator controller disconnected (port 1).", AlertType.kWarning);
+        new Alert("Operator kontrolcüsünün bağlantısı yok! (port 1).", AlertType.kWarning);
 
     private final Alert debugControllerDisconnected =
-        new Alert("Debug controller disconnected (port 2).", AlertType.kInfo);
+        new Alert("Debug kontrolcüsünün bağlantısı yok! (port 2).", AlertType.kInfo);
 
+
+    // Sayaç verilen değerlere geldiğinde controller belli bir süre titreyip sürücüye uyarı verir.
     private final LoggedNetworkNumber endgameAlert1 =
         new LoggedNetworkNumber("/SmartDashboard/Endgame Alert #1", 30.0);
     private final LoggedNetworkNumber endgameAlert2 =
         new LoggedNetworkNumber("/SmartDashboard/Endgame Alert #2", 15.0);
 
-    // Dashboard inputs
+    // Otonom seçmek için widget
     private final LoggedDashboardChooser<Command> autoChooser;
 
-    /** The container for the robot. Contains subsystems, OI devices, and commands. */
+    /** Robot için sarmalayıcı. Subsystems, OI devices, ve commands içerir. */
     public RobotContainer()
     {
+        // Eğer voltaj 6.5 altına düşerse roborio'ya komut gitmez.
+        RobotController.setBrownoutVoltage(6.5);
+
         switch (Constants.currentMode) {
             case REAL:
-                // Real robot, instantiate hardware IO implementations
+                // Gerçek robotta donanım ve io arayüzlerini tanımlar
                 drive =
                     new Drive(
-                        new GyroIOPigeon2(),
+                        pigeon,
                         new ModuleIOTalonFX(TunerConstants.FrontLeft),
                         new ModuleIOTalonFX(TunerConstants.FrontRight),
                         new ModuleIOTalonFX(TunerConstants.BackLeft),
@@ -128,7 +148,7 @@ public class RobotContainer {
                 break;
 
             case SIM:
-                // Sim robot, instantiate physics sim IO implementations
+                // Sim robotta donanım ve io arayüzlerini tanımlar
                 drive =
                     new Drive(
                         new GyroIO() {},
@@ -149,7 +169,7 @@ public class RobotContainer {
                 break;
 
             default:
-                // Replayed robot, disable IO implementations
+                // Tekrar oynatılan robot, bu yüzden io arayüzlerini tanımlamıyoruz
                 drive =
                     new Drive(
                         new GyroIO() {},
@@ -167,10 +187,12 @@ public class RobotContainer {
                 break;
         }
 
-        leds = new SUB_LED(LedConstants.kLedPort, LedConstants.kLedPort);
+        beamBreak = new BeamBreak();
 
-        // Set up auto routines
-        autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+        // DriverDashboard'a otonomu seçmek için widget oluşturduk.
+        // TODO: İçine default otonomu ayarlamayı unutma
+        autoChooser =
+            new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser("a"));
 
         // Set up SysId routines
         autoChooser.addOption(
@@ -180,7 +202,7 @@ public class RobotContainer {
         autoChooser.addOption(
             "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
 
-        // FIXME: SİGNAL LOGGER EKLE
+
         autoChooser.addOption(
             "Drive SysId (Quasistatic Forward)",
             drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
@@ -200,8 +222,10 @@ public class RobotContainer {
         debugControllerBindings();
         registerNamedCommands();
 
-
-        // Endgame Alerts
+        /**
+         * Maç bitimi uyarıları, belirtilen saniyelere geldiğinde ledleri endgame alert moduna alır
+         * ve kontrolcüleri titreştirir.
+         */
         new Trigger(
             () -> DriverStation.isTeleopEnabled()
                 && DriverStation.getMatchTime() > 0
@@ -227,6 +251,7 @@ public class RobotContainer {
 
     private void driverControllerBindings()
     {
+        // Default sürme komutu
         drive.setDefaultCommand(joystickDrive());
 
         // Lock to 0° when A button is held
@@ -239,9 +264,15 @@ public class RobotContainer {
                     () -> -driverController.getLeftX(),
                     () -> new Rotation2d()));
 
-        driverController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-        // Reset gyro to 0° when B button is pressed
 
+        /*
+         * X tuşuna basıldığında tekerleklerin hepsini X şekline olur. Bu sayede robotun hareket
+         * etmesi çok zor olur. Belli bir pozisyonda sabit kalmak istediğimizde kullanılır.
+         */
+        driverController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+
+
+        // B butonuna basıldığında gyro'yu resetler.
         driverController
             .b()
             .onTrue(
@@ -250,6 +281,8 @@ public class RobotContainer {
                         new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                     .ignoringDisable(true));
+
+        // y tuşuna basıldığında hızı
         driverController
             .y()
             .onTrue(new InstantCommand(() -> speedRate = 0.5))
@@ -436,7 +469,6 @@ public class RobotContainer {
             !DriverStation.isJoystickConnected(operatorController.getHID().getPort())
                 || !DriverStation.getJoystickIsXbox(operatorController.getHID().getPort()));
         debugControllerDisconnected.set(!debugController.isConnected());
-
     }
 
     /**
@@ -454,4 +486,8 @@ public class RobotContainer {
         return driverController;
     }
 
+    public void addPigeonToDashboard()
+    {
+        pigeon.addToSmartDashboard();
+    }
 }

@@ -3,107 +3,148 @@ package frc.robot.subsystems.elevator;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
 public class SUB_Elevator extends SubsystemBase {
 
-  private final LoggedTunableNumber elevatorHeightMeters =
-      new LoggedTunableNumber("Elevator/Height(meters)", 0);
+    private Distance lastDesiredPosition;
 
-  private static SysIdRoutine sysIdRoutine;
+    public boolean attemptingZeroing = false;
+    public boolean hasZeroed = false;
 
-  private final IO_ElevatorBase io;
-  public final ElevatorInputsAutoLogged inputs = new ElevatorInputsAutoLogged();
+    private static SysIdRoutine sysIdRoutine;
 
-  public enum WantedState {
-    OFF,
-    ZERO_ELEVATOR,
-    IDLE,
-    CORAL_STAGE_1,
-    CORAL_STAGE_2,
-    CORAL_STAGE_3,
-    CORAL_STAGE_4,
-    ALGEA_STAGE_1,
-    ALGEA_STAGE_2,
-    ALGEA_GROUND,
-    ALGEA_PROCESSOR,
-  }
+    private final IO_ElevatorBase io;
+    public final ElevatorInputsAutoLogged inputs = new ElevatorInputsAutoLogged();
 
-  public enum SystemState {
-    IS_OFF,
-    ZEROING,
-    IDLING,
-    CORAL_STAGE_1,
-    CORAL_STAGE_2,
-    CORAL_STAGE_3,
-    CORAL_STAGE_4,
-    ALGEA_STAGE_1,
-    ALGEA_STAGE_2,
-    ALGEA_GROUND,
-    ALGEA_PROCESSOR,
-  }
+    public SUB_Elevator(IO_ElevatorBase io)
+    {
+        this.io = io;
 
-  private WantedState wantedState = WantedState.ZERO_ELEVATOR;
-  private SystemState systemState = SystemState.ZEROING;
+        sysIdRoutine =
+            new SysIdRoutine(
+                new SysIdRoutine.Config(
+                    null, // Use default ramp rate (1 V/s)
+                    Volts.of(4), // Reduce dynamic step voltage to 4 to prevent brownout
+                    null, // Use default timeout (10 s)
+                    // Log state with Phoenix SignalLogger class
+                    (state) -> SignalLogger.writeString("state", state.toString())),
+                new SysIdRoutine.Mechanism(
+                    (volts) -> io.setElevatorVoltage(volts), null, this));
+    }
 
-  public SUB_Elevator(IO_ElevatorBase io) {
-    this.io = io;
+    @Override
+    public void periodic()
+    {
+        io.updateInputs(inputs);
+        Logger.processInputs("Elevator", inputs);
+    }
 
-    io.zeroPosition();
+    /**
+     * Asansör motorlarının voltajını ayarlar
+     *
+     * @param volts Çalıştırmak istediğiniz volt değeri.
+     */
+    public void setElevatorVoltage(Voltage volts)
+    {
+        io.setElevatorVoltage(volts);
+    }
 
-    sysIdRoutine =
-        new SysIdRoutine(
-            new SysIdRoutine.Config(
-                null, // Use default ramp rate (1 V/s)
-                Volts.of(4), // Reduce dynamic step voltage to 4 to prevent brownout
-                null, // Use default timeout (10 s)
-                // Log state with Phoenix SignalLogger class
-                (state) -> SignalLogger.writeString("state", state.toString())),
-            new SysIdRoutine.Mechanism(
-                (volts) -> io.setElevatorVoltage(volts.in(Volts)), null, this));
-  }
 
-  @Override
-  public void periodic() {
-    io.updateInputs(inputs);
-    Logger.processInputs("Elevator", inputs);
-  }
+    /**
+     * Kraken encoderlarını belirli bir değere atamak için kullanılır. Kullanım alanı genelde
+     * encoder'ı sıfırlamak ve default pozisyon atamaktır.
+     * 
+     * @param setpoint enconder'ın ayarlanacağı değer
+     */
+    public void setEncoderPosition(Distance setpoint)
+    {
+        io.setSensorPosition(setpoint);
+    }
 
-  /**
-   * Asansör motorlarının voltajını ayarlar
-   *
-   * @param volts Çalıştırmak istediğiniz volt değeri.
-   */
-  public void setElevatorVoltage(double volts) {
-    io.setElevatorVoltage(volts);
-  }
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction)
+    {
+        return sysIdRoutine.quasistatic(direction);
+    }
 
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return sysIdRoutine.quasistatic(direction);
-  }
+    public Command sysIdDynamic(SysIdRoutine.Direction direction)
+    {
+        return sysIdRoutine.dynamic(direction);
+    }
 
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return sysIdRoutine.dynamic(direction);
-  }
+    public void runPositonRads(double positionRads)
+    {
+        io.runPositionRads(positionRads);
+    }
 
-  public void runPositonRads(double positionRads) {
-    io.runPositionRads(positionRads);
-  }
+    public void setSpeed(double speed)
+    {
+        io.setElevatorSpeed(speed);
+    }
 
-  public void runPositionMeters(double positionMeters) {
-    io.runPositionMeters(positionMeters);
-  }
+    /** Asansör motorlarını durdurur. */
+    public void stopElevator()
+    {
+        io.stopMotor();
+    }
 
-  public void setSpeed(double speed) {
-    io.setElevatorSpeed(speed);
-  }
+    public Distance getLastDesiredPosition()
+    {
+        return lastDesiredPosition;
+    }
 
-  /** Asansör motorlarını durdurur. */
-  public void stopElevator() {
-    io.stopMotor();
-  }
+    public boolean isAtSetPoint()
+    {
+        return (io.getElevatorPosition()
+            .compareTo(getLastDesiredPosition().minus(ElevatorConstants.kTolerance)) > 0)
+            && io.getElevatorPosition()
+                .compareTo(getLastDesiredPosition().plus(ElevatorConstants.kTolerance)) < 0;
+    }
+
+    public void setCoastMode(Boolean coastMode)
+    {
+        io.setCoastMode(coastMode);
+    }
+
+
+    public void setNeutral()
+    {
+        io.setNeutral();
+    }
+
+    public void setPosition(Distance height)
+    {
+        io.setPosition(height);
+    }
+
+    public void runPositionRads(double positionRad)
+    {
+        io.runPositionRads(positionRad);
+    }
+
+    public void setSoftwareLimits(boolean reverseLimitEnable, boolean forwardLimitEnable)
+    {
+        io.setSoftwareLimits(reverseLimitEnable, forwardLimitEnable);
+    }
+
+    public AngularVelocity getRotorVelocity()
+    {
+        return io.getRotorVelocity();
+    }
+
+    public Distance getElevatorPosition()
+    {
+        return io.getElevatorPosition();
+    }
+
+    public boolean isRotorVelocityZero()
+    {
+        return io.isRotorVelocityZero();
+    }
 }

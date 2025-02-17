@@ -81,6 +81,7 @@ public class IO_ProcessorPivotReal implements IO_ProcessorPivotBase {
 
   @Override
   public double getProcessorPivotPosition() {
+
     return processorAbsoluteEncoder.getPosition();
   }
 
@@ -100,5 +101,6 @@ public class IO_ProcessorPivotReal implements IO_ProcessorPivotBase {
         processorPivot.getAppliedOutput() * processorPivot.getBusVoltage();
     inputs.processorPivotCurrentAmps = processorPivot.getOutputCurrent();
     inputs.elevatorPositionRad = Units.rotationsToRadians(getProcessorPivotPosition());
+    inputs.processorPivotTempCelcius = processorPivot.getMotorTemperature();
   }
 }
