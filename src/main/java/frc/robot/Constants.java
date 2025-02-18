@@ -11,10 +11,7 @@ public final class Constants {
 
     public static final int kBeamBreakPort = 1;
 
-    public static class ElevatorRoller {
-        public static final int kElevatorRollerMotor1Port = 11;
-        public static final int kElevatorRollerMotor2Port = 12;
-    }
+
 
     public static class ProcessorPivot {
         public static final int kProcessorPivotMotorPort = 13;

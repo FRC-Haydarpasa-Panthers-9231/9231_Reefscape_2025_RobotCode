@@ -79,13 +79,16 @@ public class RobotContainer {
     private final SUB_ProcessorPivot processorPivot;
     private final SUB_ProcessorRoller processorRoller;
     private final SUB_LED leds = SUB_LED.getInstance();
-    private final BeamBreak beamBreak;
     // Elastic dashboard'a gyro'yu göstermek için ayrı olarak oluşturduk.
     private GyroIOPigeon2 pigeon = new GyroIOPigeon2();
 
     // Robotun kontrolcünün hız değeri. Hız bu değer ile çarpılır. Bu sayede istediğimiz zaman
     // yavaşlatabiliriz.
     private double speedRate = 1;
+
+    // Trigger for algae/coral mode switching
+    private boolean coralModeEnabled = true;
+    private Trigger isCoralMode = new Trigger(() -> coralModeEnabled);
 
 
     /**
@@ -187,21 +190,19 @@ public class RobotContainer {
                 break;
         }
 
-        beamBreak = new BeamBreak();
-
         // DriverDashboard'a otonomu seçmek için widget oluşturduk.
         // TODO: İçine default otonomu ayarlamayı unutma
         autoChooser =
             new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser("a"));
 
         // Set up SysId routines
+        // TODO: RUTİNLERİ ÇALIŞTIR
         autoChooser.addOption(
             "Drive Wheel Radius Characterization",
             DriveCommands.wheelRadiusCharacterization(drive));
 
         autoChooser.addOption(
             "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-
 
         autoChooser.addOption(
             "Drive SysId (Quasistatic Forward)",
@@ -216,6 +217,8 @@ public class RobotContainer {
 
         autoChooser.addOption(
             "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+        autoChooser.addOption("Elevator Characterization", elevator.sysIDCharacterizationRoutine());
 
         driverControllerBindings();
         operatorContorllerBindings();
@@ -282,11 +285,10 @@ public class RobotContainer {
                     drive)
                     .ignoringDisable(true));
 
-        // y tuşuna basıldığında hızı
+        // Y tuşuna basıldığında speedRate'i toggle eder
         driverController
             .y()
-            .onTrue(new InstantCommand(() -> speedRate = 0.5))
-            .onFalse(new InstantCommand(() -> speedRate = 1));
+            .onTrue(new InstantCommand(() -> speedRate = (speedRate == 1) ? 0.5 : 1));
 
         // Driver Left Bumper: Face Nearest Reef Face
         driverController
@@ -357,11 +359,15 @@ public class RobotContainer {
             .b()
             .whileTrue(Commands.run(() -> elevatorRoller.setSpeed(-0.3), elevatorRoller))
             .onFalse(Commands.runOnce(() -> elevatorRoller.setSpeed(0), elevatorRoller));
+        // Driver Right Bumper: Toggle between Coral and Algae Modes.
+        // Make sure the Approach nearest reef face does not mess with this
+        operatorController.rightBumper().and(operatorController.leftBumper().negate())
+            .onTrue(setCoralAlgaeModeCommand());
     }
 
     private void debugControllerBindings()
     {
-        // elevator sysID routines
+        // elevator sysID routines otonom olarakta var.
         debugController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
 
         debugController.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
@@ -453,11 +459,22 @@ public class RobotContainer {
             });
     }
 
+    public Command setCoralAlgaeModeCommand()
+    {
+        return Commands.runOnce(
+            () -> {
+                coralModeEnabled = !coralModeEnabled;
+            });
+    }
+
+
     // Update dashboard data
     public void updateDashboardOutputs()
     {
         SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
     }
+
+
 
     public void updateAlerts()
     {
@@ -481,11 +498,10 @@ public class RobotContainer {
         return autoChooser.get();
     }
 
-    public CommandXboxController getdriverControllerCommand()
-    {
-        return driverController;
-    }
 
+    /**
+     * Pigeon'u elastic dashboard'a aktarmak için gerekli fonksiyonu burdan alıcaz.
+     */
     public void addPigeonToDashboard()
     {
         pigeon.addToSmartDashboard();

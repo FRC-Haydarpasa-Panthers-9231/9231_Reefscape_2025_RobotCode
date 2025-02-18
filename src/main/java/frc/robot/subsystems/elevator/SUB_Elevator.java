@@ -7,6 +7,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
@@ -44,6 +46,7 @@ public class SUB_Elevator extends SubsystemBase {
     {
         io.updateInputs(inputs);
         Logger.processInputs("Elevator", inputs);
+        Logger.recordOutput("isElevatorAtSetpoint", this.isAtSetPoint());
     }
 
     /**
@@ -76,6 +79,22 @@ public class SUB_Elevator extends SubsystemBase {
     public Command sysIdDynamic(SysIdRoutine.Direction direction)
     {
         return sysIdRoutine.dynamic(direction);
+    }
+
+    public Command sysIDCharacterizationRoutine()
+    {
+        return Commands.sequence(
+            Commands.runOnce(() -> SignalLogger.start()),
+            sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+                .until(() -> getPosition().magnitude() == ElevatorConstants.kForwardLimit),
+            sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+                .until(() -> getPosition().magnitude() == ElevatorConstants.kReverseLimit),
+            sysIdDynamic(SysIdRoutine.Direction.kForward)
+                .until(() -> getPosition().magnitude() == ElevatorConstants.kForwardLimit),
+            sysIdDynamic(SysIdRoutine.Direction.kReverse)
+                .until(() -> getPosition().magnitude() == ElevatorConstants.kReverseLimit),
+
+            Commands.runOnce(() -> SignalLogger.stop()));
     }
 
     public void runPositonRads(double positionRads)
@@ -138,7 +157,7 @@ public class SUB_Elevator extends SubsystemBase {
         return io.getRotorVelocity();
     }
 
-    public Distance getElevatorPosition()
+    public Distance getPosition()
     {
         return io.getElevatorPosition();
     }

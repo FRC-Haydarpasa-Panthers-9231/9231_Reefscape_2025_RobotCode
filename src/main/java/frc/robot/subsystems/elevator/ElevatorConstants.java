@@ -15,12 +15,21 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 
 public class ElevatorConstants {
+
+    // TODO: IDLERİ BELİRLE VE VER
+
     public static final int kElevatorMotorLeadID = 9;
     public static final int kElevatorMotorFollowerID = 10;
+
+    // TODO: BU DEĞERİ AL
     public static final Distance kDrivetrainHeight =
         Meters.of(edu.wpi.first.math.util.Units.inchesToMeters(10));
+
+    // TODO GEREKİRSE TOLERANSI ARTTIR
     public static final Distance kTolerance = Meters.of(0.003);
 
+
+    // TODO ELEVATOR YAPILDIKTAN SONRA TAM REDUCTION'I AL
     public static final double kElevatorGearing = 25;
     public static final double kCarriageMass = 18;
     public static final double kElevatorDrumRadius =
@@ -29,10 +38,15 @@ public class ElevatorConstants {
     public static final Distance kMaxElevatorHeightMeters = Meters.of(1.55); // 1.6075
     public static final double kDefaultSetpoint = 0;
     public static final String kSubsystemName = "Elevator";
+
+    // TODO INVERTLENIP INVERTLENMEYECEĞİNİ KONTROL ET
     public static final boolean kIsInverted = false;
+
     public static final int kElevatorTeeth = 17;
     public static final double kElevatorPitch = 0.00635; // 6.35 mm = 0.00635 metre
 
+
+    // TODO GERÇEK HAYAT PID VE FEEDFORWARDLARINI AYARLA.
     public static final double KP_SLOT0 = 0;
     public static final double KI_SLOT0 = 0;
     public static final double KD_SLOT0 = 0;
@@ -59,12 +73,17 @@ public class ElevatorConstants {
         ALGAE_2,
     }
 
+    public static final double kForwardLimit = Units.Meters.of(1.4).in(Units.Meters);
+    public static final double kReverseLimit = Units.Meters.of(0).in(Units.Meters);
+
+
     public static TalonFXConfiguration kElavatorConfig = new TalonFXConfiguration();
 
     static {
         kElavatorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         kElavatorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
+        // TODO: SOFTWARE LİMİTLERİNİ BUL VE EKLE
         kElavatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         kElavatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
             Units.Meters.of(1.4).in(Units.Meters);
@@ -83,13 +102,13 @@ public class ElevatorConstants {
 
         kElavatorConfig.Feedback.SensorToMechanismRatio = kElevatorGearing;
 
-        kElavatorConfig.Slot0.kG = 0.3; // Volts to overcome gravity
-        kElavatorConfig.Slot0.kS = 0.4; // Volts to overcome static friction
-        kElavatorConfig.Slot0.kV = 0.001; // Volts for a velocity target of 1 rps
-        kElavatorConfig.Slot0.kA = 0.0; // Volts for an acceleration of 1 rps/s
-        kElavatorConfig.Slot0.kP = 0.5;
-        kElavatorConfig.Slot0.kI = 0.0;
-        kElavatorConfig.Slot0.kD = 0.0;
+        kElavatorConfig.Slot0.kG = KP_SLOT0; // Volts to overcome gravity
+        kElavatorConfig.Slot0.kS = KS_SLOT0; // Volts to overcome static friction
+        kElavatorConfig.Slot0.kV = KV_SLOT0; // Volts for a velocity target of 1 rps
+        kElavatorConfig.Slot0.kA = KA_SLOT0; // Volts for an acceleration of 1 rps/s
+        kElavatorConfig.Slot0.kP = KP_SLOT0;
+        kElavatorConfig.Slot0.kI = KI_SLOT0;
+        kElavatorConfig.Slot0.kD = KD_SLOT0;
 
         kElavatorConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
         kElavatorConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
@@ -106,8 +125,9 @@ public class ElevatorConstants {
 
         kElavatorConfig.Slot1.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
 
-        kElavatorConfig.MotionMagic.MotionMagicCruiseVelocity = 400;
-        kElavatorConfig.MotionMagic.MotionMagicAcceleration = 1100;
+        // TODO MOTİON MAGİC DEĞERLERİNİ DÜZENLE
+        kElavatorConfig.MotionMagic.MotionMagicCruiseVelocity = 200;
+        kElavatorConfig.MotionMagic.MotionMagicAcceleration = 400;
         kElavatorConfig.MotionMagic.MotionMagicExpo_kV = 0.12;
     }
 
@@ -119,19 +139,37 @@ public class ElevatorConstants {
     }
 
 
+    // TODO ZEROİNG VOLTAGE YETERLİ DEĞİLSE DÜZENLE
     public static final Voltage ZEROING_VOLTAGE = Units.Volts.of(-1);
 
-    public static final Distance CORAL_L1_HEIGHT = Units.Meters.of(19);
-    public static final Distance CORAL_L2_HEIGHT = Units.Meters.of(19);
-    public static final Distance CORAL_L3_HEIGHT = Units.Meters.of(34.75);
-    public static final Distance CORAL_L4_HEIGHT = Units.Meters.of(61);
-    public static final Distance ALGAE_PREP_PROCESSOR_HEIGHT = Units.Meters.of(1);
-    public static final Distance ALGAE_L3_CLEANING = Units.Meters.of(25);
-    public static final Distance ALGAE_L2_CLEANING = Units.Meters.of(9);
-    public static final Distance ALGAE_GROUND_INTAKE = Units.Meters.of(0);
-    public static final Distance PREP_0 = Units.Meters.of(0);
-    public static final Distance DEADZONE_DISTANCE = Units.Meters.of(1);
-    public static final Distance CORAL_INTAKE_HIGHT = Units.Meters.of(0);
+
+    // TODO: SCORİNG HEİGHTLERI ÖLÇ
+    public enum SCORING_HEIGHT {
+        CORAL_L1_HEIGHT(19.0),
+        CORAL_L2_HEIGHT(19.0),
+        CORAL_L3_HEIGHT(34.75),
+        CORAL_L4_HEIGHT(61.0),
+        ALGAE_PREP_PROCESSOR_HEIGHT(1.0),
+        ALGAE_L3_CLEANING(25.0),
+        ALGAE_L2_CLEANING(9.0),
+        PREP_0(0.0),
+        DEADZONE_DISTANCE(1.0),
+        CORAL_INTAKE_HEIGHT(0.0);
+
+        private final double heightInMeters;
+
+        // Constructor for the enum
+        SCORING_HEIGHT(double heightInMeters)
+        {
+            this.heightInMeters = heightInMeters;
+        }
+
+        // Getter to retrieve the height value in meters
+        public double getHeightInMeters()
+        {
+            return heightInMeters;
+        }
+    }
 
     public static final Time kZeroingTimeout = Units.Seconds.of(3);
 
@@ -149,6 +187,8 @@ public class ElevatorConstants {
      */
     public static final Distance ZEROED_POS = Units.Meters.of(0);
 
+
+    // TODO: GEREKİSE BU DEĞERİ DÜZENLE
     /**
      * The velocity that the motor goes at once it has zeroed (and can no longer continue in that
      * direction)

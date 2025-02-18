@@ -52,6 +52,9 @@ public class Robot extends LoggedRobot {
     private static final double CAN_ERROR_TIME_THRESHOLD = 0.5; // Seconds to disable alert
     private static final double CANIVORE_ERROR_TIME_THRESHOLD = 0.5;
 
+    private boolean autoMessagePrinted;
+    private double autoStart;
+
     private PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
     private final Timer disabledTimer = new Timer();
     private final Timer canInitialErrorTimer = new Timer();
@@ -152,6 +155,7 @@ public class Robot extends LoggedRobot {
         // the Command-based framework to work.
         CommandScheduler.getInstance().run();
 
+        robotContainer.updateAlerts();
         robotContainer.updateDashboardOutputs();
 
 
@@ -187,18 +191,51 @@ public class Robot extends LoggedRobot {
                 !canivoreErrorTimer.hasElapsed(CANIVORE_ERROR_TIME_THRESHOLD)
                     && canInitialErrorTimer.hasElapsed(CAN_ERROR_TIME_THRESHOLD));
         }
-        // Low battery alert
+
+        // Düşük pil uyarısı döngü sayısını bir artır.
+
         lowBatteryCycleCount += 1;
+
+        /**
+         * devre dışı kalma zamanlayıcısını sıfırla. Bu, pil düşük olsa bile
+         * robotun etkin modda olduğu sürece devre dışı kalma zamanını kontrol etmesini engeller.
+         */
         if (DriverStation.isEnabled()) {
             disabledTimer.reset();
         }
+
+        /*
+         * Pil voltajını kontrol et. Eğer pil voltajı belirlenen düşük voltaj sınırının altındaysa
+         * ve devre dışı kalma zamanlayıcısı belirlenen süreyi aşmışsa (lowBatteryDisabledTime),
+         * ayrıca düşük pil uyarısı minimum döngü sayısına (lowBatteryMinCycleCount) ulaştıysa,
+         * düşük pil uyarısını etkinleştir.
+         */
         if (RobotController.getBatteryVoltage() <= lowBatteryVoltage
             && disabledTimer.hasElapsed(lowBatteryDisabledTime)
             && lowBatteryCycleCount >= lowBatteryMinCycleCount) {
+
+            // Düşük pil uyarısı aktif hale getirir.
             lowBatteryAlert.set(true);
+            // ledleri bataryanın düşük olduğunu gösterecek şekilde yakar.
             SUB_LED.getInstance().lowBatteryAlert = true;
         }
 
+
+        // Otonom süresini yazdır. Bu sayede otonomda kaç saniye geçtiğine göre uzatabiliriz.
+        if (autonomousCommand != null) {
+            if (!autonomousCommand.isScheduled() && !autoMessagePrinted) {
+                if (DriverStation.isAutonomousEnabled()) {
+                    System.out.printf(
+                        "*** Auto finished in %.2f secs ***%n",
+                        Timer.getFPGATimestamp() - autoStart);
+                } else {
+                    System.out.printf(
+                        "*** Auto cancelled in %.2f secs ***%n",
+                        Timer.getFPGATimestamp() - autoStart);
+                }
+                autoMessagePrinted = true;
+            }
+        }
 
         // Return to normal thread priority
         Threads.setCurrentThreadPriority(false, 10);
@@ -207,6 +244,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotInit()
     {
+        // Bağlı olan kamerayı dashboard'a koymak için yayınlamaya başlar.
         CameraServer.startAutomaticCapture();
     }
 
@@ -227,7 +265,14 @@ public class Robot extends LoggedRobot {
     public void autonomousInit()
     {
 
+        /**
+         * Otonom dashboard'ı ilk dashboard olduğu için otonom başladığında otomatik olarak
+         * dashboard'ı ayarlar.
+         */
         Elastic.selectTab(0);
+
+        // Otonom zamanlayıcısını başlatır.
+        autoStart = Timer.getFPGATimestamp();
         autonomousCommand = robotContainer.getAutonomousCommand();
 
         // schedule the autonomous command (example)
@@ -253,6 +298,8 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
+
+        // Teleop dashboard'ı 1.tab olduğu için otomatik olarak 1.tab'ı seçer.
         Elastic.selectTab(1);
     }
 
@@ -280,6 +327,8 @@ public class Robot extends LoggedRobot {
     {
         // Otomatik olarak simulasyonda mavi ittifaka ayarlar
         DriverStationSim.setAllianceStationId(AllianceStationID.Blue1);
+
+        // Gelen joystick bağlanmadı uyarılarını kapatır.
         DriverStation.silenceJoystickConnectionWarning(true);
 
     }
