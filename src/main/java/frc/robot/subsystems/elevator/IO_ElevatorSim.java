@@ -1,6 +1,8 @@
 package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.Meters;
+import static frc.robot.subsystems.elevator.ElevatorConstants.MOTION_MAGIC_ACCELERATION;
+import static frc.robot.subsystems.elevator.ElevatorConstants.MOTION_MAGIC_EXPO_KV;
 import static frc.robot.subsystems.elevator.ElevatorConstants.kElevatorGearing;
 import static frc.robot.subsystems.elevator.ElevatorConstants.kElevatorTeeth;
 
@@ -25,6 +27,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.lib.team3015.subsystem.FaultReporter;
+import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil;
 import frc.robot.util.sim.MotionProfiledElevatorMechanism;
@@ -58,22 +61,29 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
     private StatusSignal<Temperature> elevatorFollowerTempStatusSignal;
 
     private final LoggedTunableNumber kPslot0 =
-        new LoggedTunableNumber("Elevator/kPslot0", ElevatorConstants.KP_SLOT0);
+        new LoggedTunableNumber("Elevator/kPslot0", ElevatorConstants.KP_SLOT1);
     private final LoggedTunableNumber kIslot0 =
-        new LoggedTunableNumber("Elevator/kIslot0", ElevatorConstants.KI_SLOT0);
+        new LoggedTunableNumber("Elevator/kIslot0", ElevatorConstants.KI_SLOT1);
     private final LoggedTunableNumber kDslot0 =
-        new LoggedTunableNumber("Elevator/kDslot0", ElevatorConstants.KD_SLOT0);
+        new LoggedTunableNumber("Elevator/kDslot0", ElevatorConstants.KD_SLOT1);
     private final LoggedTunableNumber kSslot0 =
-        new LoggedTunableNumber("Elevator/kSslot0", ElevatorConstants.KS_SLOT0);
+        new LoggedTunableNumber("Elevator/kSslot0", ElevatorConstants.KS_SLOT1);
     private final LoggedTunableNumber kVslot0 =
-        new LoggedTunableNumber("Elevator/kVslot0", ElevatorConstants.KV_SLOT0);
+        new LoggedTunableNumber("Elevator/kVslot0", ElevatorConstants.KV_SLOT1);
     private final LoggedTunableNumber kAslot0 =
-        new LoggedTunableNumber("Elevator/kAslot0", ElevatorConstants.KA_SLOT0);
+        new LoggedTunableNumber("Elevator/kAslot0", ElevatorConstants.KA_SLOT1);
     private final LoggedTunableNumber kGslot0 =
-        new LoggedTunableNumber("Elevator/kGslot0", ElevatorConstants.KG_SLOT0);
+        new LoggedTunableNumber("Elevator/kGslot0", ElevatorConstants.KG_SLOT1);
 
     private final LoggedTunableNumber cruiseVelocity =
-        new LoggedTunableNumber("Elevator/Cruise Velocity", 80);
+        new LoggedTunableNumber(
+            "Elevator/Cruise Velocity", ElevatorConstants.MOTION_MAGIC_CRUISE_VELOCITY);
+
+    private final LoggedTunableNumber acceleration =
+        new LoggedTunableNumber("Elevator/acceleration", MOTION_MAGIC_ACCELERATION);
+
+    private final LoggedTunableNumber expoKv =
+        new LoggedTunableNumber("Elevator/expo kV", MOTION_MAGIC_EXPO_KV);
 
     public IO_ElevatorSim()
     {
@@ -157,9 +167,10 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
         inputs.closedLoopReference = elevatorMotorLead.getClosedLoopReference().getValueAsDouble();
 
         inputs.positionRotations = elevatorPositionStatusSignal.getValueAsDouble();
-
         inputs.positionMeters =
-            edu.wpi.first.units.Units.Meters.of(elevatorMotorLead.getPosition().getValueAsDouble());
+            edu.wpi.first.units.Units.Meters.of(elevatorPositionStatusSignal.getValueAsDouble());
+        inputs.positionRads =
+            Units.rotationsToRadians(elevatorPositionStatusSignal.getValueAsDouble());
 
         // Ana motorun simulasyon durumunu al
         var simState = elevatorMotorLead.getSimState();
@@ -170,7 +181,7 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
         var motorVoltage = elevatorMotorLead.getMotorVoltage().getValueAsDouble();
 
         elevatorSim.setInputVoltage(motorVoltage);
-        elevatorSim.update(0.020);
+        elevatorSim.update(Constants.loopPeriodSecs);
 
         simState.setRawRotorPosition(
             elevatorSim.getPositionMeters()
@@ -219,6 +230,8 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
                 config.Slot0.kA = motionMagic[5];
                 config.Slot0.kG = motionMagic[6];
                 config.MotionMagic.MotionMagicCruiseVelocity = motionMagic[7];
+                config.MotionMagic.MotionMagicAcceleration = motionMagic[8];
+                config.MotionMagic.MotionMagicCruiseVelocity = motionMagic[9];
                 PhoenixUtil.tryUntilOk(
                     5,
                     () -> elevatorMotorLead.getConfigurator().apply(config),
@@ -231,7 +244,10 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
             kVslot0,
             kAslot0,
             kGslot0,
-            cruiseVelocity);
+            cruiseVelocity,
+            cruiseVelocity,
+            acceleration,
+            expoKv);
     }
 
     @Override
@@ -254,12 +270,7 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
         elevatorMotorLead.stopMotor();
     }
 
-    @Override
-    public void runPositionRads(double positionRad)
-    {
-        elevatorMotorLead.setControl(
-            motionMagicPositionRequest.withPosition(Units.radiansToRotations(positionRad)));
-    }
+
 
     @Override
     public void setSensorPosition(Distance setpoint)
@@ -293,6 +304,15 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
     {
         elevatorMotorLead.setControl(motionMagicPositionRequest.withPosition(height.in(Meters)));
         elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
+    }
+
+    @Override
+    public void runPositionRads(double positionRad)
+    {
+        elevatorMotorLead.setControl(
+            motionMagicPositionRequest.withPosition(Units.radiansToRotations(positionRad)));
+        elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
+
     }
 
     @Override

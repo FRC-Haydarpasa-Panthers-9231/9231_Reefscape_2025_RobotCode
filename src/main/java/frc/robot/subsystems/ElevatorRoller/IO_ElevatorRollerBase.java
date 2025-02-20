@@ -13,6 +13,7 @@ public interface IO_ElevatorRollerBase {
     public double elevatorRoller2AppliedVolts = 0.0;
     public double elevatorRoller2CurrentAmps = 0.0;
     public double elevatorRoller2TempCelsius = 0.0;
+    public boolean hasCoral;
   }
 
   void updateInputs(ElevatorRollerInputs inputs);
@@ -24,4 +25,6 @@ public interface IO_ElevatorRollerBase {
 
   /** Motorları Durdurur */
   public void stopMotors();
+
+  public boolean hasCoral();
 }

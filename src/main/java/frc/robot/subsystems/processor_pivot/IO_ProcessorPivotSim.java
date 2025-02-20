@@ -62,7 +62,7 @@ public class IO_ProcessorPivotSim implements IO_ProcessorPivotBase {
 
     processorAbsoluteEncoder = maxSim.getAbsoluteEncoderSim();
     processorAbsoluteEncoder.setPosition(0);
-
+    m_controller = sparkMax.getClosedLoopController();
     SmartDashboard.putData("Arm Sim", m_mech2d);
     m_armTower.setColor(new Color8Bit(Color.kBlue));
   }
@@ -78,7 +78,7 @@ public class IO_ProcessorPivotSim implements IO_ProcessorPivotBase {
 
     inputs.processorPivotAppliedVolts = maxSim.getAppliedOutput() * maxSim.getBusVoltage();
     inputs.processorPivotCurrentAmps = maxSim.getMotorCurrent();
-    inputs.elevatorPositionRad = Units.rotationsToRadians(getProcessorPivotPosition());
+    inputs.processorPivotPositionRads = Units.rotationsToRadians(getProcessorPivotPosition());
   }
 
   @Override

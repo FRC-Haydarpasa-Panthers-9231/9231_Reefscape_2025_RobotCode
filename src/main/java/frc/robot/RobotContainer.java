@@ -13,15 +13,20 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.SignalLogger;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -31,7 +36,15 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.FieldConstants.ReefSide;
+import frc.robot.commands.CleaningL2Reef;
+import frc.robot.commands.CleaningL3Reef;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.GetCoral;
+import frc.robot.commands.HasCoral;
+import frc.robot.commands.IntakingAlgaeGround;
+import frc.robot.commands.ScoringAlgea;
+import frc.robot.commands.ScoringCoral;
+import frc.robot.commands.ZeroElevator;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ElevatorRoller.IO_ElevatorRollerReal;
 import frc.robot.subsystems.ElevatorRoller.IO_ElevatorRollerSim;
@@ -42,6 +55,7 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.elevator.ElevatorConstants.ELEVATOR_HEIGHT;
 import frc.robot.subsystems.elevator.IO_ElevatorReal;
 import frc.robot.subsystems.elevator.IO_ElevatorSim;
 import frc.robot.subsystems.elevator.SUB_Elevator;
@@ -57,11 +71,10 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
-import frc.robot.util.BeamBreak;
+import frc.robot.util.LoggedTunableNumber;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
-import edu.wpi.first.wpilibj.RobotController;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -82,7 +95,7 @@ public class RobotContainer {
     // Elastic dashboard'a gyro'yu göstermek için ayrı olarak oluşturduk.
     private GyroIOPigeon2 pigeon = new GyroIOPigeon2();
 
-    // Robotun kontrolcünün hız değeri. Hız bu değer ile çarpılır. Bu sayede istediğimiz zaman
+    // Robotun kontrolcünün hız degeri. Hız bu deger ile çarpılır. Bu sayede istedigimiz zaman
     // yavaşlatabiliriz.
     private double speedRate = 1;
 
@@ -90,36 +103,62 @@ public class RobotContainer {
     private boolean coralModeEnabled = true;
     private Trigger isCoralMode = new Trigger(() -> coralModeEnabled);
 
+    private final IntakingAlgaeGround intakingAlgeaGround;
+    private final CleaningL2Reef cleaningl2Reef;
+    private final CleaningL3Reef cleaningl3Reef;
+
+    private final ScoringAlgea scoringAlgae;
+
+    private final ScoringCoral scoringCoralL1;
+    private final ScoringCoral scoringCoralL2;
+    private final ScoringCoral scoringCoralL3;
+    private final ScoringCoral scoringCoralL4;
+
+    private final ZeroElevator zeroElevatorCommand;
 
     /**
-     * Kontrolcüler. 1. porttaki driver'ın kontrolcüsü
-     * 2.porttaki operator'ün kontrolcüsü
-     * 3.porttaki robotu test ederken extra özelliklere ihtiyaç duyduğumuz ve tuş kalmadığı ya da
-     * diğer kontrolcülerin butonlarını değiştirmek istemediğimiz için kullandığımız kontrolcü
+     * Kontrolcüler. 1. porttaki driver'ın kontrolcüsü 2.porttaki operator'ün kontrolcüsü 3.porttaki
+     * robotu test ederken extra özelliklere ihtiyaç duydugumuz ve tuş kalmadıgı ya da diger
+     * kontrolcülerin butonlarını degiştirmek istemedigimiz için kullandıgımız kontrolcü
      */
     private final CommandXboxController driverController =
         new CommandXboxController(Constants.OperatorConstants.kDriverControllerPort);
+
     private final CommandXboxController operatorController =
         new CommandXboxController(Constants.OperatorConstants.kOperatorControllerPort);
     private final CommandXboxController debugController =
         new CommandXboxController(Constants.OperatorConstants.kPracticeControllerPort);
 
-
-    // Eğer kontrolcüler bağlı değilse dashboardda uyarı çıkarır
+    // Eger kontrolcüler baglı degilse dashboardda uyarı çıkarır
     private final Alert driverDisconnected =
-        new Alert("Driver kontrolcüsünün bağlantısı yok!! (port 0).", AlertType.kWarning);
+        new Alert("Driver kontrolcüsünün baglantısı yok!! (port 0).", AlertType.kWarning);
     private final Alert operatorDisconnected =
-        new Alert("Operator kontrolcüsünün bağlantısı yok! (port 1).", AlertType.kWarning);
+        new Alert("Operator kontrolcüsünün baglantısı yok! (port 1).", AlertType.kWarning);
 
     private final Alert debugControllerDisconnected =
-        new Alert("Debug kontrolcüsünün bağlantısı yok! (port 2).", AlertType.kInfo);
+        new Alert("Debug kontrolcüsünün baglantısı yok! (port 2).", AlertType.kInfo);
 
-
-    // Sayaç verilen değerlere geldiğinde controller belli bir süre titreyip sürücüye uyarı verir.
+    private Alert pathFileMissingAlert =
+        new Alert("Could not find the specified path file.", AlertType.kError);
+    // Sayaç verilen degerlere geldiginde controller belli bir süre titreyip sürücüye uyarı verir.
     private final LoggedNetworkNumber endgameAlert1 =
         new LoggedNetworkNumber("/SmartDashboard/Endgame Alert #1", 30.0);
     private final LoggedNetworkNumber endgameAlert2 =
         new LoggedNetworkNumber("/SmartDashboard/Endgame Alert #2", 15.0);
+
+    private static final LoggedTunableNumber processorPivotSetpoint =
+        new LoggedTunableNumber("ProcessorPivot/Processor Pivot Setpoint", 0);
+
+    private static final LoggedTunableNumber elevatorHeightSetpoint =
+        new LoggedTunableNumber("Elevator/Elevator Height Setpoint", 0);
+    private static final LoggedTunableNumber elevatorVolts =
+        new LoggedTunableNumber("Elevator/Elevator Volts", 2);
+    private static final LoggedTunableNumber processorPivotSpeed =
+        new LoggedTunableNumber("ProcessorPivot/Processor Pivot speed", 0.1);
+    private static final LoggedTunableNumber processorRollerVoltage =
+        new LoggedTunableNumber("ProcessorRoller/Processor Roller Voltage", 2);
+    private static final LoggedTunableNumber elevatorRollerSpeed =
+        new LoggedTunableNumber("ElevatorRoller/Elevator Roller speed", 0.3);
 
     // Otonom seçmek için widget
     private final LoggedDashboardChooser<Command> autoChooser;
@@ -127,7 +166,7 @@ public class RobotContainer {
     /** Robot için sarmalayıcı. Subsystems, OI devices, ve commands içerir. */
     public RobotContainer()
     {
-        // Eğer voltaj 6.5 altına düşerse roborio'ya komut gitmez.
+        // Eger voltaj 6.5 altına düşerse roborio'ya komut gitmez.
         RobotController.setBrownoutVoltage(6.5);
 
         switch (Constants.currentMode) {
@@ -191,12 +230,12 @@ public class RobotContainer {
         }
 
         // DriverDashboard'a otonomu seçmek için widget oluşturduk.
-        // TODO: İçine default otonomu ayarlamayı unutma
+        // TODO: Içine default otonomu ayarlamayı unutma
         autoChooser =
             new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser("a"));
 
         // Set up SysId routines
-        // TODO: RUTİNLERİ ÇALIŞTIR
+        // TODO: RUTINLERI ÇALISTIR
         autoChooser.addOption(
             "Drive Wheel Radius Characterization",
             DriveCommands.wheelRadiusCharacterization(drive));
@@ -220,14 +259,60 @@ public class RobotContainer {
 
         autoChooser.addOption("Elevator Characterization", elevator.sysIDCharacterizationRoutine());
 
+        /************
+         * Start Point ************
+         *
+         * useful for initializing the pose of the robot to a known location
+         *
+         */
+
+        Command startPoint =
+            Commands.runOnce(
+                () -> {
+                    try {
+                        drive.setPose(
+                            PathPlannerPath.fromPathFile("Start Point")
+                                .getStartingDifferentialPose());
+                    } catch (Exception e) {
+                        pathFileMissingAlert
+                            .setText("Could not find the specified path file: Start Point");
+                        pathFileMissingAlert.set(true);
+                    }
+                },
+                drive);
+        autoChooser.addOption("Start Point", startPoint);
+
+        zeroElevatorCommand = new ZeroElevator(elevator);
+
+        cleaningl3Reef = new CleaningL3Reef(elevator, processorRoller, processorPivot, leds);
+
+        cleaningl2Reef = new CleaningL2Reef(elevator, processorRoller, processorPivot, leds);
+
+        scoringAlgae = new ScoringAlgea(processorPivot, processorRoller, elevator, leds);
+
+        intakingAlgeaGround =
+            new IntakingAlgaeGround(elevator, processorRoller, processorPivot, leds);
+
+        scoringCoralL1 =
+            new ScoringCoral(elevator, leds, elevatorRoller, ELEVATOR_HEIGHT.CORAL_L1_HEIGHT);
+        scoringCoralL2 =
+            new ScoringCoral(elevator, leds, elevatorRoller, ELEVATOR_HEIGHT.CORAL_L2_HEIGHT);
+        scoringCoralL3 =
+            new ScoringCoral(elevator, leds, elevatorRoller, ELEVATOR_HEIGHT.CORAL_L3_HEIGHT);
+        scoringCoralL4 =
+            new ScoringCoral(elevator, leds, elevatorRoller, ELEVATOR_HEIGHT.CORAL_L4_HEIGHT);
+        new Trigger(elevatorRoller::hasCoral).onTrue(new HasCoral(leds));
+        new Trigger(processorRoller::hasAlgae).onTrue(new HasCoral(leds));
+
         driverControllerBindings();
         operatorContorllerBindings();
         debugControllerBindings();
         registerNamedCommands();
 
         /**
-         * Maç bitimi uyarıları, belirtilen saniyelere geldiğinde ledleri endgame alert moduna alır
-         * ve kontrolcüleri titreştirir.
+         * Maç bitimi uyarıları, belirtilen saniyelere geldiginde ledleri endgame alert moduna alır
+         * ve
+         * kontrolcüleri titreştirir.
          */
         new Trigger(
             () -> DriverStation.isTeleopEnabled()
@@ -267,15 +352,13 @@ public class RobotContainer {
                     () -> -driverController.getLeftX(),
                     () -> new Rotation2d()));
 
-
         /*
-         * X tuşuna basıldığında tekerleklerin hepsini X şekline olur. Bu sayede robotun hareket
-         * etmesi çok zor olur. Belli bir pozisyonda sabit kalmak istediğimizde kullanılır.
+         * X tuşuna basıldıgında tekerleklerin hepsini X şekline olur. Bu sayede robotun hareket
+         * etmesi çok zor olur. Belli bir pozisyonda sabit kalmak istedigimizde kullanılır.
          */
         driverController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-
-        // B butonuna basıldığında gyro'yu resetler.
+        // B butonuna basıldıgında gyro'yu resetler.
         driverController
             .b()
             .onTrue(
@@ -285,9 +368,8 @@ public class RobotContainer {
                     drive)
                     .ignoringDisable(true));
 
-        // Y tuşuna basıldığında speedRate'i toggle eder
-        driverController
-            .y()
+        // Y tuşuna basıldıgında speedRate'i toggle eder
+        driverController.y()
             .onTrue(new InstantCommand(() -> speedRate = (speedRate == 1) ? 0.5 : 1));
 
         // Driver Left Bumper: Face Nearest Reef Face
@@ -326,80 +408,106 @@ public class RobotContainer {
     {
 
         operatorController
-            .leftTrigger()
-            .whileTrue(Commands.run(() -> elevator.setSpeed(0.3), elevator))
-            .onFalse(Commands.runOnce(() -> elevator.setSpeed(0), elevator));
+            .leftBumper()
+            .and(operatorController.rightBumper())
+            .onTrue(Commands.run(() -> elevator.setSpeed(0.3)))
+            .onFalse(Commands.run(() -> elevator.setSpeed(0)));
 
         operatorController
             .leftBumper()
-            .whileTrue(Commands.run(() -> elevator.setSpeed(-0.3), elevator))
-            .onFalse(Commands.runOnce(() -> elevator.setSpeed(0), elevator));
+            .and(operatorController.rightTrigger())
+            .onTrue(Commands.run(() -> elevator.setSpeed(-0.3)))
+            .onFalse(Commands.run(() -> elevator.setSpeed(0)));
 
-        operatorController
-            .rightTrigger()
-            .whileTrue(Commands.run(() -> processorPivot.setSpeed(0.5), processorPivot))
-            .onFalse(Commands.runOnce(() -> processorPivot.setSpeed(0), processorPivot));
+        operatorController.a().and(isCoralMode).onTrue(scoringCoralL1);
+        operatorController.b().and(isCoralMode).onTrue(scoringCoralL2);
+        operatorController.x().and(isCoralMode).onTrue(scoringCoralL3);
+        operatorController.y().and(isCoralMode).onTrue(scoringCoralL4);
 
-        operatorController
-            .rightBumper()
-            .whileTrue(Commands.run(() -> processorPivot.setSpeed(-0.5), processorPivot))
-            .onFalse(Commands.runOnce(() -> processorPivot.setSpeed(0), processorPivot));
+        operatorController.a().and(isCoralMode.negate()).onTrue(intakingAlgeaGround);
+        operatorController.b().and(isCoralMode.negate()).onTrue(cleaningl2Reef);
+        operatorController.x().and(isCoralMode.negate()).onTrue(cleaningl3Reef);
+        operatorController.y().and(isCoralMode.negate()).onTrue(scoringAlgae);
 
-        operatorController
-            .x()
-            .whileTrue(Commands.run(() -> elevatorRoller.setSpeed(0.3), elevatorRoller))
-            .onFalse(Commands.runOnce(() -> elevatorRoller.setSpeed(0), elevatorRoller));
-
-        operatorController
-            .y()
-            .whileTrue(Commands.run(() -> processorRoller.setSpeed(0.3), processorRoller))
-            .onFalse(Commands.runOnce(() -> processorRoller.setSpeed(0), processorRoller));
-
-        operatorController
-            .b()
-            .whileTrue(Commands.run(() -> elevatorRoller.setSpeed(-0.3), elevatorRoller))
-            .onFalse(Commands.runOnce(() -> elevatorRoller.setSpeed(0), elevatorRoller));
         // Driver Right Bumper: Toggle between Coral and Algae Modes.
         // Make sure the Approach nearest reef face does not mess with this
-        operatorController.rightBumper().and(operatorController.leftBumper().negate())
+        operatorController
+            .rightBumper()
+            .and(operatorController.leftBumper().negate())
             .onTrue(setCoralAlgaeModeCommand());
+        operatorController.rightTrigger().onTrue(zeroElevatorCommand);
     }
 
     private void debugControllerBindings()
     {
-        // elevator sysID routines otonom olarakta var.
-        debugController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+        debugController
+            .a()
+            .onTrue(
+                Commands.runOnce(
+                    () -> processorPivot.setPosition(processorPivotSetpoint.getAsDouble())));
 
-        debugController.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
-        debugController.y().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        debugController.a().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-        debugController.b().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        debugController.x().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        debugController
+            .b()
+            .onTrue(
+                Commands
+                    .runOnce(() -> elevator.runPositonRads(elevatorHeightSetpoint.getAsDouble())));
 
-        /*
-         *
-         *
-         * driverController
-         * .x()
-         * .onTrue(Commands.run(() -> elevator.setElevatorVoltage(3), elevator))
-         * .onFalse(Commands.run(() -> elevator.setElevatorVoltage(0), elevator));
-         *
-         * driverController
-         * .b()
-         * .onTrue(Commands.run(() -> elevator.setElevatorVoltage(-3), elevator))
-         * .onFalse(Commands.run(() -> elevator.setElevatorVoltage(0), elevator));
-         *
-         */
+        debugController
+            .x()
+            .onTrue(Commands.run(() -> elevatorRoller.setSpeed(elevatorRollerSpeed.get())))
+            .onFalse(Commands.run(() -> elevatorRoller.setSpeed(0)));
 
+        debugController
+            .start()
+            .onTrue(
+                Commands
+                    .run(() -> processorRoller.setAlgaeIntakeVoltage(processorRollerVoltage.get())))
+            .onFalse(Commands.run(() -> processorRoller.setSpeed(0)));
+
+        debugController
+            .back()
+            .onTrue(
+                Commands.run(
+                    () -> processorRoller.setAlgaeIntakeVoltage(-processorRollerVoltage.get())))
+            .onFalse(Commands.run(() -> processorRoller.setSpeed(0)));
+
+        debugController
+            .rightBumper()
+            .whileTrue(
+                Commands.run(() -> elevator.setElevatorVoltage(Volts.of(elevatorVolts.get()))))
+            .onFalse(Commands.run(() -> elevator.setElevatorVoltage(Volts.of(0))));
+
+        debugController
+            .rightTrigger()
+            .whileTrue(
+                Commands.run(() -> elevator.setElevatorVoltage(Volts.of(-elevatorVolts.get()))))
+            .onFalse(Commands.run(() -> elevator.setElevatorVoltage(Volts.of(0))));
+
+        debugController
+            .leftBumper()
+            .whileTrue(Commands.run(() -> processorPivot.setSpeed(processorPivotSpeed.get())))
+            .onFalse(Commands.run(() -> processorPivot.setSpeed(0)));
+
+        debugController
+            .leftTrigger()
+            .whileTrue(Commands.run(() -> processorPivot.setSpeed(-processorPivotSpeed.get())))
+            .onFalse(Commands.run(() -> processorPivot.setSpeed(0)));
     }
 
     private Command joystickDrive()
     {
+
         return DriveCommands.joystickDrive(
             drive,
-            () -> -driverController.getLeftY() * speedRate,
-            () -> -driverController.getLeftX() * speedRate,
-            () -> -driverController.getRightX() * speedRate);
+            () -> MathUtil.applyDeadband(
+                -driverController.getLeftY(), Constants.OperatorConstants.LEFT_Y_DEADBAND)
+                * speedRate,
+            () -> MathUtil.applyDeadband(
+                -driverController.getLeftX(), Constants.OperatorConstants.LEFT_X_DEADBAND)
+                * speedRate,
+            () -> MathUtil.applyDeadband(
+                -driverController.getRightX(), Constants.OperatorConstants.RIGHT_X_DEADBAND)
+                * speedRate);
     }
 
     private Command joystickDriveAtAngle(Supplier<Rotation2d> angle)
@@ -420,11 +528,26 @@ public class RobotContainer {
 
         // asansör hareket komutu
         NamedCommands.registerCommand(
-            "elevatorZeroPose", Commands.run(() -> elevator.runPositonRads(speedRate)));
-        NamedCommands.registerCommand("L1", Commands.run(() -> elevator.runPositonRads(speedRate)));
-        NamedCommands.registerCommand("L2", Commands.run(() -> elevator.runPositonRads(speedRate)));
-        NamedCommands.registerCommand("L3", Commands.run(() -> elevator.runPositonRads(speedRate)));
-        NamedCommands.registerCommand("L3", Commands.run(() -> elevator.runPositonRads(speedRate)));
+            "elevatorZeroPose",
+            Commands.run(
+                () -> elevator
+                    .setPosition(Meters.of(ELEVATOR_HEIGHT.ZERO_HEIGHT.getHeightInMeters()))));
+        NamedCommands.registerCommand("L1", scoringCoralL1);
+        NamedCommands.registerCommand("L2", scoringCoralL2);
+        NamedCommands.registerCommand("L3", scoringCoralL3);
+        NamedCommands.registerCommand("L4", scoringCoralL4);
+
+        NamedCommands.registerCommand(
+            "align-right",
+            joystickApproach(
+                () -> FieldConstants.getNearestReefBranch(drive.getPose(), ReefSide.RIGHT)));
+        NamedCommands.registerCommand(
+            "align-center",
+            joystickApproach(() -> FieldConstants.getNearestReefFace(drive.getPose())));
+        NamedCommands.registerCommand(
+            "align-left",
+            joystickApproach(
+                () -> FieldConstants.getNearestReefBranch(drive.getPose(), ReefSide.LEFT)));
 
         // asansör roller komutu
         NamedCommands.registerCommand(
@@ -432,6 +555,7 @@ public class RobotContainer {
             Commands.run(() -> elevatorRoller.setSpeed(0.5), elevatorRoller));
         NamedCommands.registerCommand(
             "elatorRollerStop", Commands.run(() -> elevatorRoller.setSpeed(0), elevatorRoller));
+        NamedCommands.registerCommand("getCoral", new GetCoral(elevatorRoller, elevator, leds));
 
         // processor roller komutu
         NamedCommands.registerCommand(
@@ -467,14 +591,11 @@ public class RobotContainer {
             });
     }
 
-
     // Update dashboard data
     public void updateDashboardOutputs()
     {
         SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
     }
-
-
 
     public void updateAlerts()
     {
@@ -498,10 +619,7 @@ public class RobotContainer {
         return autoChooser.get();
     }
 
-
-    /**
-     * Pigeon'u elastic dashboard'a aktarmak için gerekli fonksiyonu burdan alıcaz.
-     */
+    /** Pigeon'u elastic dashboard'a aktarmak için gerekli fonksiyonu burdan alıcaz. */
     public void addPigeonToDashboard()
     {
         pigeon.addToSmartDashboard();

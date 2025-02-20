@@ -48,7 +48,7 @@
   "folder": "üstten",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 126.46923439005187
+    "rotation": -53.334364517308174
   },
   "useDefaultConstraints": true
 }

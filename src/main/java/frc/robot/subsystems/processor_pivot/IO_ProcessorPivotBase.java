@@ -9,7 +9,7 @@ public interface IO_ProcessorPivotBase {
     public double processorPivotAppliedVolts = 0.0;
     public double processorPivotCurrentAmps = 0.0;
     public double processorPivotTempCelcius = 0.0;
-    public double elevatorPositionRad = 0.0;
+    public double processorPivotPositionRads = 0.0;
   }
 
   void updateInputs(ProcessorPivotInputs inputs);
@@ -22,7 +22,7 @@ public interface IO_ProcessorPivotBase {
   /**
    * Motorların hızını ayarlar.
    *
-   * @param speed Çalıştırılmak istenen hız değeri. Değer 0 ile 1 arasında
+   * @param speed Çalıştırılmak istenen hız degeri. Deger 0 ile 1 arasında
    */
   public void setSpeed(double speed);
 
@@ -34,13 +34,13 @@ public interface IO_ProcessorPivotBase {
   public void setPosition(double setPoint);
 
   /**
-   * PID değerlerini değiştirmemizi sağlar. Tuning mod açıkken kullanılır.
+   * PID degerlerini degiştirmemizi saglar. Tuning mod açıkken kullanılır.
    *
-   * @param kP Orantılı kazanç (Proportional gain). Hata ile doğru orantılı bir düzeltme uygular.
+   * @param kP Orantılı kazanç (Proportional gain). Hata ile dogru orantılı bir düzeltme uygular.
    *     Hata arttıkça, daha büyük bir düzeltme uygulanır.
    * @param kI İntegral kazanç (Integral gain). Zaman içinde biriken hatayı düzeltmek için
    *     kullanılır. Sistemde sürekli bir hata oluşuyorsa, bu hatayı sıfırlamak için kullanılır.
-   * @param kD Türevsel kazanç (Derivative gain). Hata değişim hızına göre bir düzeltme uygular.
+   * @param kD Türevsel kazanç (Derivative gain). Hata degişim hızına göre bir düzeltme uygular.
    *     Sistemin aşırı tepki vermesini ve osilasyon yapmasını önlemek için kullanılır.
    */
   public void setPID(double kP, double kI, double kD);

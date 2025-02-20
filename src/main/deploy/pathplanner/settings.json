@@ -7,7 +7,12 @@
     "ortadan",
     "üstten"
   ],
-  "autoFolders": [],
+  "autoFolders": [
+    "tuning",
+    "alt",
+    "orta",
+    "üst"
+  ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 540.0,

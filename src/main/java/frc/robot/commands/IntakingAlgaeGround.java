@@ -7,42 +7,49 @@ package frc.robot.commands;
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.elevator.ElevatorConstants;
+import frc.robot.subsystems.elevator.ElevatorConstants.ELEVATOR_HEIGHT;
 import frc.robot.subsystems.elevator.SUB_Elevator;
 import frc.robot.subsystems.led.SUB_LED;
 import frc.robot.subsystems.led.SUB_LED.LEDState;
+import frc.robot.subsystems.processor_pivot.ProcessorPivotConstants;
 import frc.robot.subsystems.processor_pivot.SUB_ProcessorPivot;
 import frc.robot.subsystems.processor_roller.ProcessorRollerConstants;
 import frc.robot.subsystems.processor_roller.SUB_ProcessorRoller;
 
-public class CleaningL2Reef extends Command {
+/*
+ * You should consider using the more terse Command factories API instead
+ * https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#
+ * defining-commands
+ */
+public class IntakingAlgaeGround extends Command {
+  /** Creates a new IntakingAlgaeGround. */
   SUB_Elevator elevator;
+
   SUB_ProcessorRoller processorRoller;
   SUB_ProcessorPivot processorPivot;
   SUB_LED leds;
 
-  /** Creates a new CleaningL2Reef. */
-  public CleaningL2Reef(
-      SUB_Elevator subElevator,
+  public IntakingAlgaeGround(
+      SUB_Elevator elevator,
       SUB_ProcessorRoller processorRoller,
       SUB_ProcessorPivot processorPivot,
       SUB_LED leds) {
-    this.elevator = subElevator;
+    // Use addRequirements() here to declare subsystem dependencies.
+    this.elevator = elevator;
     this.processorRoller = processorRoller;
     this.processorPivot = processorPivot;
     this.leds = leds;
-    addRequirements(elevator, processorRoller, processorPivot, leds);
+    addRequirements(elevator, processorPivot, processorRoller, leds);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    elevator.setPosition(
-        Meters.of(ElevatorConstants.ELEVATOR_HEIGHT.ALGAE_L2_CLEANING.getHeightInMeters()));
-    processorRoller.setSpeed(ProcessorRollerConstants.kProcessorRollerIntakeSpeed);
-    leds.setState(LEDState.CLEARING_L2);
+    elevator.setPosition(Meters.of(ELEVATOR_HEIGHT.ALGAE_GROUND_INTAKE.getHeightInMeters()));
+    processorRoller.setSpeed(ProcessorRollerConstants.kProcessorRollerGroundIntakeSpeed);
 
-    // processorPivot.setPosition(Constants.constAlgaeIntake.CLEANING_REEF_L2_PIVOT_POSITION);
+    processorPivot.setPosition(ProcessorPivotConstants.INTAKING_ALGEA_GROUND_POSITION);
+    leds.setState(LEDState.INTAKING_ALGEA);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -52,15 +59,12 @@ public class CleaningL2Reef extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if (processorRoller.hasAlgae()) {
-      // processorPivot.setAlgaePivotAngle(constAlgaeIntake.PREP_ALGAE_ZERO_PIVOT_POSITION);
-      // globalElevator.setPosition(Constants.constElevator.PREP_0);
-    }
+    processorPivot.setPosition(ProcessorPivotConstants.ARM_ZERO_POSITION);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return processorRoller.hasAlgae();
   }
 }

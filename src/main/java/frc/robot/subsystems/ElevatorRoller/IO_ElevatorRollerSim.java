@@ -3,10 +3,12 @@ package frc.robot.subsystems.ElevatorRoller;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.robot.Constants;
 
 public class IO_ElevatorRollerSim implements IO_ElevatorRollerBase {
-
+  private final DigitalInput photoelectricSensor = new DigitalInput(Constants.kBeamBreakPort);
   private DCMotorSim elevatorRoller1Motor =
       new DCMotorSim(
           LinearSystemId.createDCMotorSystem(DCMotor.getNeoVortex(1), 0.00032, 1),
@@ -46,5 +48,10 @@ public class IO_ElevatorRollerSim implements IO_ElevatorRollerBase {
     elevatorRoller2MotorAppliedVolts = 0;
     elevatorRoller1Motor.setInputVoltage(elevatorRoller1MotorAppliedVolts);
     elevatorRoller2Motor.setInputVoltage(elevatorRoller2MotorAppliedVolts);
+  }
+
+  @Override
+  public boolean hasCoral() {
+    return photoelectricSensor.get();
   }
 }

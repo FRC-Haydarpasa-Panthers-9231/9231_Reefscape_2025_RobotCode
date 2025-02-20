@@ -5,67 +5,51 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "U1 baslangic - sag ust sol resif "
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.1
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "processorRollerOuttake"
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
+            "pathName": "U1 baslangic - sag ust sol resif "
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "processorRollerOuttake"
-                      }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.1
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "U1 sag ust sol resif - ust feeder sol "
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
+            "name": "align-right"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "l4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "U1 sag ust sol resif - ust feeder sol "
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "getCoral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "U1 ust feeder sol - sol mercan sol "
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "align-left"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "l4"
           }
         }
       ]
