@@ -31,5 +31,5 @@ public interface IO_ProcessorRollerBase {
 
   public double getAlgaeIntakeVoltage();
 
-  public void setAlgaeIntakeVoltage(double voltage);
+  public void setProcessorRollerVoltage(double voltage);
 }

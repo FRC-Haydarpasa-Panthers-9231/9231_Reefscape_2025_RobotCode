@@ -1,7 +1,5 @@
 package frc.robot.subsystems.elevator;
 
-import static edu.wpi.first.units.Units.Meters;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -14,7 +12,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.lib.team3015.subsystem.FaultReporter;
@@ -68,8 +65,11 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
   private final LoggedTunableNumber acceleration =
       new LoggedTunableNumber("Elevator/acceleration", ElevatorConstants.MOTION_MAGIC_ACCELERATION);
 
-  private final LoggedTunableNumber expoKv =
-      new LoggedTunableNumber("Elevator/expo kV", ElevatorConstants.MOTION_MAGIC_EXPO_KV);
+  private final LoggedTunableNumber motionMagicJerk =
+      new LoggedTunableNumber("Elevator/expo_kv", ElevatorConstants.MOTION_MAGIC_JERK);
+
+  private final LoggedTunableNumber expo_kv =
+      new LoggedTunableNumber("Elevator/expo_kv", ElevatorConstants.MOTION_MAGIC_KV);
 
   public IO_ElevatorReal() {
     elevatorMotorLead = new TalonFX(ElevatorConstants.kElevatorMotorLeadID);
@@ -143,8 +143,6 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
     inputs.positionRotations = elevatorPositionStatusSignal.getValueAsDouble();
 
-    inputs.positionMeters =
-        edu.wpi.first.units.Units.Meters.of(elevatorPositionStatusSignal.getValueAsDouble());
     inputs.positionRads = Units.rotationsToRadians(elevatorPositionStatusSignal.getValueAsDouble());
     inputs.velocityLead = leadVelocitySignal.getValueAsDouble();
     inputs.velocityFollower = followerVelocitySignal.getValueAsDouble();
@@ -165,6 +163,8 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
           config.MotionMagic.MotionMagicCruiseVelocity = motionMagic[7];
           config.MotionMagic.MotionMagicAcceleration = motionMagic[8];
           config.MotionMagic.MotionMagicCruiseVelocity = motionMagic[9];
+          config.MotionMagic.MotionMagicJerk = motionMagic[9];
+          config.MotionMagic.MotionMagicExpo_kV = motionMagic[9];
 
           PhoenixUtil.tryUntilOk(
               5,
@@ -180,7 +180,8 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
         kGslot0,
         cruiseVelocity,
         acceleration,
-        expoKv);
+        motionMagicJerk,
+        expo_kv);
   }
 
   @Override
@@ -195,9 +196,9 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
   }
 
   @Override
-  public void setSensorPosition(Distance setpoint) {
-    elevatorMotorLead.setPosition(setpoint.in(Meters));
-    elevatorMotorFollower.setPosition(setpoint.in(Meters));
+  public void setSensorPosition(double setpoint) {
+    elevatorMotorLead.setPosition(setpoint);
+    elevatorMotorFollower.setPosition(setpoint);
   }
 
   @Override
@@ -224,15 +225,8 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
   }
 
   @Override
-  public void setPosition(Distance height) {
-    elevatorMotorLead.setControl(motionMagicPositionRequest.withPosition(height.in(Meters)));
-    elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
-  }
-
-  @Override
-  public void runPositionRads(double positionRad) {
-    elevatorMotorLead.setControl(
-        motionMagicPositionRequest.withPosition(Units.radiansToRotations(positionRad)));
+  public void setPosition(double positionRads) {
+    elevatorMotorLead.setControl(motionMagicPositionRequest.withPosition(positionRads));
     elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
   }
 
@@ -248,8 +242,8 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
   }
 
   @Override
-  public Distance getElevatorPosition() {
-    return edu.wpi.first.units.Units.Meters.of(elevatorMotorLead.getPosition().getValueAsDouble());
+  public double getElevatorPosition() {
+    return elevatorMotorLead.getPosition().getValueAsDouble();
   }
 
   @Override

@@ -26,7 +26,7 @@ public class ElevatorConstants {
       Meters.of(edu.wpi.first.math.util.Units.inchesToMeters(10));
 
   // TODO GEREKİRSE TOLERANSI ARTTIR
-  public static final Distance kTolerance = Meters.of(0.003);
+  public static final double kTolerance = 0.003;
 
   // TODO ELEVATOR YAPILDIKTAN SONRA TAM REDUCTION'I AL
   public static final double kElevatorGearing = 3;
@@ -48,7 +48,7 @@ public class ElevatorConstants {
   public static final double KP_SLOT0 = 0;
   public static final double KI_SLOT0 = 0;
   public static final double KD_SLOT0 = 0;
-  public static final double KS_SLOT0 = 0;
+  public static final double KS_SLOT0 = 0.09;
   public static final double KV_SLOT0 = 0;
   public static final double KA_SLOT0 = 0;
   public static final double KG_SLOT0 = 0;
@@ -59,10 +59,11 @@ public class ElevatorConstants {
   public static final double KS_SLOT1 = 0;
   public static final double KV_SLOT1 = 0;
   public static final double KA_SLOT1 = 0;
-  public static final double KG_SLOT1 = 1;
-  public static final double MOTION_MAGIC_CRUISE_VELOCITY = 1200;
-  public static final double MOTION_MAGIC_ACCELERATION = 400;
-  public static final double MOTION_MAGIC_EXPO_KV = 0.12;
+  public static final double KG_SLOT1 = 0.1;
+  public static final double MOTION_MAGIC_CRUISE_VELOCITY = 80;
+  public static final double MOTION_MAGIC_ACCELERATION = 160;
+  public static final double MOTION_MAGIC_JERK = 1600;
+  public static final double MOTION_MAGIC_KV = 0.2;
 
   public enum ReefBranch {
     L1,
@@ -74,8 +75,8 @@ public class ElevatorConstants {
     ALGAE_2,
   }
 
-  public static final double kForwardLimit = Units.Meters.of(16.412109375).in(Units.Meters);
-  public static final double kReverseLimit = Units.Meters.of(0).in(Units.Meters);
+  public static final double kForwardLimit = 100;
+  public static final double kReverseLimit = 0;
 
   public static TalonFXConfiguration kElavatorConfig = new TalonFXConfiguration();
 
@@ -84,12 +85,10 @@ public class ElevatorConstants {
     kElavatorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     // TODO: SOFTWARE LIMITLERINI BUL VE EKLE
-    kElavatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    kElavatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-        Units.Meters.of(16.412109375).in(Units.Meters);
+    kElavatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
+    kElavatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kForwardLimit;
     kElavatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    kElavatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-        Units.Meters.of(0).in(Units.Meters);
+    kElavatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kReverseLimit;
 
     kElavatorConfig.CurrentLimits.StatorCurrentLimit = 80.0;
     kElavatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -114,13 +113,13 @@ public class ElevatorConstants {
     kElavatorConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
     kElavatorConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
 
-    kElavatorConfig.Slot1.kG = 0.1; // Volts to overcome gravity
-    kElavatorConfig.Slot1.kS = 0.4; // Volts to overcome static friction
-    kElavatorConfig.Slot1.kV = 0.001; // Volts for a velocity target of 1 rps
-    kElavatorConfig.Slot1.kA = 0.0; // Volts for an acceleration of 1 rps/s
-    kElavatorConfig.Slot1.kP = 1200;
-    kElavatorConfig.Slot1.kI = 1;
-    kElavatorConfig.Slot1.kD = 50;
+    kElavatorConfig.Slot1.kG = KG_SLOT1; // Volts to overcome gravity
+    kElavatorConfig.Slot1.kS = KS_SLOT1; // Volts to overcome static friction
+    kElavatorConfig.Slot1.kV = KV_SLOT1; // Volts for a velocity target of 1 rps
+    kElavatorConfig.Slot1.kA = KA_SLOT1; // Volts for an acceleration of 1 rps/s
+    kElavatorConfig.Slot1.kP = KP_SLOT1;
+    kElavatorConfig.Slot1.kI = KI_SLOT1;
+    kElavatorConfig.Slot1.kD = KD_SLOT1;
 
     kElavatorConfig.Slot1.GravityType = GravityTypeValue.Elevator_Static;
 
@@ -129,7 +128,9 @@ public class ElevatorConstants {
     // TODO MOTION MAGIC DEgERLERİNİ DÜZENLE
     kElavatorConfig.MotionMagic.MotionMagicCruiseVelocity = MOTION_MAGIC_CRUISE_VELOCITY;
     kElavatorConfig.MotionMagic.MotionMagicAcceleration = MOTION_MAGIC_ACCELERATION;
-    kElavatorConfig.MotionMagic.MotionMagicExpo_kV = MOTION_MAGIC_EXPO_KV;
+    kElavatorConfig.MotionMagic.MotionMagicJerk = MOTION_MAGIC_JERK;
+    kElavatorConfig.MotionMagic.MotionMagicExpo_kV = MOTION_MAGIC_KV;
+    // kElavatorConfig.MotionMagic.MotionMagicExpo_kV = MOTION_MAGIC_EXPO_KV;
   }
 
   public static TalonFXConfiguration kCoastModeConfiguration = new TalonFXConfiguration();
@@ -146,26 +147,26 @@ public class ElevatorConstants {
   public enum ELEVATOR_HEIGHT {
     ZERO_HEIGHT(0.0),
     ALGAE_GROUND_INTAKE(0.0),
-    CORAL_L1_HEIGHT(19.0),
+    CORAL_L1_HEIGHT(9.0),
     CORAL_L2_HEIGHT(19.0),
-    CORAL_L3_HEIGHT(34.75),
-    CORAL_L4_HEIGHT(0.6),
+    CORAL_L3_HEIGHT(25.75),
+    CORAL_L4_HEIGHT(33),
     ALGAE_PREP_PROCESSOR_HEIGHT(1.0),
     ALGAE_L3_CLEANING(25.0),
     ALGAE_L2_CLEANING(9.0),
     DEADZONE_DISTANCE(1.0),
     CORAL_INTAKE_HEIGHT(0.0);
 
-    private final double heightInMeters;
+    private final double positionRads;
 
     // Constructor for the enum
-    ELEVATOR_HEIGHT(double heightInMeters) {
-      this.heightInMeters = heightInMeters;
+    ELEVATOR_HEIGHT(double positionRads) {
+      this.positionRads = positionRads;
     }
 
     // Getter to retrieve the height value in meters
-    public double getHeightInMeters() {
-      return heightInMeters;
+    public double getPositionRads() {
+      return positionRads;
     }
   }
 
@@ -181,7 +182,7 @@ public class ElevatorConstants {
    * The value that the motor reports when it is at it's zeroed position. This may not necessarily
    * be 0 due to mechanical slop
    */
-  public static final Distance ZEROED_POS = Units.Meters.of(0);
+  public static final double ZEROED_POS = 0;
 
   // TODO: GEREKİSE BU DEgERİ DÜZENLE
   /**

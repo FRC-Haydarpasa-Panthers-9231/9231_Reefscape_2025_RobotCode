@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.7410000000021342,
-        "y": 1.3437499999979559
+        "x": 5.00175,
+        "y": 5.302249999999999
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.9340843514443344,
-        "y": 2.0878036879783863
+        "x": 4.04625,
+        "y": 5.94575
       },
       "isLocked": false,
-      "linkedName": "alt feeder sol "
+      "linkedName": "sag ust sag branch"
     },
     {
       "anchor": {
-        "x": 3.1395000000000004,
-        "y": 3.8495
+        "x": 1.6575,
+        "y": 7.3302499999999995
       },
       "prevControl": {
-        "x": 2.533869123262684,
-        "y": 3.2950015143905027
+        "x": 2.2912500000000002,
+        "y": 6.80375
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "sol resif sag"
+      "linkedName": "ust feeder sag"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 1.2188752351313425
+    "rotation": -52.125016348901774
   },
   "reversed": false,
-  "folder": "alttan",
+  "folder": "üstten p3",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 50.0
+    "rotation": -119.99999999999999
   },
   "useDefaultConstraints": true
 }

@@ -16,6 +16,6 @@ public class ElevatorRollerConstants {
   public static final double kL4ScoringSpeed = 1;
 
   // TODO: SCORE TİME OPTİMİZE OLABİLİRSE OPTİMİZE ET
-  public static final Time kCoralScoreTime = Units.Seconds.of(0.2);
+  public static final Time kCoralScoreTime = Units.Seconds.of(2);
   public static final Time kFeedTimeout = Units.Seconds.of(2);
 }

@@ -1,7 +1,5 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Meters;
-
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -33,16 +31,17 @@ public class ScoringCoral extends SequentialCommandGroup {
 
     addCommands(
         Commands.runOnce(() -> leds.setState(LEDState.SCORING_CORAL)),
-        Commands.run(() -> elevator.setPosition(Meters.of(scoringHeight.getHeightInMeters()))),
+        Commands.runOnce(() -> elevator.setPosition(scoringHeight.getPositionRads())),
         // Asansör dogru konuma geldiginde atış yap
         Commands.waitUntil(() -> elevator.isAtSetPoint()),
         Commands.runOnce(() -> elevatorRoller.setSpeed(getCoralOuttakeSpeed())),
-        Commands.waitUntil(() -> !elevatorRoller.hasCoral()),
+        // Commands.waitUntil(() -> !elevatorRoller.hasCoral()),
         Commands.waitSeconds(ElevatorRollerConstants.kCoralScoreTime.in(Units.Seconds)),
-        Commands.run(
+        Commands.runOnce(() -> elevatorRoller.setSpeed(0), elevatorRoller),
+        Commands.runOnce(
             () ->
                 elevator.setPosition(
-                    Meters.of(ElevatorConstants.ELEVATOR_HEIGHT.ZERO_HEIGHT.getHeightInMeters()))));
+                    ElevatorConstants.ELEVATOR_HEIGHT.ZERO_HEIGHT.getPositionRads())));
 
     addRequirements(elevator, leds, elevatorRoller);
   }

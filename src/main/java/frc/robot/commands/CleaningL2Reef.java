@@ -4,8 +4,6 @@
 
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Meters;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.SUB_Elevator;
@@ -37,8 +35,7 @@ public class CleaningL2Reef extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    elevator.setPosition(
-        Meters.of(ElevatorConstants.ELEVATOR_HEIGHT.ALGAE_L2_CLEANING.getHeightInMeters()));
+    elevator.setPosition(ElevatorConstants.ELEVATOR_HEIGHT.ALGAE_L2_CLEANING.getPositionRads());
     processorRoller.setSpeed(ProcessorRollerConstants.kProcessorRollerIntakeSpeed);
     leds.setState(LEDState.CLEARING_L2);
 

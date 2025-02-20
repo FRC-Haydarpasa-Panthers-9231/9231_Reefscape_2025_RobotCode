@@ -14,6 +14,12 @@ public class SUB_ProcessorPivot extends SubsystemBase {
   private static final LoggedTunableNumber kI = new LoggedTunableNumber("Processor_Pivot/kI", 0);
   private static final LoggedTunableNumber kD = new LoggedTunableNumber("Processor_Pivot/kD", 0);
 
+  private static final LoggedTunableNumber processorPivotDebugSetpoint =
+      new LoggedTunableNumber("ProcessorPivot/Processor Pivot Setpoint", 0);
+
+  private static final LoggedTunableNumber processorPivotDebugSpeed =
+      new LoggedTunableNumber("ProcessorPivot/Processor Pivot speed", 0.1);
+
   private double setpointVal;
 
   public SUB_ProcessorPivot(IO_ProcessorPivotBase io) {
@@ -36,6 +42,12 @@ public class SUB_ProcessorPivot extends SubsystemBase {
     io.setSpeed(speed);
   }
 
+  public void setDebugSpeed(boolean isDirectionPositive) {
+
+    int directionVal = isDirectionPositive ? 1 : -1;
+    io.setSpeed(processorPivotDebugSpeed.getAsDouble() * directionVal);
+  }
+
   public void stopMotor() {
     io.stopMotor();
   }
@@ -47,5 +59,11 @@ public class SUB_ProcessorPivot extends SubsystemBase {
   public void setPosition(double setPoint) {
     io.setPosition(setPoint);
     setpointVal = setPoint;
+  }
+
+  public void setDebugPosition() {
+
+    io.setPosition(processorPivotDebugSetpoint.getAsDouble());
+    setpointVal = processorPivotDebugSetpoint.getAsDouble();
   }
 }

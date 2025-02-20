@@ -1,12 +1,15 @@
 package frc.robot.subsystems.processor_roller;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
 public class SUB_ProcessorRoller extends SubsystemBase {
 
   private final IO_ProcessorRollerBase io;
   public final ProcessorRollerInputsAutoLogged inputs = new ProcessorRollerInputsAutoLogged();
+  private static final LoggedTunableNumber processorRollerVoltage =
+      new LoggedTunableNumber("ProcessorRoller/Processor Roller Voltage", 2);
 
   public SUB_ProcessorRoller(IO_ProcessorRollerBase io) {
     this.io = io;
@@ -30,8 +33,13 @@ public class SUB_ProcessorRoller extends SubsystemBase {
     return io.hasAlgae();
   }
 
-  public void setAlgaeIntakeVoltage(double voltage) {
-    io.setAlgaeIntakeVoltage(voltage);
+  public void setProcessorRollerVoltage(double voltage) {
+    io.setProcessorRollerVoltage(voltage);
+  }
+
+  public void setProcessorRollerDebugVoltage(boolean directionPositive) {
+    int directionVal = directionPositive ? 1 : -1;
+    io.setProcessorRollerVoltage(processorRollerVoltage.getAsDouble() * directionVal);
   }
 
   public double getAlgaeIntakeVoltage() {

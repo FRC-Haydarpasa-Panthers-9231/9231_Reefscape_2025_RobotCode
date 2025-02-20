@@ -4,8 +4,6 @@
 
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Meters;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.elevator.ElevatorConstants.ELEVATOR_HEIGHT;
 import frc.robot.subsystems.elevator.SUB_Elevator;
@@ -45,7 +43,7 @@ public class IntakingAlgaeGround extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    elevator.setPosition(Meters.of(ELEVATOR_HEIGHT.ALGAE_GROUND_INTAKE.getHeightInMeters()));
+    elevator.setPosition(ELEVATOR_HEIGHT.ALGAE_GROUND_INTAKE.getPositionRads());
     processorRoller.setSpeed(ProcessorRollerConstants.kProcessorRollerGroundIntakeSpeed);
 
     processorPivot.setPosition(ProcessorPivotConstants.INTAKING_ALGEA_GROUND_POSITION);

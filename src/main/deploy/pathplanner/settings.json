@@ -5,15 +5,16 @@
   "pathFolders": [
     "alttan",
     "ortadan",
-    "üstten"
+    "üstten p2 ",
+    "üstten p3"
   ],
   "autoFolders": [
-    "tuning",
     "alt",
     "orta",
-    "üst"
+    "tuning",
+    "ust"
   ],
-  "defaultMaxVel": 3.0,
+  "defaultMaxVel": 5.0,
   "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 720.0,
@@ -21,10 +22,10 @@
   "robotMass": 54.088,
   "robotMOI": 6.88,
   "robotTrackwidth": 0.546,
-  "driveWheelRadius": 0.048,
+  "driveWheelRadius": 0.051,
   "driveGearing": 6.12,
-  "maxDriveSpeed": 5.21208,
-  "driveMotorType": "krakenX60",
+  "maxDriveSpeed": 5.212,
+  "driveMotorType": "krakenX60FOC",
   "driveCurrentLimit": 60.0,
   "wheelCOF": 1.19,
   "flModuleX": 0.273,

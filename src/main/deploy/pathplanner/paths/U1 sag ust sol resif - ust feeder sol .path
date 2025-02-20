@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.031000000000001,
-        "y": 5.28275
+        "x": 5.00175,
+        "y": 5.302249999999999
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.043532786885247,
-        "y": 5.972362704918034
+        "x": 4.014282786885246,
+        "y": 5.991862704918033
       },
       "isLocked": false,
-      "linkedName": "sag ust sol branch"
+      "linkedName": "sag ust sag branch"
     },
     {
       "anchor": {
@@ -38,7 +38,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 5.0,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -50,10 +50,10 @@
     "rotation": -53.334364517308174
   },
   "reversed": false,
-  "folder": "üstten",
+  "folder": "üstten p2 ",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -118.61045966596518
+    "rotation": -119.99999999999999
   },
   "useDefaultConstraints": true
 }

@@ -1,9 +1,6 @@
 package frc.robot.subsystems.elevator;
 
-import static edu.wpi.first.units.Units.Meters;
-
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -27,8 +24,6 @@ public interface IO_ElevatorBase {
 
     double closedLoopReference = 0.0;
 
-    Distance positionMeters = Meters.of(0);
-
     double positionRotations = 0.0;
     double positionRads = 0.0;
 
@@ -45,9 +40,9 @@ public interface IO_ElevatorBase {
    */
   public void setElevatorVoltage(Voltage volts);
 
-  public Distance getElevatorPosition();
+  public double getElevatorPosition();
 
-  public void setSensorPosition(Distance setpoint);
+  public void setSensorPosition(double setpoint);
 
   /**
    * Asansörün hızını ayarlar
@@ -59,8 +54,6 @@ public interface IO_ElevatorBase {
   /** Asansör motorlarını durdurur. */
   public void stopMotor();
 
-  public void runPositionRads(double rads);
-
   public AngularVelocity getRotorVelocity();
 
   public void setNeutral();
@@ -71,5 +64,5 @@ public interface IO_ElevatorBase {
 
   public void setSoftwareLimits(boolean reverseLimitEnable, boolean forwardLimitEnable);
 
-  public void setPosition(Distance height);
+  public void setPosition(double setpoint);
 }

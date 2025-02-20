@@ -251,7 +251,9 @@ public class Robot extends LoggedRobot {
      * Otonom dashboard'ı ilk dashboard oldugu için otonom başladıgında otomatik olarak dashboard'ı
      * ayarlar.
      */
-    Elastic.selectTab(0);
+    if (!Constants.debug && Constants.kIsCompetition && !Constants.tuningMode) {
+      Elastic.selectTab(0);
+    }
 
     // Otonom zamanlayıcısını başlatır.
     autoStart = Timer.getFPGATimestamp();
@@ -280,7 +282,9 @@ public class Robot extends LoggedRobot {
     }
 
     // Teleop dashboard'ı 1.tab oldugu için otomatik olarak 1.tab'ı seçer.
-    Elastic.selectTab(1);
+    if (!Constants.debug && Constants.kIsCompetition && !Constants.tuningMode) {
+      Elastic.selectTab(1);
+    }
   }
 
   /** This function is called periodically during operator control. */

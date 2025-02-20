@@ -13,13 +13,7 @@
         {
           "type": "named",
           "data": {
-            "name": "align-right"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "l4"
+            "name": "L4"
           }
         },
         {
@@ -31,7 +25,7 @@
         {
           "type": "named",
           "data": {
-            "name": "getCoral"
+            "name": "elevatorZeroPose"
           }
         },
         {
@@ -43,19 +37,25 @@
         {
           "type": "named",
           "data": {
-            "name": "align-left"
+            "name": "L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "U1 sol mercan sol - ust feeder sol   "
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "l4"
+            "name": "elevatorZeroPose"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "ust",
   "choreoAuto": false
 }

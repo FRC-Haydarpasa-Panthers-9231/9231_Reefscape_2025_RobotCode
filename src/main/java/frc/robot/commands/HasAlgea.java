@@ -25,7 +25,7 @@ public class HasAlgea extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    processorRoller.setAlgaeIntakeVoltage(ProcessorRollerConstants.kHoldalgeaIntakeVoltage);
+    processorRoller.setProcessorRollerVoltage(ProcessorRollerConstants.kHoldalgeaIntakeVoltage);
   }
 
   @Override

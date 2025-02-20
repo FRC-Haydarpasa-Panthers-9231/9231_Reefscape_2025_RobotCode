@@ -95,7 +95,7 @@ public class IO_ProcessorRollerReal implements IO_ProcessorRollerBase {
     return processorRoller.getAppliedOutput() * processorRoller.getBusVoltage();
   }
 
-  public void setAlgaeIntakeVoltage(double voltage) {
+  public void setProcessorRollerVoltage(double voltage) {
     processorRoller.setVoltage(MathUtil.clamp(voltage, -12, 12));
   }
 }

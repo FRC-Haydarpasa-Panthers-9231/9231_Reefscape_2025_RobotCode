@@ -3,19 +3,18 @@ package frc.robot.subsystems.elevator;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.SignalLogger;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
 public class SUB_Elevator extends SubsystemBase {
 
-  private Distance lastDesiredPosition;
+  private double lastDesiredPosition;
 
   public boolean attemptingZeroing = false;
   public boolean hasZeroed = false;
@@ -25,10 +24,15 @@ public class SUB_Elevator extends SubsystemBase {
   private final IO_ElevatorBase io;
   public final ElevatorInputsAutoLogged inputs = new ElevatorInputsAutoLogged();
 
+  private static final LoggedTunableNumber elevatorHeightSetpoint =
+      new LoggedTunableNumber("Elevator/Elevator Height Setpoint", 0);
+  private static final LoggedTunableNumber elevatorDebugVolts =
+      new LoggedTunableNumber("Elevator/Elevator Volts", 2);
+
   public SUB_Elevator(IO_ElevatorBase io) {
     this.io = io;
 
-    lastDesiredPosition = Units.Meters.of(0);
+    lastDesiredPosition = 0;
 
     sysIdRoutine =
         new SysIdRoutine(
@@ -57,13 +61,17 @@ public class SUB_Elevator extends SubsystemBase {
     io.setElevatorVoltage(volts);
   }
 
+  public void setElevatorDebugVoltage() {
+    io.setElevatorVoltage(Volts.of(elevatorDebugVolts.getAsDouble()));
+  }
+
   /**
    * Kraken encoderlarını belirli bir degere atamak için kullanılır. Kullanım alanı genelde
    * encoder'ı sıfırlamak ve default pozisyon atamaktır.
    *
    * @param setpoint enconder'ın ayarlanacagı deger
    */
-  public void setEncoderPosition(Distance setpoint) {
+  public void setEncoderPosition(double setpoint) {
     io.setSensorPosition(setpoint);
   }
 
@@ -79,18 +87,14 @@ public class SUB_Elevator extends SubsystemBase {
     return Commands.sequence(
         Commands.runOnce(() -> SignalLogger.start()),
         sysIdQuasistatic(SysIdRoutine.Direction.kForward)
-            .until(() -> getPosition().magnitude() == ElevatorConstants.kForwardLimit),
+            .until(() -> getPosition() == ElevatorConstants.kForwardLimit),
         sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
-            .until(() -> getPosition().magnitude() == ElevatorConstants.kReverseLimit),
+            .until(() -> getPosition() == ElevatorConstants.kReverseLimit),
         sysIdDynamic(SysIdRoutine.Direction.kForward)
-            .until(() -> getPosition().magnitude() == ElevatorConstants.kForwardLimit),
+            .until(() -> getPosition() == ElevatorConstants.kForwardLimit),
         sysIdDynamic(SysIdRoutine.Direction.kReverse)
-            .until(() -> getPosition().magnitude() == ElevatorConstants.kReverseLimit),
+            .until(() -> getPosition() == ElevatorConstants.kReverseLimit),
         Commands.runOnce(() -> SignalLogger.stop()));
-  }
-
-  public void runPositonRads(double positionRads) {
-    io.runPositionRads(positionRads);
   }
 
   public void setSpeed(double speed) {
@@ -102,17 +106,18 @@ public class SUB_Elevator extends SubsystemBase {
     io.stopMotor();
   }
 
-  public Distance getLastDesiredPosition() {
+  public double getLastDesiredPosition() {
     return lastDesiredPosition;
   }
 
   public boolean isAtSetPoint() {
-    return (io.getElevatorPosition()
-                .compareTo(getLastDesiredPosition().minus(ElevatorConstants.kTolerance))
-            > 0)
-        && io.getElevatorPosition()
-                .compareTo(getLastDesiredPosition().plus(ElevatorConstants.kTolerance))
-            < 0;
+    double currentPosition = io.getElevatorPosition(); // Elevator pozisyonunu double olarak al
+    double tolerance = ElevatorConstants.kTolerance; // Tolerans değeri (double olarak
+    // varsayıyoruz)
+    double targetPosition = getLastDesiredPosition(); // Hedef pozisyon
+
+    return (currentPosition > targetPosition - tolerance)
+        && (currentPosition < targetPosition + tolerance);
   }
 
   public void setCoastMode(Boolean coastMode) {
@@ -123,23 +128,23 @@ public class SUB_Elevator extends SubsystemBase {
     io.setNeutral();
   }
 
-  public void setPosition(Distance height) {
-    io.setPosition(height);
-  }
-
-  public void runPositionRads(double positionRad) {
-    io.runPositionRads(positionRad);
+  public void setPosition(double positionRad) {
+    io.setPosition(positionRad);
   }
 
   public void setSoftwareLimits(boolean reverseLimitEnable, boolean forwardLimitEnable) {
     io.setSoftwareLimits(reverseLimitEnable, forwardLimitEnable);
   }
 
+  public void setPositionDebug() {
+    io.setPosition(elevatorHeightSetpoint.getAsDouble());
+  }
+
   public AngularVelocity getRotorVelocity() {
     return io.getRotorVelocity();
   }
 
-  public Distance getPosition() {
+  public double getPosition() {
     return io.getElevatorPosition();
   }
 

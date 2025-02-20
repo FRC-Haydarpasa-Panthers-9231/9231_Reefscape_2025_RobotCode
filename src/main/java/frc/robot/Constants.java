@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 public final class Constants {
   public static final double loopPeriodSecs = 0.02;
   public static final boolean tuningMode = true;
+  public static final boolean debug = true;
+
   public static final boolean DEMO_MODE = false;
   public static final boolean kIsCompetition = false;
 

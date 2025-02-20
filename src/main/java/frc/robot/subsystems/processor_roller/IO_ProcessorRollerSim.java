@@ -79,7 +79,7 @@ public class IO_ProcessorRollerSim implements IO_ProcessorRollerBase {
     return processorRoller1MotorAppliedVolts;
   }
 
-  public void setAlgaeIntakeVoltage(double voltage) {
+  public void setProcessorRollerVoltage(double voltage) {
     processorRoller1MotorAppliedVolts = MathUtil.clamp(voltage, -12, 12);
     processorRoller1Motor.setInputVoltage(processorRoller1MotorAppliedVolts);
   }
