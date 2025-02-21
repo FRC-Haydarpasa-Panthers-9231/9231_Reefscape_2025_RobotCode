@@ -2,8 +2,7 @@ package frc.robot.util;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.spark.SparkBase;
-import frc.robot.util.Elastic.Notification;
-import frc.robot.util.Elastic.Notification.NotificationLevel;
+import edu.wpi.first.wpilibj.Alert;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
@@ -37,17 +36,14 @@ public class SparkUtil {
   }
 
   public static void tryUntilOk(
-      SparkBase spark, int maxAttempts, Supplier<REVLibError> command, String errorLocation) {
+      SparkBase spark, int maxAttempts, Supplier<REVLibError> command, Alert configAlert) {
     for (int i = 0; i < maxAttempts; i++) {
       var error = command.get();
       if (error == REVLibError.kOk) {
         break;
       } else {
-        Elastic.sendNotification(
-            new Notification(
-                NotificationLevel.ERROR,
-                "NEO Motoru ayarlanırken Hata: " + errorLocation,
-                "Kodu ve donanımı kontrol edin!"));
+        configAlert.set(true);
+
         sparkStickyFault = true;
       }
     }

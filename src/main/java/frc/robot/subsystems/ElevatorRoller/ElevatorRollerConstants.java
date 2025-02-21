@@ -6,8 +6,9 @@ import edu.wpi.first.units.measure.Time;
 public class ElevatorRollerConstants {
 
   // TODO: PORTLARI KONTROL ET VE DOgRU PORTLARI ATA
-  public static final int kElevatorRollerMotor1Port = 1;
-  public static final int kElevatorRollerMotor2Port = 1;
+  public static final int kElevatorRollerMotor1Port = 20;
+  public static final int kElevatorRollerMotor2Port = 21;
+  public static final String kSubsystemName = "Elevator Roller";
 
   // TODO SCORİNG SPEEDLERİ ÖLÇ
   public static final double kL1ScoringSpeed = 1;

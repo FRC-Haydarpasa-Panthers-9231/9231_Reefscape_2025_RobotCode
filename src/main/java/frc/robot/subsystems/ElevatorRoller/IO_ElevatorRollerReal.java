@@ -6,7 +6,10 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DigitalInput;
+import frc.lib.team3015.subsystem.FaultReporter;
 import frc.robot.Constants;
 import frc.robot.util.SparkUtil;
 
@@ -15,6 +18,8 @@ public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
   private SparkMax elevatorRoller1Motor;
   private SparkMax elevatorRoller2Motor;
   private final DigitalInput photoelectricSensor = new DigitalInput(Constants.kBeamBreakPort);
+  private final Alert configAlert =
+      new Alert("Elevator Roller için config ayarlanırken bir hata oluştu.", AlertType.kError);
 
   public IO_ElevatorRollerReal() {
     elevatorRoller1Motor =
@@ -33,7 +38,7 @@ public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
                     .inverted(false),
                 ResetMode.kNoResetSafeParameters,
                 PersistMode.kPersistParameters),
-        super.getClass().getName());
+        configAlert);
 
     SparkUtil.tryUntilOk(
         elevatorRoller2Motor,
@@ -41,13 +46,24 @@ public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
         () ->
             elevatorRoller2Motor.configure(
                 new SparkMaxConfig()
-                    .idleMode(IdleMode.kCoast)
+                    .idleMode(IdleMode.kBrake)
                     .smartCurrentLimit(50)
                     .inverted(true)
                     .follow(elevatorRoller1Motor),
                 ResetMode.kNoResetSafeParameters,
                 PersistMode.kPersistParameters),
-        super.getClass().getName());
+        configAlert);
+
+    FaultReporter.getInstance()
+        .registerHardware(
+            ElevatorRollerConstants.kSubsystemName,
+            "Elevator Roller Motor 1",
+            elevatorRoller1Motor);
+    FaultReporter.getInstance()
+        .registerHardware(
+            ElevatorRollerConstants.kSubsystemName,
+            "Elevator Roller Motor 2",
+            elevatorRoller2Motor);
   }
 
   @Override

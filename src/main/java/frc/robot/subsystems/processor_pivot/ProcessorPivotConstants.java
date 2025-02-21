@@ -1,9 +1,12 @@
 package frc.robot.subsystems.processor_pivot;
 
 public class ProcessorPivotConstants {
+
+  public static final String kSubsystemName = "Processor Pivot";
+
   // TODO: motor IDsini ve channel idsini ata
-  public static final int kProcessorPivotMotorID = 1;
-  public static final int kProcessorPivotEncoderChannel = 14;
+  public static final int kProcessorPivotMotorID = 22;
+  public static final int kProcessorPivotEncoderChannel = 23;
 
   // TODO İNVERTLENİP İNVERTLENMEYECEgİNE KARAR VER.
   public static final boolean kIsInverted = false;

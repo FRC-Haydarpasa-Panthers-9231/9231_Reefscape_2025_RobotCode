@@ -85,16 +85,21 @@ public class SUB_Elevator extends SubsystemBase {
 
   public Command sysIDCharacterizationRoutine() {
     return Commands.sequence(
-        Commands.runOnce(() -> SignalLogger.start()),
-        sysIdQuasistatic(SysIdRoutine.Direction.kForward)
-            .until(() -> getPosition() == ElevatorConstants.kForwardLimit),
-        sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
-            .until(() -> getPosition() == ElevatorConstants.kReverseLimit),
-        sysIdDynamic(SysIdRoutine.Direction.kForward)
-            .until(() -> getPosition() == ElevatorConstants.kForwardLimit),
-        sysIdDynamic(SysIdRoutine.Direction.kReverse)
-            .until(() -> getPosition() == ElevatorConstants.kReverseLimit),
-        Commands.runOnce(() -> SignalLogger.stop()));
+            Commands.runOnce(() -> SignalLogger.start()).withName("Signal Logger Start"),
+            sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+                .withName("Elevator SysId Quastatic Forward")
+                .until(() -> io.getForwardSoftLimitTriggered()),
+            sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+                .withName("Elevator SysId Quastatic Reverse")
+                .until(() -> io.getReverseSoftLimitTriggered()),
+            sysIdDynamic(SysIdRoutine.Direction.kForward)
+                .withName("Elevator SysId Dynamic Forward")
+                .until(() -> io.getForwardSoftLimitTriggered()),
+            sysIdDynamic(SysIdRoutine.Direction.kReverse)
+                .withName("Elevator SysId Dynamic Reverse")
+                .until(() -> io.getReverseSoftLimitTriggered()),
+            Commands.runOnce(() -> SignalLogger.stop()).withName("Signal Logger Stop"))
+        .withName("Elevator SysId Characterization Routine");
   }
 
   public void setSpeed(double speed) {

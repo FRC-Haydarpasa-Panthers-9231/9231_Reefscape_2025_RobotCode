@@ -7,10 +7,16 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import frc.lib.team3015.subsystem.FaultReporter;
 import frc.robot.util.SparkUtil;
 import org.littletonrobotics.junction.Logger;
 
 public class IO_ProcessorRollerReal implements IO_ProcessorRollerBase {
+
+  private final Alert configAlert =
+      new Alert("Processor Roller için config ayarlanırken bir hata oluştu.", AlertType.kError);
 
   private SparkMax processorRoller;
 
@@ -25,13 +31,13 @@ public class IO_ProcessorRollerReal implements IO_ProcessorRollerBase {
         5,
         () ->
             processorRoller.configure(
-                new SparkMaxConfig()
-                    .idleMode(IdleMode.kBrake)
-                    .smartCurrentLimit(50)
-                    .inverted(false),
+                new SparkMaxConfig().idleMode(IdleMode.kBrake).smartCurrentLimit(50),
                 ResetMode.kNoResetSafeParameters,
                 PersistMode.kPersistParameters),
-        super.getClass().getName());
+        configAlert);
+    FaultReporter.getInstance()
+        .registerHardware(
+            ProcessorRollerConstants.kSubsystemName, "Processor Roller Motor ", processorRoller);
   }
 
   @Override

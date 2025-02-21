@@ -40,6 +40,8 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.generated.TunerConstants;
 import java.util.Queue;
 
@@ -50,6 +52,10 @@ import java.util.Queue;
  * <p>Device configuration and other behaviors not exposed by TunerConstants can be customized here.
  */
 public class ModuleIOTalonFX implements ModuleIO {
+
+  private final Alert configAlert =
+      new Alert("Swerve Motor için config ayarlanırken bir hata oluştu.", AlertType.kError);
+
   private final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       constants;
@@ -115,9 +121,8 @@ public class ModuleIOTalonFX implements ModuleIO {
         constants.DriveMotorInverted
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
-    tryUntilOk(
-        5, () -> driveTalon.getConfigurator().apply(driveConfig, 0.25), super.getClass().getName());
-    tryUntilOk(5, () -> driveTalon.setPosition(0.0, 0.25), super.getClass().getName());
+    tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig, 0.25), configAlert);
+    tryUntilOk(5, () -> driveTalon.setPosition(0.0, 0.25), configAlert);
 
     // Configure turn motor
     var turnConfig = new TalonFXConfiguration();
@@ -143,8 +148,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         constants.SteerMotorInverted
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
-    tryUntilOk(
-        5, () -> turnTalon.getConfigurator().apply(turnConfig, 0.25), super.getClass().getName());
+    tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig, 0.25), configAlert);
 
     // Configure CANCoder
     CANcoderConfiguration cancoderConfig = constants.EncoderInitialConfigs;

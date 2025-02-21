@@ -13,6 +13,9 @@
 
 package frc.robot.commands;
 
+import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -40,7 +43,6 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class DriveCommands {
-  // TODO: BU DEĞERLERİ BUL
   private static final double DEADBAND = 0.1;
   private static final double ANGLE_KP = 5.0;
   private static final double ANGLE_KD = 0.4;
@@ -50,6 +52,8 @@ public class DriveCommands {
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
+
+  private final SwerveRequest.RobotCentric robotCentricDrive = new SwerveRequest.RobotCentric();
 
   private DriveCommands() {}
 
@@ -82,7 +86,7 @@ public class DriveCommands {
               getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
           // Apply rotation deadband
-          double omega = omegaSupplier.getAsDouble();
+          double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
 
           // Square rotation value for more precise control
           omega = Math.copySign(omega * omega, omega);
@@ -170,12 +174,9 @@ public class DriveCommands {
       Drive drive, DoubleSupplier ySupplier, Supplier<Pose2d> approachSupplier) {
 
     // Create PID controller
-    ProfiledPIDController angleController =
-        new ProfiledPIDController(
-            ANGLE_KP,
-            0.0,
-            ANGLE_KD,
-            new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
+    TuneableProfiledPID angleController =
+        new TuneableProfiledPID(
+            "angleController", ANGLE_KP, 0.0, ANGLE_KD, ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION);
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
     TuneableProfiledPID alignController =
@@ -206,6 +207,8 @@ public class DriveCommands {
               Translation2d offsetVector =
                   new Translation2d(alignController.calculate(distanceToGoal), 0)
                       .rotateBy(robotToGoal.getAngle());
+
+              Logger.recordOutput("AlignDebug/Current", distanceToGoal);
 
               // Calculate total linear velocity
               Translation2d linearVelocity =
@@ -377,5 +380,26 @@ public class DriveCommands {
     double[] positions = new double[4];
     Rotation2d lastAngle = new Rotation2d();
     double gyroDelta = 0.0;
+  }
+
+  public static Command pathfindingCommandToPose(
+      double xPos, double yPos, double rotation, Drive drive) {
+    // Since we are using a holonomic drivetrain, the rotation component of this pose
+    // represents the goal holonomic rotation
+    Pose2d targetPose = new Pose2d(xPos, yPos, Rotation2d.fromDegrees(rotation));
+
+    // Create the constraints to use while pathfinding
+    PathConstraints constraints =
+        new PathConstraints(
+            drive.getMaxLinearSpeedMetersPerSec(), drive.getMaxAngularSpeedRadPerSec(),
+            Units.degreesToRadians(540), Units.degreesToRadians(720));
+
+    // Since AutoBuilder is configured, we can use it to build pathfinding commands
+    Command pathfindingCommand =
+        AutoBuilder.pathfindToPoseFlipped(
+            targetPose, constraints, 0.0 // Goal end velocity in meters/sec
+            );
+
+    return pathfindingCommand;
   }
 }

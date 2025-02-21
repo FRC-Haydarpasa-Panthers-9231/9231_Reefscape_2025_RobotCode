@@ -5,6 +5,7 @@ import static frc.robot.subsystems.elevator.ElevatorConstants.kElevatorGearing;
 import static frc.robot.subsystems.elevator.ElevatorConstants.kElevatorTeeth;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -21,6 +22,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.lib.team3015.subsystem.FaultReporter;
@@ -57,6 +60,11 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
   private StatusSignal<Temperature> elevatorLeadTempStatusSignal;
   private StatusSignal<Temperature> elevatorFollowerTempStatusSignal;
 
+  private StatusSignal<Boolean> elevatorForwardSoftLimitTriggeredSignal;
+  private StatusSignal<Boolean> elevatorReverseSoftLimitTriggeredSignal;
+  private StatusSignal<AngularVelocity> leadVelocitySignal;
+  private StatusSignal<AngularVelocity> followerVelocitySignal;
+
   private final LoggedTunableNumber kPslot1 =
       new LoggedTunableNumber("Elevator/kPslot1", ElevatorConstants.KP_SLOT1);
   private final LoggedTunableNumber kIslot1 =
@@ -81,6 +89,10 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
   private final LoggedTunableNumber expo_kv =
       new LoggedTunableNumber("Elevator/expo_kv", MOTION_MAGIC_ACCELERATION);
 
+  private final Alert configAlert =
+      new Alert("Elevator için config ayarlanırken bir hata oluştu.", AlertType.kError);
+  private Alert refreshAlert = new Alert("Failed to refresh all signals.", AlertType.kError);
+
   public IO_ElevatorSim() {
     elevatorMotorLead = new TalonFX(ElevatorConstants.kElevatorMotorLeadID);
     elevatorMotorFollower = new TalonFX(ElevatorConstants.kElevatorMotorFollowerID);
@@ -99,15 +111,21 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
     elevatorLeadTempStatusSignal = elevatorMotorLead.getDeviceTemp();
     elevatorFollowerTempStatusSignal = elevatorMotorFollower.getDeviceTemp();
 
+    elevatorForwardSoftLimitTriggeredSignal = elevatorMotorLead.getFault_ForwardSoftLimit();
+    elevatorReverseSoftLimitTriggeredSignal = elevatorMotorLead.getFault_ReverseSoftLimit();
+
+    leadVelocitySignal = elevatorMotorLead.getRotorVelocity();
+    followerVelocitySignal = elevatorMotorFollower.getRotorVelocity();
+
     PhoenixUtil.tryUntilOk(
         5,
         () -> elevatorMotorLead.getConfigurator().apply(ElevatorConstants.kElavatorConfig),
-        super.getClass().getName());
+        configAlert);
 
     PhoenixUtil.tryUntilOk(
         5,
         () -> elevatorMotorFollower.getConfigurator().apply(ElevatorConstants.kElavatorConfig),
-        super.getClass().getName());
+        configAlert);
 
     FaultReporter.getInstance()
         .registerHardware(
@@ -116,6 +134,24 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
     FaultReporter.getInstance()
         .registerHardware(
             ElevatorConstants.kSubsystemName, "Elevator Motor Follower", elevatorMotorLead);
+
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0,
+        elevatorPositionStatusSignal,
+        leadStatorCurrent,
+        followerStatorCurrent,
+        leadSupplyCurrent,
+        followerSupplyCurrent,
+        leadVoltageSupplied,
+        followerVoltageSupplied,
+        elevatorLeadTempStatusSignal,
+        elevatorFollowerTempStatusSignal,
+        leadVelocitySignal,
+        followerVelocitySignal);
+
+    // Optimize CAN bus usage for all devices
+    elevatorMotorLead.optimizeBusUtilization(4, 0.1);
+    elevatorMotorFollower.optimizeBusUtilization(4, 0.1);
 
     elevatorSim =
         new ElevatorSim(
@@ -133,16 +169,23 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
 
   @Override
   public void updateInputs(ElevatorInputs inputs) {
-    BaseStatusSignal.refreshAll(
-        elevatorPositionStatusSignal,
-        leadStatorCurrent,
-        followerStatorCurrent,
-        leadSupplyCurrent,
-        followerSupplyCurrent,
-        leadVoltageSupplied,
-        followerVoltageSupplied,
-        elevatorLeadTempStatusSignal,
-        elevatorFollowerTempStatusSignal);
+    StatusCode status =
+        BaseStatusSignal.refreshAll(
+            elevatorPositionStatusSignal,
+            leadStatorCurrent,
+            followerStatorCurrent,
+            leadSupplyCurrent,
+            followerSupplyCurrent,
+            leadVoltageSupplied,
+            followerVoltageSupplied,
+            elevatorLeadTempStatusSignal,
+            leadVelocitySignal,
+            followerVelocitySignal,
+            elevatorFollowerTempStatusSignal,
+            elevatorForwardSoftLimitTriggeredSignal,
+            elevatorReverseSoftLimitTriggeredSignal);
+
+    PhoenixUtil.checkError(status, "Failed to refresh elevator motor signals.", refreshAlert);
 
     inputs.voltageSuppliedLead = leadVoltageSupplied.getValueAsDouble();
     inputs.voltageSuppliedFollower = followerVoltageSupplied.getValueAsDouble();
@@ -163,6 +206,12 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
     inputs.positionRotations = elevatorPositionStatusSignal.getValueAsDouble();
 
     inputs.positionRads = Units.rotationsToRadians(elevatorPositionStatusSignal.getValueAsDouble());
+
+    inputs.elevatorForwardSoftLimitTriggered = elevatorForwardSoftLimitTriggeredSignal.getValue();
+    inputs.elevatorReverseSoftLimitTriggered = elevatorReverseSoftLimitTriggeredSignal.getValue();
+
+    inputs.velocityLead = leadVelocitySignal.getValueAsDouble();
+    inputs.velocityFollower = followerVelocitySignal.getValueAsDouble();
 
     // Ana motorun simulasyon durumunu al
     var simState = elevatorMotorLead.getSimState();
@@ -222,9 +271,7 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
           config.MotionMagic.MotionMagicAcceleration = motionMagic[8];
           config.MotionMagic.MotionMagicExpo_kV = motionMagic[9];
           PhoenixUtil.tryUntilOk(
-              5,
-              () -> elevatorMotorLead.getConfigurator().apply(config),
-              super.getClass().getName());
+              5, () -> elevatorMotorLead.getConfigurator().apply(config), configAlert);
         },
         kPslot1,
         kIslot1,
@@ -310,5 +357,13 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
 
     elevatorMotorLead.getConfigurator().apply(ElevatorConstants.kElavatorConfig);
     elevatorMotorFollower.getConfigurator().apply(ElevatorConstants.kElavatorConfig);
+  }
+
+  public boolean getForwardSoftLimitTriggered() {
+    return elevatorForwardSoftLimitTriggeredSignal.getValue();
+  }
+
+  public boolean getReverseSoftLimitTriggered() {
+    return elevatorReverseSoftLimitTriggeredSignal.getValue();
   }
 }

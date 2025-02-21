@@ -11,6 +11,9 @@ public interface IO_ElevatorBase {
     double voltageSuppliedLead = 0.0;
     double voltageSuppliedFollower = 0.0;
 
+    boolean elevatorForwardSoftLimitTriggered = false;
+    boolean elevatorReverseSoftLimitTriggered = false;
+
     double statorCurrentAmpsLead = 0.0;
     double statorCurrentAmpsFollower = 0.0;
 
@@ -65,4 +68,8 @@ public interface IO_ElevatorBase {
   public void setSoftwareLimits(boolean reverseLimitEnable, boolean forwardLimitEnable);
 
   public void setPosition(double setpoint);
+
+  public boolean getForwardSoftLimitTriggered();
+
+  public boolean getReverseSoftLimitTriggered();
 }

@@ -14,11 +14,17 @@
 package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
+import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.hal.AllianceStationID;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotController;
@@ -30,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.led.SUB_LED;
 import frc.robot.util.Elastic;
+import frc.robot.util.LocalADStarAK;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -65,14 +72,14 @@ public class Robot extends LoggedRobot {
   private static final double lowBatteryMinCycleCount = 10;
   private static int lowBatteryCycleCount = 0;
   private final Alert lowBatteryAlert =
-      new Alert("Akü voltaji düşük, robotu kapatın ve aküyü degistirin.", AlertType.kWarning);
+      new Alert("Akü voltajı düşük, robotu kapatın ve aküyü değiştirin.", AlertType.kWarning);
 
   private final Alert canErrorAlert =
-      new Alert("CAN hatasi tespit edildi,robot kontrol edilemeyebilir.", AlertType.kError);
+      new Alert("CAN hatası tespit edildi, robot kontrol edilemeyebilir.", AlertType.kError);
   private final Alert canivoreErrorAlert =
       new Alert("CANivore hatasi tespit edildi, robot kontrol edilemeyebilir.", AlertType.kError);
   private final Alert logReceiverQueueAlert =
-      new Alert("Logging kapasitesi aşildi, data daha fazla kaydedilmeyecek.", AlertType.kError);
+      new Alert("Logging kapasitesi aşıldı, data daha fazla kaydedilmeyecek.", AlertType.kError);
 
   public Robot() {
 
@@ -119,6 +126,12 @@ public class Robot extends LoggedRobot {
     // AdvantageKit logger'ı başlat
     Logger.start();
 
+    // start Elastic Dashboard server
+    WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
+
+    // DO THIS FIRST
+    Pathfinding.setPathfinder(new LocalADStarAK());
+
     // robot container'ı oluştur.
     robotContainer = new RobotContainer();
 
@@ -132,6 +145,27 @@ public class Robot extends LoggedRobot {
 
     // Pigeon'u dashboard'a koymak için logladık
     robotContainer.addPigeonToDashboard();
+
+    disabledTimer.reset();
+    canErrorTimer.reset();
+    canivoreErrorTimer.reset();
+    canInitialErrorTimer.reset();
+
+    // Logging of autonomous paths
+    // Logging callback for current robot pose
+    PathPlannerLogging.setLogCurrentPoseCallback(
+        pose -> Logger.recordOutput("PathFollowing/currentPose", pose));
+
+    // Logging callback for target robot pose
+    PathPlannerLogging.setLogTargetPoseCallback(
+        pose -> Logger.recordOutput("PathFollowing/targetPose", pose));
+
+    // Logging callback for the active path, this is sent as a list of poses
+    PathPlannerLogging.setLogActivePathCallback(
+        poses -> Logger.recordOutput("PathFollowing/activePath", poses.toArray(new Pose2d[0])));
+
+    this.canivoreBus = new CANBus("");
+    PathfindingCommand.warmupCommand().schedule();
   }
 
   /** Bu fonksiyon bütün modlarda düzenli olarak çalışır */

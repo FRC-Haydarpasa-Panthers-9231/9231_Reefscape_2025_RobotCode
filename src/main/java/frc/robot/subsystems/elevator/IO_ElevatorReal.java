@@ -1,6 +1,7 @@
 package frc.robot.subsystems.elevator;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -14,6 +15,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.lib.team3015.subsystem.FaultReporter;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil;
@@ -38,6 +41,9 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
   private StatusSignal<AngularVelocity> leadVelocitySignal;
   private StatusSignal<AngularVelocity> followerVelocitySignal;
+
+  private StatusSignal<Boolean> elevatorForwardSoftLimitTriggeredSignal;
+  private StatusSignal<Boolean> elevatorReverseSoftLimitTriggeredSignal;
 
   private final VoltageOut voltageRequest = new VoltageOut(0.0).withUpdateFreqHz(0.0);
 
@@ -71,6 +77,11 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
   private final LoggedTunableNumber expo_kv =
       new LoggedTunableNumber("Elevator/expo_kv", ElevatorConstants.MOTION_MAGIC_KV);
 
+  private final Alert configAlert =
+      new Alert("Elevator için config ayarlanırken bir hata oluştu.", AlertType.kError);
+
+  private Alert refreshAlert = new Alert("Failed to refresh all signals.", AlertType.kError);
+
   public IO_ElevatorReal() {
     elevatorMotorLead = new TalonFX(ElevatorConstants.kElevatorMotorLeadID);
     elevatorMotorFollower = new TalonFX(ElevatorConstants.kElevatorMotorFollowerID);
@@ -88,17 +99,39 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
     elevatorLeadTempStatusSignal = elevatorMotorLead.getDeviceTemp();
     elevatorFollowerTempStatusSignal = elevatorMotorFollower.getDeviceTemp();
+
     leadVelocitySignal = elevatorMotorLead.getRotorVelocity();
     followerVelocitySignal = elevatorMotorFollower.getRotorVelocity();
+
+    elevatorForwardSoftLimitTriggeredSignal = elevatorMotorLead.getFault_ForwardSoftLimit();
+    elevatorReverseSoftLimitTriggeredSignal = elevatorMotorLead.getFault_ReverseSoftLimit();
 
     PhoenixUtil.tryUntilOk(
         5,
         () -> elevatorMotorLead.getConfigurator().apply(ElevatorConstants.kElavatorConfig),
-        super.getClass().getName());
+        configAlert);
     PhoenixUtil.tryUntilOk(
         5,
         () -> elevatorMotorFollower.getConfigurator().apply(ElevatorConstants.kElavatorConfig),
-        super.getClass().getName());
+        configAlert);
+
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0,
+        elevatorPositionStatusSignal,
+        leadStatorCurrent,
+        followerStatorCurrent,
+        leadSupplyCurrent,
+        followerSupplyCurrent,
+        leadVoltageSupplied,
+        followerVoltageSupplied,
+        elevatorLeadTempStatusSignal,
+        elevatorFollowerTempStatusSignal,
+        leadVelocitySignal,
+        followerVelocitySignal);
+
+    // Optimize CAN bus usage for all devices
+    elevatorMotorLead.optimizeBusUtilization(4, 0.1);
+    elevatorMotorFollower.optimizeBusUtilization(4, 0.1);
 
     FaultReporter.getInstance()
         .registerHardware(
@@ -112,19 +145,22 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
   @Override
   public void updateInputs(ElevatorInputs inputs) {
 
-    BaseStatusSignal.refreshAll(
-        elevatorPositionStatusSignal,
-        leadStatorCurrent,
-        followerStatorCurrent,
-        leadSupplyCurrent,
-        followerSupplyCurrent,
-        leadVoltageSupplied,
-        followerVoltageSupplied,
-        elevatorLeadTempStatusSignal,
-        elevatorFollowerTempStatusSignal,
-        leadVelocitySignal,
-        followerVelocitySignal);
-
+    StatusCode status =
+        BaseStatusSignal.refreshAll(
+            elevatorPositionStatusSignal,
+            leadStatorCurrent,
+            followerStatorCurrent,
+            leadSupplyCurrent,
+            followerSupplyCurrent,
+            leadVoltageSupplied,
+            followerVoltageSupplied,
+            elevatorLeadTempStatusSignal,
+            elevatorFollowerTempStatusSignal,
+            leadVelocitySignal,
+            followerVelocitySignal,
+            elevatorForwardSoftLimitTriggeredSignal,
+            elevatorReverseSoftLimitTriggeredSignal);
+    PhoenixUtil.checkError(status, "Failed to refresh elevator motor signals.", refreshAlert);
     inputs.voltageSuppliedLead = leadVoltageSupplied.getValueAsDouble();
     inputs.voltageSuppliedFollower = followerVoltageSupplied.getValueAsDouble();
 
@@ -147,6 +183,9 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
     inputs.velocityLead = leadVelocitySignal.getValueAsDouble();
     inputs.velocityFollower = followerVelocitySignal.getValueAsDouble();
 
+    inputs.elevatorForwardSoftLimitTriggered = elevatorForwardSoftLimitTriggeredSignal.getValue();
+    inputs.elevatorReverseSoftLimitTriggered = elevatorReverseSoftLimitTriggeredSignal.getValue();
+
     LoggedTunableNumber.ifChanged(
         hashCode(),
         motionMagic -> {
@@ -167,9 +206,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
           config.MotionMagic.MotionMagicExpo_kV = motionMagic[9];
 
           PhoenixUtil.tryUntilOk(
-              5,
-              () -> elevatorMotorLead.getConfigurator().apply(config),
-              super.getClass().getName());
+              5, () -> elevatorMotorLead.getConfigurator().apply(config), configAlert);
         },
         kPslot0,
         kIslot0,
@@ -254,5 +291,13 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
   @Override
   public boolean isRotorVelocityZero() {
     return getRotorVelocity().isNear(edu.wpi.first.units.Units.RotationsPerSecond.zero(), 0.01);
+  }
+
+  public boolean getForwardSoftLimitTriggered() {
+    return elevatorForwardSoftLimitTriggeredSignal.getValue();
+  }
+
+  public boolean getReverseSoftLimitTriggered() {
+    return elevatorReverseSoftLimitTriggeredSignal.getValue();
   }
 }

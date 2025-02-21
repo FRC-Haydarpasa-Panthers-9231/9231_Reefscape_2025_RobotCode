@@ -1,53 +1,92 @@
 package frc.robot.subsystems.ElevatorRoller;
 
-import edu.wpi.first.math.MathUtil;
+import com.revrobotics.sim.SparkMaxSim;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.lib.team3015.subsystem.FaultReporter;
 import frc.robot.Constants;
+import frc.robot.subsystems.processor_roller.ProcessorRollerConstants;
+import frc.robot.util.SparkUtil;
 
 public class IO_ElevatorRollerSim implements IO_ElevatorRollerBase {
   private final DigitalInput photoelectricSensor = new DigitalInput(Constants.kBeamBreakPort);
-  private DCMotorSim elevatorRoller1Motor =
-      new DCMotorSim(
-          LinearSystemId.createDCMotorSystem(DCMotor.getNeoVortex(1), 0.00032, 1),
-          DCMotor.getNeoVortex(1));
 
-  private DCMotorSim elevatorRoller2Motor =
-      new DCMotorSim(
-          LinearSystemId.createDCMotorSystem(DCMotor.getNeoVortex(1), 0.00032, 1),
-          DCMotor.getNeoVortex(1));
-  private double elevatorRoller1MotorAppliedVolts = 0.0;
-  private double elevatorRoller2MotorAppliedVolts = 0.0;
+  private final Alert configAlert =
+      new Alert("Elevator Roller için config ayarlanırken bir hata oluştu.", AlertType.kError);
 
-  public IO_ElevatorRollerSim() {}
+  DCMotor maxGearbox = DCMotor.getNEO(1);
+
+  SparkMax elevatorRollerMotor1 =
+      new SparkMax(ElevatorRollerConstants.kElevatorRollerMotor1Port, MotorType.kBrushless);
+  SparkMax elevatorRollerMotor2 =
+      new SparkMax(ElevatorRollerConstants.kElevatorRollerMotor2Port, MotorType.kBrushless);
+  SparkMaxConfig config = new SparkMaxConfig();
+
+  SparkMaxSim elevatorRollerMotor1Sim = new SparkMaxSim(elevatorRollerMotor1, maxGearbox);
+  SparkMaxSim elevatorRollerMotor2Sim = new SparkMaxSim(elevatorRollerMotor2, maxGearbox);
+
+  public IO_ElevatorRollerSim() {
+
+    SparkUtil.tryUntilOk(
+        elevatorRollerMotor1,
+        5,
+        () ->
+            elevatorRollerMotor1.configure(
+                config.idleMode(IdleMode.kBrake).smartCurrentLimit(50),
+                ResetMode.kNoResetSafeParameters,
+                PersistMode.kPersistParameters),
+        configAlert);
+    SparkUtil.tryUntilOk(
+        elevatorRollerMotor2,
+        5,
+        () ->
+            elevatorRollerMotor2.configure(
+                config.idleMode(IdleMode.kBrake).smartCurrentLimit(50),
+                ResetMode.kNoResetSafeParameters,
+                PersistMode.kPersistParameters),
+        configAlert);
+
+    FaultReporter.getInstance()
+        .registerHardware(
+            ProcessorRollerConstants.kSubsystemName,
+            "Elevator Roller Motor 1",
+            elevatorRollerMotor1);
+    FaultReporter.getInstance()
+        .registerHardware(
+            ProcessorRollerConstants.kSubsystemName,
+            "Elevator Roller Motor 2",
+            elevatorRollerMotor2);
+  }
 
   @Override
   public void updateInputs(ElevatorRollerInputs inputs) {
-
-    inputs.elevatorRoller1AppliedVolts = elevatorRoller1MotorAppliedVolts;
-    inputs.elevatorRoller1CurrentAmps = elevatorRoller1Motor.getCurrentDrawAmps();
-
-    inputs.elevatorRoller1AppliedVolts = elevatorRoller2MotorAppliedVolts;
-    inputs.elevatorRoller2CurrentAmps = elevatorRoller2Motor.getCurrentDrawAmps();
+    inputs.elevatorRoller1AppliedVolts =
+        elevatorRollerMotor1Sim.getAppliedOutput() * elevatorRollerMotor1Sim.getBusVoltage();
+    inputs.elevatorRoller2AppliedVolts =
+        elevatorRollerMotor2Sim.getAppliedOutput() * elevatorRollerMotor2Sim.getBusVoltage();
+    inputs.elevatorRoller1CurrentAmps = elevatorRollerMotor1Sim.getMotorCurrent();
+    inputs.elevatorRoller2CurrentAmps = elevatorRollerMotor2Sim.getMotorCurrent();
   }
 
   @Override
   public void setElevatorRollerSpeed(double speed) {
-    elevatorRoller1MotorAppliedVolts = MathUtil.clamp(12 * speed, -12, 12);
-    elevatorRoller2MotorAppliedVolts = MathUtil.clamp(12 * speed, -12, 12);
 
-    elevatorRoller1Motor.setInputVoltage(elevatorRoller1MotorAppliedVolts);
-    elevatorRoller2Motor.setInputVoltage(elevatorRoller2MotorAppliedVolts);
+    elevatorRollerMotor1Sim.setAppliedOutput(speed);
+    elevatorRollerMotor2Sim.setAppliedOutput(speed);
   }
 
   @Override
   public void stopMotors() {
-    elevatorRoller1MotorAppliedVolts = 0;
-    elevatorRoller2MotorAppliedVolts = 0;
-    elevatorRoller1Motor.setInputVoltage(elevatorRoller1MotorAppliedVolts);
-    elevatorRoller2Motor.setInputVoltage(elevatorRoller2MotorAppliedVolts);
+    elevatorRollerMotor1Sim.setAppliedOutput(0);
+    elevatorRollerMotor2Sim.setAppliedOutput(0);
   }
 
   @Override

@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class BeamBreak extends SubsystemBase {
-  // Sensörün baglı oldugu DIO pinini belirleyin (örnegin, DIO 0)
   private final DigitalInput photoelectricSensor = new DigitalInput(Constants.kBeamBreakPort);
 
   public boolean hasCoral() {

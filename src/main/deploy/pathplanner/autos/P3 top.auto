@@ -23,6 +23,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "getCoral"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "P3 Sag ust feeder sag - sol ust branch sag"
@@ -38,6 +44,12 @@
           "type": "path",
           "data": {
             "pathName": "P3 sol ust branch sag - sag  ust feeder sag "
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "getCoral"
           }
         },
         {

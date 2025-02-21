@@ -2,8 +2,9 @@ package frc.robot.subsystems.processor_roller;
 
 public class ProcessorRollerConstants {
 
+  public static final String kSubsystemName = "Processor Roller";
   // TODO: MOTOR PORTUNU BUL VE DEGISTIR
-  public static final int kProcessorRollerPort = 1;
+  public static final int kProcessorRollerPort = 24;
 
   // TODO: BU DEGERLERI TEST ET VE DEGISTIR
   public static final double kAlgeaIntakeHasGamePieceCurrent = 15;

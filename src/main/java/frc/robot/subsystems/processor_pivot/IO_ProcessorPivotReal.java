@@ -10,6 +10,9 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import frc.lib.team3015.subsystem.FaultReporter;
 import frc.robot.util.SparkUtil;
 
 public class IO_ProcessorPivotReal implements IO_ProcessorPivotBase {
@@ -19,6 +22,9 @@ public class IO_ProcessorPivotReal implements IO_ProcessorPivotBase {
 
   private SparkAbsoluteEncoder processorAbsoluteEncoder;
   SparkMaxConfig config = new SparkMaxConfig();
+
+  private final Alert configAlert =
+      new Alert("Processor pivot için config ayarlanırken bir hata oluştu.", AlertType.kError);
 
   public IO_ProcessorPivotReal() {
     processorPivot =
@@ -35,7 +41,7 @@ public class IO_ProcessorPivotReal implements IO_ProcessorPivotBase {
                     .inverted(ProcessorPivotConstants.kIsInverted),
                 ResetMode.kNoResetSafeParameters,
                 PersistMode.kPersistParameters),
-        super.getClass().getName());
+        configAlert);
 
     config
         .closedLoop
@@ -63,11 +69,15 @@ public class IO_ProcessorPivotReal implements IO_ProcessorPivotBase {
         () ->
             processorPivot.configure(
                 config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters),
-        super.getClass().getName());
+        configAlert);
 
     processorPivot.configure(
         config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
     m_controller = processorPivot.getClosedLoopController();
+
+    FaultReporter.getInstance()
+        .registerHardware(
+            ProcessorPivotConstants.kSubsystemName, "Processor Pivot Motor", processorPivot);
   }
 
   @Override
