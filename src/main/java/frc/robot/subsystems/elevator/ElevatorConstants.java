@@ -28,7 +28,7 @@ public class ElevatorConstants {
     // TODO GEREKİRSE TOLERANSI ARTTIR
     public static final double kTolerance = 0.003;
 
-    // TODO ELEVATOR YAPILDIKTAN SONRA TAM REDUCTION'I AL
+    // TODO ELEVATOR YAPILDIKTAN SONRAs TAM REDUCTION'I AL
     public static final double kElevatorGearing = 3;
     public static final double kCarriageMass = 18;
     public static final double kElevatorDrumRadius =
@@ -62,7 +62,7 @@ public class ElevatorConstants {
     public static final double KG_SLOT1 = 0.1;
     public static final double MOTION_MAGIC_CRUISE_VELOCITY = 80 / kElevatorGearing;
     public static final double MOTION_MAGIC_ACCELERATION = 160 / kElevatorGearing;
-    public static final double MOTION_MAGIC_JERK = 1600 / kElevatorGearing;
+    public static final double MOTION_MAGIC_JERK = 800 / kElevatorGearing;
     public static final double MOTION_MAGIC_KV = 0.2;
 
     public enum ReefBranch {
@@ -172,14 +172,6 @@ public class ElevatorConstants {
     }
 
     public static final Time kZeroingTimeout = Units.Seconds.of(3);
-
-    public static final AngularVelocity kManualZeroingStartVelocity =
-        Units.RotationsPerSecond.of(5);
-    public static final AngularVelocity kManualZeroingDeltaVelocity =
-        Units.RotationsPerSecond.of(5);
-
-    /** The voltage supplied to the motor in order to zero */
-    public static final Voltage kZeroingVoltage = Units.Volts.of(-1);
 
     /**
      * The value that the motor reports when it is at it's zeroed position. This may not necessarily

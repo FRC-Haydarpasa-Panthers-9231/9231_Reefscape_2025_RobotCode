@@ -418,14 +418,16 @@ public class RobotContainer {
         .a()
         .onTrue(Commands.runOnce(() -> processorPivot.setDebugPosition(), processorPivot));
 
-    // debugController.b().onTrue(Commands.runOnce(() -> elevator.setPositionDebug(),
-    // elevator));
+    debugController.b().onTrue(Commands.runOnce(() -> elevator.setPositionDebug(), elevator));
+
     debugController
-        .b()
-        .onTrue(new ScoringCoral(elevator, leds, elevatorRoller, ELEVATOR_HEIGHT.CORAL_L4_HEIGHT));
+        .y()
+        .whileTrue(Commands.run(() -> elevatorRoller.setDebugSpeed(true), elevatorRoller))
+        .onFalse(Commands.runOnce(() -> elevatorRoller.setSpeed(0), elevatorRoller));
+
     debugController
         .x()
-        .whileTrue(Commands.run(() -> elevatorRoller.setDebugSpeed(), elevatorRoller))
+        .whileTrue(Commands.run(() -> elevatorRoller.setDebugSpeed(false), elevatorRoller))
         .onFalse(Commands.runOnce(() -> elevatorRoller.setSpeed(0), elevatorRoller));
 
     debugController
@@ -444,12 +446,12 @@ public class RobotContainer {
 
     debugController
         .rightBumper()
-        .whileTrue(Commands.run(() -> elevator.setElevatorDebugVoltage()))
+        .whileTrue(Commands.run(() -> elevator.setElevatorDebugVoltage(true)))
         .onFalse(Commands.runOnce(() -> elevator.setElevatorVoltage(Volts.of(0)), elevator));
 
     debugController
         .rightTrigger()
-        .whileTrue(Commands.run(() -> elevator.setElevatorDebugVoltage(), elevator))
+        .whileTrue(Commands.run(() -> elevator.setElevatorDebugVoltage(false), elevator))
         .onFalse(Commands.runOnce(() -> elevator.setElevatorVoltage(Volts.of(0)), elevator));
 
     debugController
@@ -461,6 +463,11 @@ public class RobotContainer {
         .leftTrigger()
         .whileTrue(Commands.run(() -> processorPivot.setDebugSpeed(false), processorPivot))
         .onFalse(Commands.runOnce(() -> processorPivot.setSpeed(0), processorPivot));
+
+    debugController.pov(0).whileTrue(new IntakingCoral(elevatorRoller));
+    // debugController.pov(90);
+    // debugController.pov(180);
+    debugController.pov(270).whileTrue(new ZeroElevator(elevator));
   }
 
   private Command joystickDrive() {

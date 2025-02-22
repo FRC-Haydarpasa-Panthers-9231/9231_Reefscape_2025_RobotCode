@@ -61,8 +61,10 @@ public class SUB_Elevator extends SubsystemBase {
     io.setElevatorVoltage(volts);
   }
 
-  public void setElevatorDebugVoltage() {
-    io.setElevatorVoltage(Volts.of(elevatorDebugVolts.getAsDouble()));
+  public void setElevatorDebugVoltage(boolean isForward) {
+    double volts =
+        isForward ? elevatorDebugVolts.getAsDouble() * 1 : elevatorDebugVolts.getAsDouble() * 1;
+    io.setElevatorVoltage(Volts.of(volts));
   }
 
   /**

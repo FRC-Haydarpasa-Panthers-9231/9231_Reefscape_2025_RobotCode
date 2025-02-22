@@ -13,7 +13,6 @@
 
 package frc.robot.commands;
 
-import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.MathUtil;
@@ -52,8 +51,6 @@ public class DriveCommands {
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
-
-  private final SwerveRequest.RobotCentric robotCentricDrive = new SwerveRequest.RobotCentric();
 
   private DriveCommands() {}
 

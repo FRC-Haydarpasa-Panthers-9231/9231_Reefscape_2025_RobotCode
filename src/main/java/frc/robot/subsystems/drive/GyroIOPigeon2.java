@@ -23,6 +23,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.lib.team3015.subsystem.FaultReporter;
 import frc.robot.generated.TunerConstants;
 import java.util.Queue;
 
@@ -47,6 +48,8 @@ public class GyroIOPigeon2 implements GyroIO {
     pigeon.optimizeBusUtilization();
     yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
     yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(pigeon.getYaw());
+
+    FaultReporter.getInstance().registerHardware("Drivetrain", "Pigeon", pigeon);
   }
 
   public void addToSmartDashboard() {

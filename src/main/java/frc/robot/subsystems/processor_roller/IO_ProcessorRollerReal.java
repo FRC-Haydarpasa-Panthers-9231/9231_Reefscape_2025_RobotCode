@@ -73,7 +73,7 @@ public class IO_ProcessorRollerReal implements IO_ProcessorRollerBase {
     double intakeHasGamePieceVoltage =
         ProcessorRollerConstants.kAlgeaProcessorRollerHasGamePieceVoltage;
 
-    // Manuel override kontrolü
+    // Manuel test için kontrol
     if (hasAlgaeOverride) {
       return hasAlgaeOverride;
     }

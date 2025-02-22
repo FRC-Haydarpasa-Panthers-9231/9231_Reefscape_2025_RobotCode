@@ -26,8 +26,12 @@ public class SUB_ElevatoRoller extends SubsystemBase {
     io.setElevatorRollerSpeed(speed);
   }
 
-  public void setDebugSpeed() {
-    io.setElevatorRollerSpeed(elevatorRollerDebugSpeed.getAsDouble());
+  public void setDebugSpeed(boolean isForward) {
+    double speed =
+        isForward
+            ? 1 * elevatorRollerDebugSpeed.getAsDouble()
+            : -1 * elevatorRollerDebugSpeed.getAsDouble();
+    io.setElevatorRollerSpeed(speed);
   }
 
   public boolean hasCoral() {

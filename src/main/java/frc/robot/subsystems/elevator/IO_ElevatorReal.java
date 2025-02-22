@@ -22,131 +22,103 @@ import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil;
 
 public class IO_ElevatorReal implements IO_ElevatorBase {
-  private TalonFX elevatorMotorLead;
-  private TalonFX elevatorMotorFollower;
+    private TalonFX elevatorMotorLead;
+    private TalonFX elevatorMotorFollower;
 
-  private StatusSignal<Current> leadStatorCurrent;
-  private StatusSignal<Current> followerStatorCurrent;
+    private StatusSignal<Current> leadStatorCurrent;
+    private StatusSignal<Current> followerStatorCurrent;
 
-  private StatusSignal<Voltage> leadVoltageSupplied;
-  private StatusSignal<Voltage> followerVoltageSupplied;
+    private StatusSignal<Voltage> leadVoltageSupplied;
+    private StatusSignal<Voltage> followerVoltageSupplied;
 
-  private StatusSignal<Current> leadSupplyCurrent;
-  private StatusSignal<Current> followerSupplyCurrent;
+    private StatusSignal<Current> leadSupplyCurrent;
+    private StatusSignal<Current> followerSupplyCurrent;
 
-  private StatusSignal<Angle> elevatorPositionStatusSignal;
+    private StatusSignal<Angle> elevatorPositionStatusSignal;
 
-  private StatusSignal<Temperature> elevatorLeadTempStatusSignal;
-  private StatusSignal<Temperature> elevatorFollowerTempStatusSignal;
+    private StatusSignal<Temperature> elevatorLeadTempStatusSignal;
+    private StatusSignal<Temperature> elevatorFollowerTempStatusSignal;
 
-  private StatusSignal<AngularVelocity> leadVelocitySignal;
-  private StatusSignal<AngularVelocity> followerVelocitySignal;
+    private StatusSignal<AngularVelocity> leadVelocitySignal;
+    private StatusSignal<AngularVelocity> followerVelocitySignal;
 
-  private StatusSignal<Boolean> elevatorForwardSoftLimitTriggeredSignal;
-  private StatusSignal<Boolean> elevatorReverseSoftLimitTriggeredSignal;
+    private StatusSignal<Boolean> elevatorForwardSoftLimitTriggeredSignal;
+    private StatusSignal<Boolean> elevatorReverseSoftLimitTriggeredSignal;
 
-  private final VoltageOut voltageRequest = new VoltageOut(0.0).withUpdateFreqHz(0.0);
+    private final VoltageOut voltageRequest = new VoltageOut(0.0).withUpdateFreqHz(0.0);
 
-  private final MotionMagicVoltage motionMagicPositionRequest = new MotionMagicVoltage(0.0);
+    private final MotionMagicVoltage motionMagicPositionRequest = new MotionMagicVoltage(0.0);
 
-  private final LoggedTunableNumber kPslot0 =
-      new LoggedTunableNumber("Elevator/kPslot0", ElevatorConstants.KP_SLOT0);
-  private final LoggedTunableNumber kIslot0 =
-      new LoggedTunableNumber("Elevator/kIslot0", ElevatorConstants.KI_SLOT0);
-  private final LoggedTunableNumber kDslot0 =
-      new LoggedTunableNumber("Elevator/kDslot0", ElevatorConstants.KD_SLOT0);
-  private final LoggedTunableNumber kSslot0 =
-      new LoggedTunableNumber("Elevator/kSslot0", ElevatorConstants.KS_SLOT0);
-  private final LoggedTunableNumber kVslot0 =
-      new LoggedTunableNumber("Elevator/kVslot0", ElevatorConstants.KV_SLOT0);
-  private final LoggedTunableNumber kAslot0 =
-      new LoggedTunableNumber("Elevator/kAslot0", ElevatorConstants.KA_SLOT0);
-  private final LoggedTunableNumber kGslot0 =
-      new LoggedTunableNumber("Elevator/kGslot0", ElevatorConstants.KG_SLOT0);
+    private final LoggedTunableNumber kPslot0 =
+        new LoggedTunableNumber("Elevator/kPslot0", ElevatorConstants.KP_SLOT0);
+    private final LoggedTunableNumber kIslot0 =
+        new LoggedTunableNumber("Elevator/kIslot0", ElevatorConstants.KI_SLOT0);
+    private final LoggedTunableNumber kDslot0 =
+        new LoggedTunableNumber("Elevator/kDslot0", ElevatorConstants.KD_SLOT0);
+    private final LoggedTunableNumber kSslot0 =
+        new LoggedTunableNumber("Elevator/kSslot0", ElevatorConstants.KS_SLOT0);
+    private final LoggedTunableNumber kVslot0 =
+        new LoggedTunableNumber("Elevator/kVslot0", ElevatorConstants.KV_SLOT0);
+    private final LoggedTunableNumber kAslot0 =
+        new LoggedTunableNumber("Elevator/kAslot0", ElevatorConstants.KA_SLOT0);
+    private final LoggedTunableNumber kGslot0 =
+        new LoggedTunableNumber("Elevator/kGslot0", ElevatorConstants.KG_SLOT0);
 
-  private final LoggedTunableNumber cruiseVelocity =
-      new LoggedTunableNumber(
-          "Elevator/Cruise Velocity", ElevatorConstants.MOTION_MAGIC_CRUISE_VELOCITY);
+    private final LoggedTunableNumber cruiseVelocity =
+        new LoggedTunableNumber(
+            "Elevator/Cruise Velocity", ElevatorConstants.MOTION_MAGIC_CRUISE_VELOCITY);
 
-  private final LoggedTunableNumber acceleration =
-      new LoggedTunableNumber("Elevator/acceleration", ElevatorConstants.MOTION_MAGIC_ACCELERATION);
+    private final LoggedTunableNumber acceleration =
+        new LoggedTunableNumber("Elevator/acceleration",
+            ElevatorConstants.MOTION_MAGIC_ACCELERATION);
 
-  private final LoggedTunableNumber motionMagicJerk =
-      new LoggedTunableNumber("Elevator/expo_kv", ElevatorConstants.MOTION_MAGIC_JERK);
+    private final LoggedTunableNumber motionMagicJerk =
+        new LoggedTunableNumber("Elevator/expo_kv", ElevatorConstants.MOTION_MAGIC_JERK);
 
-  private final LoggedTunableNumber expo_kv =
-      new LoggedTunableNumber("Elevator/expo_kv", ElevatorConstants.MOTION_MAGIC_KV);
+    private final LoggedTunableNumber expo_kv =
+        new LoggedTunableNumber("Elevator/expo_kv", ElevatorConstants.MOTION_MAGIC_KV);
 
-  private final Alert configAlert =
-      new Alert("Elevator için config ayarlanırken bir hata oluştu.", AlertType.kError);
+    private final Alert configAlert =
+        new Alert("Elevator için config ayarlanırken bir hata oluştu.", AlertType.kError);
 
-  private Alert refreshAlert = new Alert("Failed to refresh all signals.", AlertType.kError);
+    private Alert refreshAlert = new Alert("Failed to refresh all signals.", AlertType.kError);
 
-  public IO_ElevatorReal() {
-    elevatorMotorLead = new TalonFX(ElevatorConstants.kElevatorMotorLeadID);
-    elevatorMotorFollower = new TalonFX(ElevatorConstants.kElevatorMotorFollowerID);
+    public IO_ElevatorReal()
+    {
+        elevatorMotorLead = new TalonFX(ElevatorConstants.kElevatorMotorLeadID);
+        elevatorMotorFollower = new TalonFX(ElevatorConstants.kElevatorMotorFollowerID);
 
-    leadStatorCurrent = elevatorMotorLead.getStatorCurrent();
-    followerStatorCurrent = elevatorMotorFollower.getStatorCurrent();
+        leadStatorCurrent = elevatorMotorLead.getStatorCurrent();
+        followerStatorCurrent = elevatorMotorFollower.getStatorCurrent();
 
-    leadVoltageSupplied = elevatorMotorLead.getMotorVoltage();
-    followerVoltageSupplied = elevatorMotorFollower.getMotorVoltage();
+        leadVoltageSupplied = elevatorMotorLead.getMotorVoltage();
+        followerVoltageSupplied = elevatorMotorFollower.getMotorVoltage();
 
-    leadSupplyCurrent = elevatorMotorLead.getSupplyCurrent();
-    followerSupplyCurrent = elevatorMotorFollower.getSupplyCurrent();
+        leadSupplyCurrent = elevatorMotorLead.getSupplyCurrent();
+        followerSupplyCurrent = elevatorMotorFollower.getSupplyCurrent();
 
-    elevatorPositionStatusSignal = elevatorMotorLead.getPosition();
+        elevatorPositionStatusSignal = elevatorMotorLead.getPosition();
 
-    elevatorLeadTempStatusSignal = elevatorMotorLead.getDeviceTemp();
-    elevatorFollowerTempStatusSignal = elevatorMotorFollower.getDeviceTemp();
+        elevatorLeadTempStatusSignal = elevatorMotorLead.getDeviceTemp();
+        elevatorFollowerTempStatusSignal = elevatorMotorFollower.getDeviceTemp();
 
-    leadVelocitySignal = elevatorMotorLead.getRotorVelocity();
-    followerVelocitySignal = elevatorMotorFollower.getRotorVelocity();
+        leadVelocitySignal = elevatorMotorLead.getRotorVelocity();
+        followerVelocitySignal = elevatorMotorFollower.getRotorVelocity();
 
-    elevatorForwardSoftLimitTriggeredSignal = elevatorMotorLead.getFault_ForwardSoftLimit();
-    elevatorReverseSoftLimitTriggeredSignal = elevatorMotorLead.getFault_ReverseSoftLimit();
+        elevatorForwardSoftLimitTriggeredSignal = elevatorMotorLead.getFault_ForwardSoftLimit();
+        elevatorReverseSoftLimitTriggeredSignal = elevatorMotorLead.getFault_ReverseSoftLimit();
 
-    PhoenixUtil.tryUntilOk(
-        5,
-        () -> elevatorMotorLead.getConfigurator().apply(ElevatorConstants.kElavatorConfig),
-        configAlert);
-    PhoenixUtil.tryUntilOk(
-        5,
-        () -> elevatorMotorFollower.getConfigurator().apply(ElevatorConstants.kElavatorConfig),
-        configAlert);
+        PhoenixUtil.tryUntilOk(
+            5,
+            () -> elevatorMotorLead.getConfigurator().apply(ElevatorConstants.kElavatorConfig),
+            configAlert);
+        PhoenixUtil.tryUntilOk(
+            5,
+            () -> elevatorMotorFollower.getConfigurator().apply(ElevatorConstants.kElavatorConfig),
+            configAlert);
 
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0,
-        elevatorPositionStatusSignal,
-        leadStatorCurrent,
-        followerStatorCurrent,
-        leadSupplyCurrent,
-        followerSupplyCurrent,
-        leadVoltageSupplied,
-        followerVoltageSupplied,
-        elevatorLeadTempStatusSignal,
-        elevatorFollowerTempStatusSignal,
-        leadVelocitySignal,
-        followerVelocitySignal);
-
-    // Optimize CAN bus usage for all devices
-    elevatorMotorLead.optimizeBusUtilization(4, 0.1);
-    elevatorMotorFollower.optimizeBusUtilization(4, 0.1);
-
-    FaultReporter.getInstance()
-        .registerHardware(
-            ElevatorConstants.kSubsystemName, "Elevator Motor Lead", elevatorMotorLead);
-
-    FaultReporter.getInstance()
-        .registerHardware(
-            ElevatorConstants.kSubsystemName, "Elevator Motor Follower", elevatorMotorLead);
-  }
-
-  @Override
-  public void updateInputs(ElevatorInputs inputs) {
-
-    StatusCode status =
-        BaseStatusSignal.refreshAll(
+        BaseStatusSignal.setUpdateFrequencyForAll(
+            50.0,
             elevatorPositionStatusSignal,
             leadStatorCurrent,
             followerStatorCurrent,
@@ -157,147 +129,196 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
             elevatorLeadTempStatusSignal,
             elevatorFollowerTempStatusSignal,
             leadVelocitySignal,
-            followerVelocitySignal,
-            elevatorForwardSoftLimitTriggeredSignal,
-            elevatorReverseSoftLimitTriggeredSignal);
-    PhoenixUtil.checkError(status, "Failed to refresh elevator motor signals.", refreshAlert);
-    inputs.voltageSuppliedLead = leadVoltageSupplied.getValueAsDouble();
-    inputs.voltageSuppliedFollower = followerVoltageSupplied.getValueAsDouble();
+            followerVelocitySignal);
 
-    inputs.statorCurrentAmpsLead = leadStatorCurrent.getValueAsDouble();
-    inputs.statorCurrentAmpsFollower = followerStatorCurrent.getValueAsDouble();
+        // Optimize CAN bus usage for all devices
+        elevatorMotorLead.optimizeBusUtilization(4, 0.1);
+        elevatorMotorFollower.optimizeBusUtilization(4, 0.1);
 
-    inputs.supplyCurrentAmpsLead = leadSupplyCurrent.getValueAsDouble();
-    inputs.supplyCurrentAmpsFollower = followerSupplyCurrent.getValueAsDouble();
+        FaultReporter.getInstance()
+            .registerHardware(
+                ElevatorConstants.kSubsystemName, "Elevator Motor Lead", elevatorMotorLead);
 
-    inputs.tempCelciusLead = elevatorLeadTempStatusSignal.getValueAsDouble();
-    inputs.tempCelciusFollower = elevatorFollowerTempStatusSignal.getValueAsDouble();
-
-    inputs.closedLoopError = elevatorMotorLead.getClosedLoopError().getValueAsDouble();
-
-    inputs.closedLoopReference = elevatorMotorLead.getClosedLoopReference().getValueAsDouble();
-
-    inputs.positionRotations = elevatorPositionStatusSignal.getValueAsDouble();
-
-    inputs.positionRads = Units.rotationsToRadians(elevatorPositionStatusSignal.getValueAsDouble());
-    inputs.velocityLead = leadVelocitySignal.getValueAsDouble();
-    inputs.velocityFollower = followerVelocitySignal.getValueAsDouble();
-
-    inputs.elevatorForwardSoftLimitTriggered = elevatorForwardSoftLimitTriggeredSignal.getValue();
-    inputs.elevatorReverseSoftLimitTriggered = elevatorReverseSoftLimitTriggeredSignal.getValue();
-
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        motionMagic -> {
-          TalonFXConfiguration config = new TalonFXConfiguration();
-          this.elevatorMotorLead.getConfigurator().refresh(config);
-
-          config.Slot0.kP = motionMagic[0];
-          config.Slot0.kI = motionMagic[1];
-          config.Slot0.kD = motionMagic[2];
-          config.Slot0.kS = motionMagic[3];
-          config.Slot0.kV = motionMagic[4];
-          config.Slot0.kA = motionMagic[5];
-          config.Slot0.kG = motionMagic[6];
-          config.MotionMagic.MotionMagicCruiseVelocity = motionMagic[7];
-          config.MotionMagic.MotionMagicAcceleration = motionMagic[8];
-          config.MotionMagic.MotionMagicCruiseVelocity = motionMagic[9];
-          config.MotionMagic.MotionMagicJerk = motionMagic[9];
-          config.MotionMagic.MotionMagicExpo_kV = motionMagic[9];
-
-          PhoenixUtil.tryUntilOk(
-              5, () -> elevatorMotorLead.getConfigurator().apply(config), configAlert);
-        },
-        kPslot0,
-        kIslot0,
-        kDslot0,
-        kSslot0,
-        kVslot0,
-        kAslot0,
-        kGslot0,
-        cruiseVelocity,
-        acceleration,
-        motionMagicJerk,
-        expo_kv);
-  }
-
-  @Override
-  public void setCoastMode(Boolean coastMode) {
-    if (coastMode) {
-      elevatorMotorLead.getConfigurator().apply(ElevatorConstants.kCoastModeConfiguration);
-      elevatorMotorFollower.getConfigurator().apply(ElevatorConstants.kCoastModeConfiguration);
-    } else {
-      elevatorMotorLead.getConfigurator().apply(ElevatorConstants.kElavatorConfig);
-      elevatorMotorFollower.getConfigurator().apply(ElevatorConstants.kElavatorConfig);
+        FaultReporter.getInstance()
+            .registerHardware(
+                ElevatorConstants.kSubsystemName, "Elevator Motor Follower", elevatorMotorLead);
     }
-  }
 
-  @Override
-  public void setSensorPosition(double setpoint) {
-    elevatorMotorLead.setPosition(setpoint);
-    elevatorMotorFollower.setPosition(setpoint);
-  }
+    @Override
+    public void updateInputs(ElevatorInputs inputs)
+    {
 
-  @Override
-  public void setNeutral() {
-    elevatorMotorLead.setControl(new NeutralOut());
-    elevatorMotorFollower.setControl(new NeutralOut());
-  }
+        StatusCode status =
+            BaseStatusSignal.refreshAll(
+                elevatorPositionStatusSignal,
+                leadStatorCurrent,
+                followerStatorCurrent,
+                leadSupplyCurrent,
+                followerSupplyCurrent,
+                leadVoltageSupplied,
+                followerVoltageSupplied,
+                elevatorLeadTempStatusSignal,
+                elevatorFollowerTempStatusSignal,
+                leadVelocitySignal,
+                followerVelocitySignal,
+                elevatorForwardSoftLimitTriggeredSignal,
+                elevatorReverseSoftLimitTriggeredSignal);
+        PhoenixUtil.checkError(status, "Failed to refresh elevator motor signals.", refreshAlert);
+        inputs.voltageSuppliedLead = leadVoltageSupplied.getValueAsDouble();
+        inputs.voltageSuppliedFollower = followerVoltageSupplied.getValueAsDouble();
 
-  @Override
-  public void setElevatorVoltage(Voltage volts) {
-    elevatorMotorLead.setControl(voltageRequest.withOutput(volts));
-    elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
-  }
+        inputs.statorCurrentAmpsLead = leadStatorCurrent.getValueAsDouble();
+        inputs.statorCurrentAmpsFollower = followerStatorCurrent.getValueAsDouble();
 
-  @Override
-  public void setElevatorSpeed(double speed) {
-    elevatorMotorLead.set(speed);
-  }
+        inputs.supplyCurrentAmpsLead = leadSupplyCurrent.getValueAsDouble();
+        inputs.supplyCurrentAmpsFollower = followerSupplyCurrent.getValueAsDouble();
 
-  @Override
-  public void stopMotor() {
-    elevatorMotorLead.stopMotor();
-    elevatorMotorFollower.stopMotor();
-  }
+        inputs.tempCelciusLead = elevatorLeadTempStatusSignal.getValueAsDouble();
+        inputs.tempCelciusFollower = elevatorFollowerTempStatusSignal.getValueAsDouble();
 
-  @Override
-  public void setPosition(double positionRads) {
-    elevatorMotorLead.setControl(motionMagicPositionRequest.withPosition(positionRads));
-    elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
-  }
+        inputs.closedLoopError = elevatorMotorLead.getClosedLoopError().getValueAsDouble();
 
-  @Override
-  public void setSoftwareLimits(boolean reverseLimitEnable, boolean forwardLimitEnable) {
-    ElevatorConstants.kElavatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable =
-        reverseLimitEnable;
-    ElevatorConstants.kElavatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable =
-        forwardLimitEnable;
+        inputs.closedLoopReference = elevatorMotorLead.getClosedLoopReference().getValueAsDouble();
 
-    elevatorMotorLead.getConfigurator().apply(ElevatorConstants.kElavatorConfig);
-    elevatorMotorFollower.getConfigurator().apply(ElevatorConstants.kElavatorConfig);
-  }
+        inputs.positionRotations = elevatorPositionStatusSignal.getValueAsDouble();
 
-  @Override
-  public double getElevatorPosition() {
-    return elevatorMotorLead.getPosition().getValueAsDouble();
-  }
+        inputs.positionRads =
+            Units.rotationsToRadians(elevatorPositionStatusSignal.getValueAsDouble());
+        inputs.velocityLead = leadVelocitySignal.getValueAsDouble();
+        inputs.velocityFollower = followerVelocitySignal.getValueAsDouble();
 
-  @Override
-  public AngularVelocity getRotorVelocity() {
-    return elevatorMotorLead.getRotorVelocity().getValue();
-  }
+        inputs.elevatorForwardSoftLimitTriggered =
+            elevatorForwardSoftLimitTriggeredSignal.getValue();
+        inputs.elevatorReverseSoftLimitTriggered =
+            elevatorReverseSoftLimitTriggeredSignal.getValue();
 
-  @Override
-  public boolean isRotorVelocityZero() {
-    return getRotorVelocity().isNear(edu.wpi.first.units.Units.RotationsPerSecond.zero(), 0.01);
-  }
+        LoggedTunableNumber.ifChanged(
+            hashCode(),
+            motionMagic -> {
+                TalonFXConfiguration config = new TalonFXConfiguration();
+                this.elevatorMotorLead.getConfigurator().refresh(config);
 
-  public boolean getForwardSoftLimitTriggered() {
-    return elevatorForwardSoftLimitTriggeredSignal.getValue();
-  }
+                config.Slot0.kP = motionMagic[0];
+                config.Slot0.kI = motionMagic[1];
+                config.Slot0.kD = motionMagic[2];
+                config.Slot0.kS = motionMagic[3];
+                config.Slot0.kV = motionMagic[4];
+                config.Slot0.kA = motionMagic[5];
+                config.Slot0.kG = motionMagic[6];
+                config.MotionMagic.MotionMagicCruiseVelocity = motionMagic[7];
+                config.MotionMagic.MotionMagicAcceleration = motionMagic[8];
+                config.MotionMagic.MotionMagicCruiseVelocity = motionMagic[9];
+                config.MotionMagic.MotionMagicJerk = motionMagic[9];
+                config.MotionMagic.MotionMagicExpo_kV = motionMagic[9];
 
-  public boolean getReverseSoftLimitTriggered() {
-    return elevatorReverseSoftLimitTriggeredSignal.getValue();
-  }
+                PhoenixUtil.tryUntilOk(
+                    5, () -> elevatorMotorLead.getConfigurator().apply(config), configAlert);
+            },
+            kPslot0,
+            kIslot0,
+            kDslot0,
+            kSslot0,
+            kVslot0,
+            kAslot0,
+            kGslot0,
+            cruiseVelocity,
+            acceleration,
+            motionMagicJerk,
+            expo_kv);
+    }
+
+    @Override
+    public void setCoastMode(Boolean coastMode)
+    {
+        if (coastMode) {
+            elevatorMotorLead.getConfigurator().apply(ElevatorConstants.kCoastModeConfiguration);
+            elevatorMotorFollower.getConfigurator()
+                .apply(ElevatorConstants.kCoastModeConfiguration);
+        } else {
+            elevatorMotorLead.getConfigurator().apply(ElevatorConstants.kElavatorConfig);
+            elevatorMotorFollower.getConfigurator().apply(ElevatorConstants.kElavatorConfig);
+        }
+    }
+
+    @Override
+    public void setSensorPosition(double setpoint)
+    {
+        elevatorMotorLead.setPosition(setpoint);
+        elevatorMotorFollower.setPosition(setpoint);
+    }
+
+    @Override
+    public void setNeutral()
+    {
+        elevatorMotorLead.setControl(new NeutralOut());
+        elevatorMotorFollower.setControl(new NeutralOut());
+    }
+
+    @Override
+    public void setElevatorVoltage(Voltage volts)
+    {
+        elevatorMotorLead.setControl(voltageRequest.withOutput(volts));
+        elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
+    }
+
+    @Override
+    public void setElevatorSpeed(double speed)
+    {
+        elevatorMotorLead.set(speed);
+    }
+
+    @Override
+    public void stopMotor()
+    {
+        elevatorMotorLead.stopMotor();
+        elevatorMotorFollower.stopMotor();
+    }
+
+    @Override
+    public void setPosition(double positionRads)
+    {
+        elevatorMotorLead
+            .setControl(motionMagicPositionRequest.withPosition(positionRads));
+        elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
+    }
+
+    @Override
+    public void setSoftwareLimits(boolean reverseLimitEnable, boolean forwardLimitEnable)
+    {
+        ElevatorConstants.kElavatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable =
+            reverseLimitEnable;
+        ElevatorConstants.kElavatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable =
+            forwardLimitEnable;
+
+        elevatorMotorLead.getConfigurator().apply(ElevatorConstants.kElavatorConfig);
+        elevatorMotorFollower.getConfigurator().apply(ElevatorConstants.kElavatorConfig);
+    }
+
+    @Override
+    public double getElevatorPosition()
+    {
+        return elevatorMotorLead.getPosition().getValueAsDouble();
+    }
+
+    @Override
+    public AngularVelocity getRotorVelocity()
+    {
+        return elevatorMotorLead.getRotorVelocity().getValue();
+    }
+
+    @Override
+    public boolean isRotorVelocityZero()
+    {
+        return getRotorVelocity().isNear(edu.wpi.first.units.Units.RotationsPerSecond.zero(), 0.01);
+    }
+
+    public boolean getForwardSoftLimitTriggered()
+    {
+        return elevatorForwardSoftLimitTriggeredSignal.getValue();
+    }
+
+    public boolean getReverseSoftLimitTriggered()
+    {
+        return elevatorReverseSoftLimitTriggeredSignal.getValue();
+    }
 }

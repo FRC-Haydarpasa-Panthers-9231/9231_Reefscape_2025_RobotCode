@@ -33,7 +33,7 @@ public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
         () ->
             elevatorRoller1Motor.configure(
                 new SparkMaxConfig()
-                    .idleMode(IdleMode.kCoast)
+                    .idleMode(IdleMode.kBrake)
                     .smartCurrentLimit(50)
                     .inverted(false),
                 ResetMode.kNoResetSafeParameters,
