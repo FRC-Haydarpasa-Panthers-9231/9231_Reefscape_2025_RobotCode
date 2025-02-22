@@ -27,7 +27,10 @@ Takımın sürdürülebilirliği ve yazılım kaynakları için bu sene yazılı
 ![Swerve Tab](https://github.com/user-attachments/assets/205b8996-3c8c-4681-b72d-03aa8845add2)
 
 ## Otonom Rutinleri
-![pathplanner1](https://github.com/user-attachments/assets/406d699c-0abb-4c40-b3be-3f91df35211b)
+![orta](https://github.com/user-attachments/assets/d47e606b-d41b-4c49-a6e0-c9256e084c11)
+
+![pathplanner alt 1](https://github.com/user-attachments/assets/406d699c-0abb-4c40-b3be-3f91df35211b)
+![pathplanner alt 2](https://github.com/user-attachments/assets/52d8692b-98cb-445f-a8f3-e28d3af012c7)
 
 
 ## Kontrolcü buton atamaları
