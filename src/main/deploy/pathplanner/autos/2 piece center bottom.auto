@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "P3  ust start - sag ust resıf sag"
+            "pathName": "O2 ortadan - sag resif sol"
           }
         },
         {
@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "P3 sag ust resıf sag - ust feeder sag"
+            "pathName": "O2 sag resif sol - alt feeder sag"
           }
         },
         {
@@ -31,7 +31,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "P3 Sag ust feeder sag - sol ust branch sag"
+            "pathName": "O2 alt feeder sag - sol alt resif sag"
           }
         },
         {
@@ -43,31 +43,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "P3 sol ust branch sag - sag  ust feeder sag "
+            "pathName": "O2 sol alt resif sag - Alt feeder"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "getCoral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "P3 sag ust feeder - sol ust resıf sol"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "L4"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "orta",
   "choreoAuto": false
 }

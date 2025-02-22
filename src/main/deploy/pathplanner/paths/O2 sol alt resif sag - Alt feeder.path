@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.144672131147541,
+        "x": 3.9975,
         "y": 2.7575
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.159267257222662,
-        "y": 2.6203907001766424
+        "x": 3.382106812722651,
+        "y": 2.2397826870368394
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "sol alt resif sag"
     },
     {
       "anchor": {
-        "x": 5.022848360655738,
-        "y": 2.7575
+        "x": 1.599,
+        "y": 0.7197499999999991
       },
       "prevControl": {
-        "x": 5.256063341924739,
-        "y": 2.8475598274021183
+        "x": 2.5062914213965466,
+        "y": 1.4398092927045298
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "sag alt mercan sol "
+      "linkedName": "alt feeder sag"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 119.99999999999999
+    "rotation": 55.15426658020029
   },
   "reversed": false,
-  "folder": "2 piece alttan",
+  "folder": "ortadan alt",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 60.52411099675437
   },
   "useDefaultConstraints": true
 }

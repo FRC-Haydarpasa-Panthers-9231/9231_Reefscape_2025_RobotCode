@@ -89,7 +89,6 @@ public class ElevatorConstants {
         kElavatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kForwardLimit;
         kElavatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         kElavatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kReverseLimit;
-
         kElavatorConfig.CurrentLimits.StatorCurrentLimit = 80.0;
         kElavatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         kElavatorConfig.CurrentLimits

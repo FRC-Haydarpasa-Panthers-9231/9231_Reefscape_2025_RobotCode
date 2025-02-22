@@ -22,6 +22,7 @@ public class RunLevel extends Command {
   public void initialize() {
     elevator.setPosition(distance);
     leds.setState(LEDState.MOVING_ELEVATOR);
+    System.out.println("çalisdi");
   }
 
   @Override

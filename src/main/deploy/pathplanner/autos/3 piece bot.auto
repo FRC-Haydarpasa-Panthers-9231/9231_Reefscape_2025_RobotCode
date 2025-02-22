@@ -1,0 +1,73 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A2 alt baslangic - sag alt resif sol"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A2  sag alt resif sol - alt feeder"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "getCoral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A2 alt feeder sag - sol alt resif sol"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A2 sol alt resif sol - alt feeder"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "getCoral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A2 alt feeder sag - sol alt resif sag"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L4"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "alt",
+  "choreoAuto": false
+}

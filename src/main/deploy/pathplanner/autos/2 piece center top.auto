@@ -1,0 +1,49 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "O1 ortadan - sag resif sag"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "O1 sag resif sag - ust sag feeder"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "getCoral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "O1 ust sag feeder - sol ust resif sol"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L4"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "orta",
+  "choreoAuto": false
+}

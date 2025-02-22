@@ -42,10 +42,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 50.0
+    "rotation": 56.219665346260456
   },
   "reversed": false,
-  "folder": "alttan",
+  "folder": "2 piece alttan",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 1.2188752351313425

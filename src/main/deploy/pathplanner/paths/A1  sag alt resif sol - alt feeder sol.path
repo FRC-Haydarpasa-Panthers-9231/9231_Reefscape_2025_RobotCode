@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.04075,
+        "x": 5.022848360655738,
         "y": 2.7575
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.416750000002192,
+        "x": 4.39884836065793,
         "y": 2.2504999999950974
       },
       "isLocked": false,
-      "linkedName": "sag alt sol branch"
+      "linkedName": "sag alt mercan sol "
     },
     {
       "anchor": {
@@ -47,13 +47,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 50.0
+    "rotation": 56.219665346260456
   },
   "reversed": false,
-  "folder": "alttan",
+  "folder": "2 piece alttan",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 119.19748604606451
+    "rotation": 119.99999999999999
   },
   "useDefaultConstraints": true
 }

@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.9877499999999997,
-        "y": 5.2925
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 4.53300567500543,
-        "y": 4.76198491178669
-      },
-      "isLocked": false,
-      "linkedName": "sol ust mercan sol"
-    },
-    {
-      "anchor": {
         "x": 1.6769999999999998,
         "y": 7.320499999999999
       },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.009249132771703,
+        "y": 7.065508186502003
+      },
+      "isLocked": false,
+      "linkedName": "ust sag feeder "
+    },
+    {
+      "anchor": {
+        "x": 3.9877499999999997,
+        "y": 5.2925
+      },
       "prevControl": {
-        "x": 1.2531221863838982,
-        "y": 7.677257902195996
+        "x": 3.2466186691379386,
+        "y": 5.930941384119871
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "ust sag feeder "
+      "linkedName": "sol ust resif sol"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -52.92692668268958
+    "rotation": -62.051644565699554
   },
   "reversed": false,
-  "folder": "ortadan",
+  "folder": "ortadan ust",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -62.051644565699554
+    "rotation": -52.92692668268958
   },
   "useDefaultConstraints": true
 }

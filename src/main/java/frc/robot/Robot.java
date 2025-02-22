@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -137,8 +138,9 @@ public class Robot extends LoggedRobot {
 
     // PDH log
     if (!Constants.kIsCompetition) {
-      SmartDashboard.putData("PDH", pdh);
+      LiveWindow.disableAllTelemetry();
     }
+    SmartDashboard.putData("PDH", pdh);
 
     // Command schedule'u driver dashoard'a koymak için logladık
     SmartDashboard.putData(CommandScheduler.getInstance());
@@ -271,7 +273,11 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    if (!Constants.debug && Constants.kIsCompetition && !Constants.tuningMode) {
+      Elastic.selectTab("Before Match Info");
+    }
+  }
 
   /** This function is called periodically when disabled. */
   @Override
@@ -286,7 +292,7 @@ public class Robot extends LoggedRobot {
      * ayarlar.
      */
     if (!Constants.debug && Constants.kIsCompetition && !Constants.tuningMode) {
-      Elastic.selectTab(0);
+      Elastic.selectTab("Autonomous");
     }
 
     // Otonom zamanlayıcısını başlatır.
@@ -317,7 +323,7 @@ public class Robot extends LoggedRobot {
 
     // Teleop dashboard'ı 1.tab oldugu için otomatik olarak 1.tab'ı seçer.
     if (!Constants.debug && Constants.kIsCompetition && !Constants.tuningMode) {
-      Elastic.selectTab(1);
+      Elastic.selectTab("Teleoperated");
     }
   }
 

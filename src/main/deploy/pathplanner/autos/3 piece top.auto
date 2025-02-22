@@ -1,0 +1,73 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P3  ust start - sag ust resıf sag"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P3 sag ust resıf sag - ust feeder sag"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "getCoral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P3 Sag ust feeder sag - sol ust branch sag"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P3 sol ust branch sag - sag  ust feeder sag "
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "getCoral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P3 sag ust feeder - sol ust resıf sol"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L4"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "ust",
+  "choreoAuto": false
+}
