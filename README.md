@@ -6,29 +6,35 @@ Haydarpaşa Lisesi robotik takımımı Haydarpaşa Panthers'in 2025 Reefscape se
 
     
 ## Belgelendirme
-
 Takımın sürdürülebilirliği ve yazılım kaynakları için bu sene yazılım tarafında yapılanların ayrıntılı [kılavuz](https://panthers.gitbook.io/9231-2025-code-docs) (Sezondan sonra güncellenecek)
 
   
 ## Görüntüler
 
-
 ### Robot Tasarımı
 
 ### Simulasyonda robot
+![image](https://github.com/user-attachments/assets/7d6e08bd-92d8-45e8-95bc-6fcc27f0f2c8)
+![image](https://github.com/user-attachments/assets/cf000522-b030-4235-876c-22eb2e3ed484)
+![image](https://github.com/user-attachments/assets/51f560ca-551e-48b0-842b-a55ecdbf6045)
 
 ### Gerçek Robot
 
 ### Yarışmada Robot
 
 ### Elastic Dashboad Düzeni
+![Before Match Tab](https://github.com/user-attachments/assets/e45ff02e-104b-4563-aef9-d41961ba1425)
+![Swerve Tab](https://github.com/user-attachments/assets/205b8996-3c8c-4681-b72d-03aa8845add2)
 
-
-  
-## Otonom Rutini
+## Otonom Rutinleri
+![pathplanner1](https://github.com/user-attachments/assets/406d699c-0abb-4c40-b3be-3f91df35211b)
 
 
 ## Kontrolcü buton atamaları
+![Ekran görüntüsü 2025-02-21 152721](https://github.com/user-attachments/assets/317b7b02-db9b-4021-b739-cff0892aff6d)
+
+![Ekran görüntüsü 2025-02-21 151804](https://github.com/user-attachments/assets/76246d18-a196-4d4c-ba33-2ca589c7066c)
+
 
 ### Kullanılan Teknolojiler
 Robotun kodunu yazarken işimizi kolaylaştıracak birçok eklenti, kütüphane ve araç kullandık.  
