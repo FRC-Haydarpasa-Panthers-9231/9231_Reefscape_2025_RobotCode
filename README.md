@@ -1,15 +1,15 @@
 
 # FRC 2025 9231 Robot Kodu
-Haydarpaşa Lisesi robotik takımımı Haydarpaşa Panthers'in 2025 Reefscape sezonuna ait robotun kodu. Bu sezonun temasında görevimiz mercan(içi boş beyaz boru şeklinde) adı verilen oyun parçalarını resif üzerindeki belli yüksekliklere takmak, alg(büyük mavi top) adı verilen oyun parçalarını resif üzerinden alıp puana dönüştürmek ve tırmanmak. 
+Haydarpaşa Lisesi robotik takımımı Haydarpaşa Panthers'in 2025 Reefscape sezonuna ait robotun kodu. Bu sezonun temasında görevimiz mercan(içi boş beyaz boru şeklinde) adı verilen oyun parçalarını resif üzerindeki belli yüksekliklere takmak, alg(büyük mavi top) adı verilen oyun parçalarını resif üzerinden alıp puana dönüştürmek ve tırmanmak.
 
 ![Logo](https://avatars.githubusercontent.com/u/162712686?s=100&u=d0ea36e11b59c011f9e8804e3c5b683a33d4264f&v=4)
 
-    
+
 ## Belgelendirme
 
 Takımın sürdürülebilirliği ve yazılım kaynakları için bu sene yazılım tarafında yapılanların ayrıntılı [kılavuz](https://panthers.gitbook.io/9231-2025-code-docs) (Sezondan sonra güncellenecek)
 
-  
+
 ## Görüntüler
 
 
@@ -24,14 +24,14 @@ Takımın sürdürülebilirliği ve yazılım kaynakları için bu sene yazılı
 ### Elastic Dashboad Düzeni
 
 
-  
+
 ## Otonom Rutini
 
 
 ## Kontrolcü buton atamaları
 
 ### Kullanılan Teknolojiler
-Robotun kodunu yazarken işimizi kolaylaştıracak birçok eklenti, kütüphane ve araç kullandık.  
+Robotun kodunu yazarken işimizi kolaylaştıracak birçok eklenti, kütüphane ve araç kullandık.
 ### Kütüphaneler
 - [Advantagekit](https://docs.advantagekit.org) FRC robotlarında veri kaydı ve analiz yapmak için kullanılan bir kütüphanedir. Gelişmiş hata ayıklama ve maç analizi sağlar.
 - [Pathplanner](https://pathplanner.dev) FRC robotları için kolayca otonomu planlamamızı sağlar.
@@ -77,11 +77,11 @@ Robotun kodunu yazarken işimizi kolaylaştıracak birçok eklenti, kütüphane 
 - Elastic Dasboard ile driver station
 - SysID ile asansör ve drivetrain karakterizasyonu
 - FaultReporters
-- Detaylı loglar 
+- Detaylı loglar
 - Optimizasyon
 
 
-  
+
 ## Çıkarılan Dersler
 
 - Bu sene en zorlandığımız şey radio'yu konfigüre etmek oldu. Bu yüzden asla radio işini sona bırakmıyoruz.
@@ -95,9 +95,9 @@ Robotun kodunu yazarken işimizi kolaylaştıracak birçok eklenti, kütüphane 
 - Oynayan eklemlere yazılımsal limit ekle
 - SysID düzenli olarak kullan.
 - PID ayarlarken 0.1'den başla her seferinde iki katına çıkar hedef nokta etrafında sallanmaya başlayınca yavaş yavaş D değerini arttır.
-- Koda bolca yorum ve açıklama ekle. 
+- Koda bolca yorum ve açıklama ekle.
 
-  
+
 ## Bilgisayarınızda Çalıştırın
 
 [WPILIB](https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/wpilib-setup.html) indirin.
@@ -124,7 +124,7 @@ Build almasını bekleyin.
 
 
 
-  
+
 ## Geliştiriciler ve Teşekkür
 
 - [Haydarpaşa Panthers 9231](https://team9231.com) Takımdaki bütün üyelerin emeği için.
@@ -144,14 +144,12 @@ Build almasını bekleyin.
 
 
 
-  
+
 ## Geri Bildirim
 
 Herhangi bir geri bildiriminiz varsa, lütfen kozanfurkanemre@gmail.com adresinden bize ulaşın.
 
-  
+
 ## Lisans
 
 [MIT](https://choosealicense.com/licenses/mit/)
-
-  

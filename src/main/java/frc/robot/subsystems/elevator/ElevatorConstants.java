@@ -16,8 +16,6 @@ import edu.wpi.first.units.measure.Voltage;
 
 public class ElevatorConstants {
 
-    // TODO: IDLERİ BELİRLE VE VER
-
     public static final int kElevatorMotorLeadID = 9;
     public static final int kElevatorMotorFollowerID = 10;
 

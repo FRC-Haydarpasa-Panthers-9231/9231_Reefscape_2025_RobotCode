@@ -6,64 +6,64 @@ import org.littletonrobotics.junction.Logger;
 
 public class SUB_ProcessorPivot extends SubsystemBase {
 
-  private final IO_ProcessorPivotBase io;
-  public final ProcessorPivotInputsAutoLogged inputs = new ProcessorPivotInputsAutoLogged();
+    private final IO_ProcessorPivotBase io;
+    public final ProcessorPivotInputsAutoLogged inputs = new ProcessorPivotInputsAutoLogged();
 
-  // FIXME: DOgRU PID DEgERLERİNİ BUL
-  private static final LoggedTunableNumber kP = new LoggedTunableNumber("Processor_Pivot/kP", 0);
-  private static final LoggedTunableNumber kI = new LoggedTunableNumber("Processor_Pivot/kI", 0);
-  private static final LoggedTunableNumber kD = new LoggedTunableNumber("Processor_Pivot/kD", 0);
 
-  private static final LoggedTunableNumber processorPivotDebugSetpoint =
-      new LoggedTunableNumber("ProcessorPivot/Processor Pivot Setpoint", 0);
+    private static final LoggedTunableNumber processorPivotDebugSetpoint =
+        new LoggedTunableNumber("ProcessorPivot/Processor Pivot Setpoint", 0);
 
-  private static final LoggedTunableNumber processorPivotDebugSpeed =
-      new LoggedTunableNumber("ProcessorPivot/Processor Pivot speed", 0.1);
+    private static final LoggedTunableNumber processorPivotDebugSpeed =
+        new LoggedTunableNumber("ProcessorPivot/Processor Pivot speed", 0.1);
 
-  private double setpointVal;
+    private double setpointVal;
 
-  public SUB_ProcessorPivot(IO_ProcessorPivotBase io) {
-    this.io = io;
-  }
-
-  @Override
-  public void periodic() {
-    io.updateInputs(inputs);
-    Logger.processInputs("ProcessorPivot", inputs);
-    Logger.recordOutput("Processor_Pivot/setpoint", setpointVal);
-    Logger.recordOutput("Processor_Pivot/encoderPosition", io.getProcessorPivotPosition());
-
-    if (kP.hasChanged(hashCode()) || kI.hasChanged(hashCode()) || kD.hasChanged(hashCode())) {
-      io.setPID(kP.get(), kI.get(), kD.get());
+    public SUB_ProcessorPivot(IO_ProcessorPivotBase io)
+    {
+        this.io = io;
     }
-  }
 
-  public void setSpeed(double speed) {
-    io.setSpeed(speed);
-  }
+    @Override
+    public void periodic()
+    {
+        io.updateInputs(inputs);
+        Logger.processInputs("ProcessorPivot", inputs);
+        Logger.recordOutput("Processor_Pivot/setpoint", setpointVal);
+        Logger.recordOutput("Processor_Pivot/encoderPosition", io.getProcessorPivotPosition());
+    }
 
-  public void setDebugSpeed(boolean isDirectionPositive) {
+    public void setSpeed(double speed)
+    {
+        io.setSpeed(speed);
+    }
 
-    int directionVal = isDirectionPositive ? 1 : -1;
-    io.setSpeed(processorPivotDebugSpeed.getAsDouble() * directionVal);
-  }
+    public void setDebugSpeed(boolean isDirectionPositive)
+    {
 
-  public void stopMotor() {
-    io.stopMotor();
-  }
+        int directionVal = isDirectionPositive ? 1 : -1;
+        io.setSpeed(processorPivotDebugSpeed.getAsDouble() * directionVal);
+    }
 
-  public double getProcessorPivotPosition() {
-    return io.getProcessorPivotPosition();
-  }
+    public void stopMotor()
+    {
+        io.stopMotor();
+    }
 
-  public void setPosition(double setPoint) {
-    io.setPosition(setPoint);
-    setpointVal = setPoint;
-  }
+    public double getProcessorPivotPosition()
+    {
+        return io.getProcessorPivotPosition();
+    }
 
-  public void setDebugPosition() {
+    public void setPosition(double setPoint)
+    {
+        io.setPosition(setPoint);
+        setpointVal = setPoint;
+    }
 
-    io.setPosition(processorPivotDebugSetpoint.getAsDouble());
-    setpointVal = processorPivotDebugSetpoint.getAsDouble();
-  }
+    public void setDebugPosition()
+    {
+
+        io.setPosition(processorPivotDebugSetpoint.getAsDouble());
+        setpointVal = processorPivotDebugSetpoint.getAsDouble();
+    }
 }

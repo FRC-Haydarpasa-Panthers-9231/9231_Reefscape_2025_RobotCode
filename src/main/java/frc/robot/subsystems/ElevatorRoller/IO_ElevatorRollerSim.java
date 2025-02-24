@@ -17,80 +17,90 @@ import frc.robot.subsystems.processor_roller.ProcessorRollerConstants;
 import frc.robot.util.SparkUtil;
 
 public class IO_ElevatorRollerSim implements IO_ElevatorRollerBase {
-  private final DigitalInput photoelectricSensor = new DigitalInput(Constants.kBeamBreakPort);
+    private final DigitalInput photoelectricSensor = new DigitalInput(Constants.kBeamBreakPort);
 
-  private final Alert configAlert =
-      new Alert("Elevator Roller için config ayarlanırken bir hata oluştu.", AlertType.kError);
+    private final Alert configAlert =
+        new Alert("Elevator Roller için config ayarlanırken bir hata oluştu.", AlertType.kError);
 
-  DCMotor maxGearbox = DCMotor.getNEO(1);
+    DCMotor maxGearbox = DCMotor.getNEO(1);
 
-  SparkMax elevatorRollerMotor1 =
-      new SparkMax(ElevatorRollerConstants.kElevatorRollerMotor1Port, MotorType.kBrushless);
-  SparkMax elevatorRollerMotor2 =
-      new SparkMax(ElevatorRollerConstants.kElevatorRollerMotor2Port, MotorType.kBrushless);
-  SparkMaxConfig config = new SparkMaxConfig();
+    SparkMax elevatorRollerMotor1 =
+        new SparkMax(ElevatorRollerConstants.kElevatorRollerMotor1Port, MotorType.kBrushless);
+    SparkMax elevatorRollerMotor2 =
+        new SparkMax(ElevatorRollerConstants.kElevatorRollerMotor2Port, MotorType.kBrushless);
+    SparkMaxConfig config = new SparkMaxConfig();
 
-  SparkMaxSim elevatorRollerMotor1Sim = new SparkMaxSim(elevatorRollerMotor1, maxGearbox);
-  SparkMaxSim elevatorRollerMotor2Sim = new SparkMaxSim(elevatorRollerMotor2, maxGearbox);
+    SparkMaxSim elevatorRollerMotor1Sim = new SparkMaxSim(elevatorRollerMotor1, maxGearbox);
+    SparkMaxSim elevatorRollerMotor2Sim = new SparkMaxSim(elevatorRollerMotor2, maxGearbox);
 
-  public IO_ElevatorRollerSim() {
+    public IO_ElevatorRollerSim()
+    {
 
-    SparkUtil.tryUntilOk(
-        elevatorRollerMotor1,
-        5,
-        () ->
-            elevatorRollerMotor1.configure(
-                config.idleMode(IdleMode.kBrake).smartCurrentLimit(50),
+        SparkUtil.tryUntilOk(
+            elevatorRollerMotor1,
+            5,
+            () -> elevatorRollerMotor1.configure(
+                new SparkMaxConfig()
+                    .idleMode(IdleMode.kBrake)
+                    .smartCurrentLimit(50)
+                    .inverted(false),
                 ResetMode.kNoResetSafeParameters,
                 PersistMode.kPersistParameters),
-        configAlert);
-    SparkUtil.tryUntilOk(
-        elevatorRollerMotor2,
-        5,
-        () ->
-            elevatorRollerMotor2.configure(
-                config.idleMode(IdleMode.kBrake).smartCurrentLimit(50),
+            configAlert);
+
+        SparkUtil.tryUntilOk(
+            elevatorRollerMotor2,
+            5,
+            () -> elevatorRollerMotor2.configure(
+                new SparkMaxConfig()
+                    .idleMode(IdleMode.kBrake)
+                    .smartCurrentLimit(50)
+                    .follow(elevatorRollerMotor1, true),
                 ResetMode.kNoResetSafeParameters,
                 PersistMode.kPersistParameters),
-        configAlert);
+            configAlert);
 
-    FaultReporter.getInstance()
-        .registerHardware(
-            ProcessorRollerConstants.kSubsystemName,
-            "Elevator Roller Motor 1",
-            elevatorRollerMotor1);
-    FaultReporter.getInstance()
-        .registerHardware(
-            ProcessorRollerConstants.kSubsystemName,
-            "Elevator Roller Motor 2",
-            elevatorRollerMotor2);
-  }
+        FaultReporter.getInstance()
+            .registerHardware(
+                ProcessorRollerConstants.kSubsystemName,
+                "Elevator Roller Motor 1",
+                elevatorRollerMotor1);
+        FaultReporter.getInstance()
+            .registerHardware(
+                ProcessorRollerConstants.kSubsystemName,
+                "Elevator Roller Motor 2",
+                elevatorRollerMotor2);
+    }
 
-  @Override
-  public void updateInputs(ElevatorRollerInputs inputs) {
-    inputs.elevatorRoller1AppliedVolts =
-        elevatorRollerMotor1Sim.getAppliedOutput() * elevatorRollerMotor1Sim.getBusVoltage();
-    inputs.elevatorRoller2AppliedVolts =
-        elevatorRollerMotor2Sim.getAppliedOutput() * elevatorRollerMotor2Sim.getBusVoltage();
-    inputs.elevatorRoller1CurrentAmps = elevatorRollerMotor1Sim.getMotorCurrent();
-    inputs.elevatorRoller2CurrentAmps = elevatorRollerMotor2Sim.getMotorCurrent();
-  }
+    @Override
+    public void updateInputs(ElevatorRollerInputs inputs)
+    {
+        inputs.elevatorRoller1AppliedVolts =
+            elevatorRollerMotor1Sim.getAppliedOutput() * elevatorRollerMotor1Sim.getBusVoltage();
+        inputs.elevatorRoller2AppliedVolts =
+            elevatorRollerMotor2Sim.getAppliedOutput() * elevatorRollerMotor2Sim.getBusVoltage();
+        inputs.elevatorRoller1CurrentAmps = elevatorRollerMotor1Sim.getMotorCurrent();
+        inputs.elevatorRoller2CurrentAmps = elevatorRollerMotor2Sim.getMotorCurrent();
+    }
 
-  @Override
-  public void setElevatorRollerSpeed(double speed) {
+    @Override
+    public void setElevatorRollerSpeed(double speed)
+    {
 
-    elevatorRollerMotor1Sim.setAppliedOutput(speed);
-    elevatorRollerMotor2Sim.setAppliedOutput(speed);
-  }
+        elevatorRollerMotor1Sim.setAppliedOutput(speed);
+        elevatorRollerMotor2Sim.setAppliedOutput(speed);
+    }
 
-  @Override
-  public void stopMotors() {
-    elevatorRollerMotor1Sim.setAppliedOutput(0);
-    elevatorRollerMotor2Sim.setAppliedOutput(0);
-  }
+    @Override
+    public void stopMotors()
+    {
+        elevatorRollerMotor1Sim.setAppliedOutput(0);
+        elevatorRollerMotor2Sim.setAppliedOutput(0);
+    }
 
-  @Override
-  public boolean hasCoral() {
-    return photoelectricSensor.get();
-  }
+    @Override
+    public boolean hasCoral()
+    {
+        return photoelectricSensor.get();
+    }
 }
