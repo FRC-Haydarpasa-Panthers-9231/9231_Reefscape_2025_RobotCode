@@ -162,5 +162,3 @@ Herhangi bir geri bildiriminiz varsa, lütfen kozanfurkanemre@gmail.com adresind
 ## Lisans
 
 [MIT](https://choosealicense.com/licenses/mit/)
-
-  

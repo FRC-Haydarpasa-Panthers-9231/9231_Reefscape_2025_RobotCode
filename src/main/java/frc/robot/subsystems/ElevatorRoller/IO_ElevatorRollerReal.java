@@ -48,7 +48,7 @@ public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
                 new SparkMaxConfig()
                     .idleMode(IdleMode.kBrake)
                     .smartCurrentLimit(50)
-                    .follow(elevatorRoller1Motor,true),
+                    .follow(elevatorRoller1Motor, true),
                 ResetMode.kNoResetSafeParameters,
                 PersistMode.kPersistParameters),
         configAlert);

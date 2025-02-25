@@ -28,110 +28,104 @@ import frc.robot.util.SparkUtil;
 
 public class IO_ProcessorPivotSim implements IO_ProcessorPivotBase {
 
-    private final Alert configAlert =
-        new Alert("Processor pivot için config ayarlanırken bir hata oluştu.", AlertType.kError);
+  private final Alert configAlert =
+      new Alert("Processor pivot için config ayarlanırken bir hata oluştu.", AlertType.kError);
 
-    DCMotor maxGearbox = DCMotor.getNEO(1);
+  DCMotor maxGearbox = DCMotor.getNEO(1);
 
-    SparkMax sparkMax =
-        new SparkMax(ProcessorPivotConstants.kProcessorPivotMotorID, MotorType.kBrushless);
+  SparkMax sparkMax =
+      new SparkMax(ProcessorPivotConstants.kProcessorPivotMotorID, MotorType.kBrushless);
 
-    SparkMaxConfig config = new SparkMaxConfig();
-    SparkMaxSim maxSim = new SparkMaxSim(sparkMax, maxGearbox);
-    SparkClosedLoopController m_controller;
-    private SparkAbsoluteEncoderSim processorAbsoluteEncoder;
+  SparkMaxConfig config = new SparkMaxConfig();
+  SparkMaxSim maxSim = new SparkMaxSim(sparkMax, maxGearbox);
+  SparkClosedLoopController m_controller;
+  private SparkAbsoluteEncoderSim processorAbsoluteEncoder;
 
-    private final SingleJointedArmSim m_armSim =
-        new SingleJointedArmSim(
-            maxGearbox,
-            ProcessorPivotConstants.kGearing,
-            SingleJointedArmSim.estimateMOI(
-                ProcessorPivotConstants.kArmLength, ProcessorPivotConstants.kMass),
-            ProcessorPivotConstants.kArmLength,
-            Units.rotationsToRadians(ProcessorPivotConstants.kProcessorPivotMinAngle),
-            Units.rotationsToRadians(ProcessorPivotConstants.kProcessorPivotMaxAngle),
-            true,
-            0);
+  private final SingleJointedArmSim m_armSim =
+      new SingleJointedArmSim(
+          maxGearbox,
+          ProcessorPivotConstants.kGearing,
+          SingleJointedArmSim.estimateMOI(
+              ProcessorPivotConstants.kArmLength, ProcessorPivotConstants.kMass),
+          ProcessorPivotConstants.kArmLength,
+          Units.rotationsToRadians(ProcessorPivotConstants.kProcessorPivotMinAngle),
+          Units.rotationsToRadians(ProcessorPivotConstants.kProcessorPivotMaxAngle),
+          true,
+          0);
 
-    private final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
-    private final MechanismRoot2d m_armPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
-    private final MechanismLigament2d m_armTower =
-        m_armPivot.append(new MechanismLigament2d("ArmTower", 30, -90));
-    private final MechanismLigament2d m_arm =
-        m_armPivot.append(
-            new MechanismLigament2d(
-                "Arm",
-                30,
-                Units.radiansToDegrees(m_armSim.getAngleRads()),
-                6,
-                new Color8Bit(Color.kYellow)));
+  private final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
+  private final MechanismRoot2d m_armPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
+  private final MechanismLigament2d m_armTower =
+      m_armPivot.append(new MechanismLigament2d("ArmTower", 30, -90));
+  private final MechanismLigament2d m_arm =
+      m_armPivot.append(
+          new MechanismLigament2d(
+              "Arm",
+              30,
+              Units.radiansToDegrees(m_armSim.getAngleRads()),
+              6,
+              new Color8Bit(Color.kYellow)));
 
-    public IO_ProcessorPivotSim()
-    {
-        SparkUtil.tryUntilOk(
-            sparkMax,
-            5,
-            () -> sparkMax.configure(
+  public IO_ProcessorPivotSim() {
+    SparkUtil.tryUntilOk(
+        sparkMax,
+        5,
+        () ->
+            sparkMax.configure(
                 config
                     .idleMode(IdleMode.kBrake)
                     .smartCurrentLimit(50)
                     .inverted(ProcessorPivotConstants.kIsInverted),
                 ResetMode.kNoResetSafeParameters,
                 PersistMode.kPersistParameters),
-            configAlert);
+        configAlert);
 
-        processorAbsoluteEncoder = maxSim.getAbsoluteEncoderSim();
-        processorAbsoluteEncoder.setPosition(0);
-        m_controller = sparkMax.getClosedLoopController();
-        SmartDashboard.putData("Arm Sim", m_mech2d);
-        m_armTower.setColor(new Color8Bit(Color.kBlue));
-        FaultReporter.getInstance()
-            .registerHardware(
-                ProcessorPivotConstants.kSubsystemName, "Processor Pivot Motor", sparkMax);
-    }
+    processorAbsoluteEncoder = maxSim.getAbsoluteEncoderSim();
+    processorAbsoluteEncoder.setPosition(0);
+    m_controller = sparkMax.getClosedLoopController();
+    SmartDashboard.putData("Arm Sim", m_mech2d);
+    m_armTower.setColor(new Color8Bit(Color.kBlue));
+    FaultReporter.getInstance()
+        .registerHardware(
+            ProcessorPivotConstants.kSubsystemName, "Processor Pivot Motor", sparkMax);
+  }
 
-    @Override
-    public void updateInputs(ProcessorPivotInputs inputs)
-    {
-        m_armSim.setInput(maxSim.getAppliedOutput() * RoboRioSim.getVInVoltage());
-        m_armSim.update(0.02);
-        RoboRioSim.setVInVoltage(
-            BatterySim.calculateDefaultBatteryLoadedVoltage(m_armSim.getCurrentDrawAmps()));
+  @Override
+  public void updateInputs(ProcessorPivotInputs inputs) {
+    m_armSim.setInput(maxSim.getAppliedOutput() * RoboRioSim.getVInVoltage());
+    m_armSim.update(0.02);
+    RoboRioSim.setVInVoltage(
+        BatterySim.calculateDefaultBatteryLoadedVoltage(m_armSim.getCurrentDrawAmps()));
 
-        m_arm.setAngle(Units.radiansToDegrees(m_armSim.getAngleRads()));
+    m_arm.setAngle(Units.radiansToDegrees(m_armSim.getAngleRads()));
 
-        inputs.processorPivotAppliedVolts = maxSim.getAppliedOutput() * maxSim.getBusVoltage();
-        inputs.processorPivotCurrentAmps = maxSim.getMotorCurrent();
-        inputs.processorPivotPositionRads = Units.rotationsToRadians(getProcessorPivotPosition());
-    }
+    inputs.processorPivotAppliedVolts = maxSim.getAppliedOutput() * maxSim.getBusVoltage();
+    inputs.processorPivotCurrentAmps = maxSim.getMotorCurrent();
+    inputs.processorPivotPositionRads = Units.rotationsToRadians(getProcessorPivotPosition());
+  }
 
-    @Override
-    public void setSpeed(double speed)
-    {
-        maxSim.setAppliedOutput(speed);
-    }
+  @Override
+  public void setSpeed(double speed) {
+    maxSim.setAppliedOutput(speed);
+  }
 
-    @Override
-    public boolean isAtSetpoint()
-    {
-        return false;
-    }
+  @Override
+  public boolean isAtSetpoint() {
+    return false;
+  }
 
-    @Override
-    public void setPosition(double setPoint)
-    {
-        m_controller.setReference(setPoint, ControlType.kPosition);
-    }
+  @Override
+  public void setPosition(double setPoint) {
+    m_controller.setReference(setPoint, ControlType.kPosition);
+  }
 
-    @Override
-    public void stopMotor()
-    {
-        maxSim.setAppliedOutput(0);
-    }
+  @Override
+  public void stopMotor() {
+    maxSim.setAppliedOutput(0);
+  }
 
-    @Override
-    public double getProcessorPivotPosition()
-    {
-        return processorAbsoluteEncoder.getPosition();
-    }
+  @Override
+  public double getProcessorPivotPosition() {
+    return processorAbsoluteEncoder.getPosition();
+  }
 }

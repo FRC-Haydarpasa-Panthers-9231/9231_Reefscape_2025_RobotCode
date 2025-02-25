@@ -5,25 +5,22 @@ import frc.robot.subsystems.elevator.SUB_Elevator;
 
 public class RunLevel extends Command {
 
-    SUB_Elevator elevator;
-    double distance;
+  SUB_Elevator elevator;
+  double distance;
 
-    public RunLevel(SUB_Elevator elevator, double height)
-    {
-        this.elevator = elevator;
-        this.distance = height;
-        addRequirements(elevator);
-    }
+  public RunLevel(SUB_Elevator elevator, double height) {
+    this.elevator = elevator;
+    this.distance = height;
+    addRequirements(elevator);
+  }
 
-    @Override
-    public void initialize()
-    {
-        elevator.setPosition(distance);
-    }
+  @Override
+  public void initialize() {
+    elevator.setPosition(distance);
+  }
 
-    @Override
-    public boolean isFinished()
-    {
-        return elevator.isAtSetPoint();
-    }
+  @Override
+  public boolean isFinished() {
+    return elevator.isAtSetPoint();
+  }
 }
