@@ -64,14 +64,15 @@ public class IO_ProcessorRollerReal implements IO_ProcessorRollerBase {
     double intakeCurrent = processorRoller.getOutputCurrent();
 
     // Motorun uyguladıgı çıkış voltajını alıyoruz
-    double appliedVoltage = processorRoller.getAppliedOutput() * processorRoller.getBusVoltage();
+    // double appliedVoltage = processorRoller.getAppliedOutput() *
+    // processorRoller.getBusVoltage();
 
     // Eşik degerler (constAlgaeIntake'ten alınan sabitler)
     double processorRollerHasGamePieceCurrent =
         ProcessorRollerConstants.kAlgeaIntakeHasGamePieceCurrent;
 
-    double intakeHasGamePieceVoltage =
-        ProcessorRollerConstants.kAlgeaProcessorRollerHasGamePieceVoltage;
+    // double intakeHasGamePieceVoltage =
+    // ProcessorRollerConstants.kAlgeaProcessorRollerHasGamePieceVoltage;
 
     // Manuel test için kontrol
     if (hasAlgaeOverride) {
@@ -82,7 +83,9 @@ public class IO_ProcessorRollerReal implements IO_ProcessorRollerBase {
     // 1. Akım belirli bir eşik degerden büyükse
     // 2. Motor voltajı belirli bir eşik degerden küçükse (yük altındaysa yavaşlama göstergesi)
     if ((intakeCurrent >= processorRollerHasGamePieceCurrent)
-        && (appliedVoltage <= intakeHasGamePieceVoltage)) {
+    // && (appliedVoltage <= intakeHasGamePieceVoltage)
+
+    ) {
       return true;
     } else {
       return false;

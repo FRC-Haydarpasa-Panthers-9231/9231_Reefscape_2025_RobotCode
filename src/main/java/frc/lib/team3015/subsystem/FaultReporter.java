@@ -2,7 +2,6 @@
 
 package frc.lib.team3015.subsystem;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -308,14 +307,17 @@ public class FaultReporter {
     subsystemFaults.hardware.add(new SelfCheckingPhoenixMotor(label, phoenixMotor));
     subsystemsFaults.put(subsystemName, subsystemFaults);
 
-    // The following is the recommended workaround from CTRE to ensure that the CANivore has been
+    // The following is the recommended workaround from CTRE to ensure that the CANivore has
+    // been
     // enumerated by the root hub and therefore, hoot files will be properly generated.
-    if (!this.startedCTRESignalLogger) {
-      this.startedCTRESignalLogger = true;
-      phoenixMotor.getVersion().waitForUpdate(0.5);
-      SignalLogger.setPath("/media/sda1");
-      SignalLogger.start();
-    }
+    /*
+     * if (!this.startedCTRESignalLogger) {
+     * this.startedCTRESignalLogger = true;
+     * phoenixMotor.getVersion().waitForUpdate(0.5);
+     * SignalLogger.setPath("/media/sda1");
+     * SignalLogger.start();
+     * }
+     */
   }
 
   /**

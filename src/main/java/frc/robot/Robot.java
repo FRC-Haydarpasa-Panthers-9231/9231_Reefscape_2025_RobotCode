@@ -62,7 +62,7 @@ public class Robot extends LoggedRobot {
   private boolean autoMessagePrinted;
   private double autoStart;
 
-  private PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
+  private PowerDistribution pdh = new PowerDistribution(19, ModuleType.kRev);
   private final Timer disabledTimer = new Timer();
   private final Timer canInitialErrorTimer = new Timer();
   private final Timer canErrorTimer = new Timer();
@@ -135,10 +135,10 @@ public class Robot extends LoggedRobot {
     // robot container'ı oluştur.
     robotContainer = new RobotContainer();
 
-    // PDH log
     if (!Constants.kIsCompetition) {
       LiveWindow.disableAllTelemetry();
     }
+    // PDH log
     SmartDashboard.putData("PDH", pdh);
 
     // Command schedule'u driver dashoard'a koymak için logladık

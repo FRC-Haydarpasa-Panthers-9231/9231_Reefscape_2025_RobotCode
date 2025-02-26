@@ -1,5 +1,7 @@
 package frc.robot.subsystems.elevator;
 
+import static edu.wpi.first.units.Units.Amps;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
@@ -9,6 +11,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -49,6 +52,8 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
   private final MotionMagicVoltage motionMagicPositionRequest = new MotionMagicVoltage(0.0);
 
+  private final TalonFXConfiguration followerConfig = new TalonFXConfiguration();
+
   private final LoggedTunableNumber kPslot0 =
       new LoggedTunableNumber("Elevator/kPslot0", ElevatorConstants.KP_SLOT0);
   private final LoggedTunableNumber kIslot0 =
@@ -72,7 +77,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
       new LoggedTunableNumber("Elevator/acceleration", ElevatorConstants.MOTION_MAGIC_ACCELERATION);
 
   private final LoggedTunableNumber motionMagicJerk =
-      new LoggedTunableNumber("Elevator/expo_kv", ElevatorConstants.MOTION_MAGIC_JERK);
+      new LoggedTunableNumber("Elevator/MotionMagicJerk", ElevatorConstants.MOTION_MAGIC_JERK);
 
   private final LoggedTunableNumber expo_kv =
       new LoggedTunableNumber("Elevator/expo_kv", ElevatorConstants.MOTION_MAGIC_KV);
@@ -83,8 +88,8 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
   private Alert refreshAlert = new Alert("Failed to refresh all signals.", AlertType.kError);
 
   public IO_ElevatorReal() {
-    elevatorMotorLead = new TalonFX(ElevatorConstants.kElevatorMotorLeadID);
-    elevatorMotorFollower = new TalonFX(ElevatorConstants.kElevatorMotorFollowerID);
+    elevatorMotorLead = new TalonFX(ElevatorConstants.kElevatorMotorLeadID, "Drivetrain");
+    elevatorMotorFollower = new TalonFX(ElevatorConstants.kElevatorMotorFollowerID, "Drivetrain");
 
     leadStatorCurrent = elevatorMotorLead.getStatorCurrent();
     followerStatorCurrent = elevatorMotorFollower.getStatorCurrent();
@@ -110,10 +115,26 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
         5,
         () -> elevatorMotorLead.getConfigurator().apply(ElevatorConstants.kElavatorConfig),
         configAlert);
+
+    followerConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    followerConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ElevatorConstants.kForwardLimit;
+    followerConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    followerConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ElevatorConstants.kReverseLimit;
+    followerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    followerConfig.CurrentLimits.StatorCurrentLimit = 80.0;
+    followerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    followerConfig
+        .CurrentLimits
+        .withSupplyCurrentLimitEnable(true)
+        .withSupplyCurrentLimit(Amps.of(7));
+
+    followerConfig.Voltage.PeakForwardVoltage = 12.0;
+    followerConfig.Voltage.PeakReverseVoltage = -12;
+
+    followerConfig.Feedback.SensorToMechanismRatio = 12;
+
     PhoenixUtil.tryUntilOk(
-        5,
-        () -> elevatorMotorFollower.getConfigurator().apply(ElevatorConstants.kElavatorConfig),
-        configAlert);
+        5, () -> elevatorMotorFollower.getConfigurator().apply(followerConfig), configAlert);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
@@ -140,6 +161,8 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
     FaultReporter.getInstance()
         .registerHardware(
             ElevatorConstants.kSubsystemName, "Elevator Motor Follower", elevatorMotorLead);
+    setSensorPosition(0);
+    elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
   }
 
   @Override
@@ -263,8 +286,10 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
   @Override
   public void setPosition(double positionRads) {
-    elevatorMotorLead.setControl(motionMagicPositionRequest.withPosition(positionRads));
-    elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
+    elevatorMotorLead.setControl(
+        motionMagicPositionRequest
+            .withPosition(Units.radiansToRotations(positionRads))
+            .withSlot(0));
   }
 
   @Override
@@ -280,7 +305,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
   @Override
   public double getElevatorPosition() {
-    return elevatorMotorLead.getPosition().getValueAsDouble();
+    return Units.rotationsToRadians(elevatorMotorLead.getPosition().getValueAsDouble());
   }
 
   @Override

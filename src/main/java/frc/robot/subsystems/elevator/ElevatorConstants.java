@@ -24,10 +24,10 @@ public class ElevatorConstants {
       Meters.of(edu.wpi.first.math.util.Units.inchesToMeters(10));
 
   // TODO GEREKİRSE TOLERANSI ARTTIR
-  public static final double kTolerance = 0.003;
+  public static final double kTolerance = 0.030;
 
   // TODO ELEVATOR YAPILDIKTAN SONRAs TAM REDUCTION'I AL
-  public static final double kElevatorGearing = 3;
+  public static final double kElevatorGearing = 12;
   public static final double kCarriageMass = 18;
   public static final double kElevatorDrumRadius =
       edu.wpi.first.math.util.Units.inchesToMeters(0.62);
@@ -43,13 +43,13 @@ public class ElevatorConstants {
   public static final double kElevatorPitch = 0.00635; // 6.35 mm = 0.00635 metre
 
   // TODO GERÇEK HAYAT PID VE FEEDFORWARDLARINI AYARLA.
-  public static final double KP_SLOT0 = 0;
+  public static final double KP_SLOT0 = 42.72;
   public static final double KI_SLOT0 = 0;
-  public static final double KD_SLOT0 = 0;
-  public static final double KS_SLOT0 = 0.09;
-  public static final double KV_SLOT0 = 0;
-  public static final double KA_SLOT0 = 0;
-  public static final double KG_SLOT0 = 0;
+  public static final double KD_SLOT0 = 3.91;
+  public static final double KS_SLOT0 = 0;
+  public static final double KV_SLOT0 = 1.43;
+  public static final double KA_SLOT0 = 0.245;
+  public static final double KG_SLOT0 = 0.359;
 
   public static final double KP_SLOT1 = 1000;
   public static final double KI_SLOT1 = 5;
@@ -58,10 +58,10 @@ public class ElevatorConstants {
   public static final double KV_SLOT1 = 0;
   public static final double KA_SLOT1 = 0;
   public static final double KG_SLOT1 = 0.1;
-  public static final double MOTION_MAGIC_CRUISE_VELOCITY = 80 / kElevatorGearing;
-  public static final double MOTION_MAGIC_ACCELERATION = 160 / kElevatorGearing;
-  public static final double MOTION_MAGIC_JERK = 800 / kElevatorGearing;
-  public static final double MOTION_MAGIC_KV = 0.2;
+  public static final double MOTION_MAGIC_CRUISE_VELOCITY = 60;
+  public static final double MOTION_MAGIC_ACCELERATION = 60;
+  public static final double MOTION_MAGIC_JERK = 600;
+  public static final double MOTION_MAGIC_KV = 0.3;
 
   public enum ReefBranch {
     L1,
@@ -73,14 +73,14 @@ public class ElevatorConstants {
     ALGAE_2,
   }
 
-  public static final double kForwardLimit = 10;
+  public static final double kForwardLimit = 6.1;
   public static final double kReverseLimit = 0;
 
   public static TalonFXConfiguration kElavatorConfig = new TalonFXConfiguration();
 
   static {
     kElavatorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    kElavatorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    kElavatorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // TODO: SOFTWARE LIMITLERINI BUL VE EKLE
     kElavatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
@@ -92,14 +92,14 @@ public class ElevatorConstants {
     kElavatorConfig
         .CurrentLimits
         .withSupplyCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(Amps.of(50));
+        .withSupplyCurrentLimit(Amps.of(7));
 
     kElavatorConfig.Voltage.PeakForwardVoltage = 12.0;
     kElavatorConfig.Voltage.PeakReverseVoltage = -12;
 
     kElavatorConfig.Feedback.SensorToMechanismRatio = kElevatorGearing;
 
-    kElavatorConfig.Slot0.kG = KP_SLOT0; // Volts to overcome gravity
+    kElavatorConfig.Slot0.kG = KG_SLOT0; // Volts to overcome gravity
     kElavatorConfig.Slot0.kS = KS_SLOT0; // Volts to overcome static friction
     kElavatorConfig.Slot0.kV = KV_SLOT0; // Volts for a velocity target of 1 rps
     kElavatorConfig.Slot0.kA = KA_SLOT0; // Volts for an acceleration of 1 rps/s
@@ -134,7 +134,7 @@ public class ElevatorConstants {
 
   static {
     kCoastModeConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    kCoastModeConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    kCoastModeConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
   }
 
   // TODO ZEROİNG VOLTAGE YETERLİ DEgİLSE DÜZENLE
@@ -142,12 +142,12 @@ public class ElevatorConstants {
 
   // TODO: SCORİNG HEİGHTLERI ÖLÇ
   public enum ELEVATOR_HEIGHT {
-    ZERO_HEIGHT(0.0),
+    ZERO_HEIGHT(0.3),
     ALGAE_GROUND_INTAKE(0.0),
-    CORAL_L1_HEIGHT(9.0),
-    CORAL_L2_HEIGHT(19.0),
-    CORAL_L3_HEIGHT(25.75),
-    CORAL_L4_HEIGHT(33),
+    CORAL_L1_HEIGHT(0.3),
+    CORAL_L2_HEIGHT(9),
+    CORAL_L3_HEIGHT(19),
+    CORAL_L4_HEIGHT(37),
     ALGAE_PREP_PROCESSOR_HEIGHT(1.0),
     ALGAE_L3_CLEANING(25.0),
     ALGAE_L2_CLEANING(9.0),

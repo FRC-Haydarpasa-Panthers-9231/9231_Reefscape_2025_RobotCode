@@ -27,7 +27,7 @@ public class SUB_Elevator extends SubsystemBase {
   private static final LoggedTunableNumber elevatorHeightSetpoint =
       new LoggedTunableNumber("Elevator/Elevator Height Setpoint", 0);
   private static final LoggedTunableNumber elevatorDebugVolts =
-      new LoggedTunableNumber("Elevator/Elevator Volts", 2);
+      new LoggedTunableNumber("Elevator/Elevator Volts", 3);
 
   public SUB_Elevator(IO_ElevatorBase io) {
     this.io = io;
@@ -49,7 +49,8 @@ public class SUB_Elevator extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
-    Logger.recordOutput("isElevatorAtSetpoint", this.isAtSetPoint());
+    Logger.recordOutput("Elevator/isElevatorAtSetpoint", this.isAtSetPoint());
+    Logger.recordOutput("Elevator/Last Desired Position", this.lastDesiredPosition);
   }
 
   /**
@@ -63,7 +64,7 @@ public class SUB_Elevator extends SubsystemBase {
 
   public void setElevatorDebugVoltage(boolean isForward) {
     double volts =
-        isForward ? elevatorDebugVolts.getAsDouble() * 1 : elevatorDebugVolts.getAsDouble() * 1;
+        isForward ? elevatorDebugVolts.getAsDouble() * 1 : elevatorDebugVolts.getAsDouble() * -1;
     io.setElevatorVoltage(Volts.of(volts));
   }
 
@@ -136,6 +137,7 @@ public class SUB_Elevator extends SubsystemBase {
   }
 
   public void setPosition(double positionRad) {
+    lastDesiredPosition = positionRad;
     io.setPosition(positionRad);
   }
 
@@ -144,6 +146,7 @@ public class SUB_Elevator extends SubsystemBase {
   }
 
   public void setPositionDebug() {
+    lastDesiredPosition = elevatorHeightSetpoint.getAsDouble();
     io.setPosition(elevatorHeightSetpoint.getAsDouble());
   }
 

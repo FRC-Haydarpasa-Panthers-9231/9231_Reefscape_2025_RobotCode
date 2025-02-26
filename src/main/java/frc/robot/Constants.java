@@ -13,9 +13,9 @@ public final class Constants {
   public static final int kBeamBreakPort = 1;
 
   public static class OperatorConstants {
-    public static final int kDriverControllerPort = 0;
+    public static final int kDriverControllerPort = 2;
     public static final int kOperatorControllerPort = 1;
-    public static final int kPracticeControllerPort = 2;
+    public static final int kPracticeControllerPort = 0;
     public static final double LEFT_X_DEADBAND = 0.1;
     public static final double LEFT_Y_DEADBAND = 0.1;
     public static final double RIGHT_X_DEADBAND = 0.1;

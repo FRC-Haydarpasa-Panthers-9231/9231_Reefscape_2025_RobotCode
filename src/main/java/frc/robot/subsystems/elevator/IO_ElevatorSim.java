@@ -1,5 +1,6 @@
 package frc.robot.subsystems.elevator;
 
+import static edu.wpi.first.units.Units.Amps;
 import static frc.robot.subsystems.elevator.ElevatorConstants.MOTION_MAGIC_ACCELERATION;
 import static frc.robot.subsystems.elevator.ElevatorConstants.kElevatorGearing;
 import static frc.robot.subsystems.elevator.ElevatorConstants.kElevatorTeeth;
@@ -13,6 +14,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -64,6 +66,8 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
   private StatusSignal<Boolean> elevatorReverseSoftLimitTriggeredSignal;
   private StatusSignal<AngularVelocity> leadVelocitySignal;
   private StatusSignal<AngularVelocity> followerVelocitySignal;
+
+  private final TalonFXConfiguration followerConfig = new TalonFXConfiguration();
 
   private final LoggedTunableNumber kPslot1 =
       new LoggedTunableNumber("Elevator/kPslot1", ElevatorConstants.KP_SLOT1);
@@ -122,10 +126,25 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
         () -> elevatorMotorLead.getConfigurator().apply(ElevatorConstants.kElavatorConfig),
         configAlert);
 
+    followerConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    followerConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ElevatorConstants.kForwardLimit;
+    followerConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    followerConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ElevatorConstants.kReverseLimit;
+    followerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    followerConfig.CurrentLimits.StatorCurrentLimit = 80.0;
+    followerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    followerConfig
+        .CurrentLimits
+        .withSupplyCurrentLimitEnable(true)
+        .withSupplyCurrentLimit(Amps.of(50));
+
+    followerConfig.Voltage.PeakForwardVoltage = 12.0;
+    followerConfig.Voltage.PeakReverseVoltage = -12;
+
+    followerConfig.Feedback.SensorToMechanismRatio = 3;
+
     PhoenixUtil.tryUntilOk(
-        5,
-        () -> elevatorMotorFollower.getConfigurator().apply(ElevatorConstants.kElavatorConfig),
-        configAlert);
+        5, () -> elevatorMotorFollower.getConfigurator().apply(followerConfig), configAlert);
 
     FaultReporter.getInstance()
         .registerHardware(
@@ -165,6 +184,7 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
             ElevatorConstants.kDefaultSetpoint);
 
     m_Mech = new MotionProfiledElevatorMechanism("Elevator");
+    elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
   }
 
   @Override
@@ -215,9 +235,11 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
 
     // Ana motorun simulasyon durumunu al
     var simState = elevatorMotorLead.getSimState();
+    var simState2 = elevatorMotorFollower.getSimState();
 
     // set the supply (battery) voltage for the lead motor simulation state
     simState.setSupplyVoltage(RobotController.getBatteryVoltage());
+    simState2.setSupplyVoltage(RobotController.getBatteryVoltage());
 
     var motorVoltage = elevatorMotorLead.getMotorVoltage().getValueAsDouble();
 
@@ -288,7 +310,6 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
   @Override
   public void setElevatorVoltage(Voltage volts) {
     elevatorMotorLead.setControl(voltageRequest.withOutput(volts));
-    elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
   }
 
   @Override
