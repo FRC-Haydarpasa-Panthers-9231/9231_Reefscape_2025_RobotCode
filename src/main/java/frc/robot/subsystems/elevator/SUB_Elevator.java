@@ -4,7 +4,6 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -91,7 +90,7 @@ public class SUB_Elevator extends SubsystemBase {
      * Kraken encoderlarını belirli bir degere atamak için kullanılır. Kullanım alanı genelde
      * encoder'ı sıfırlamak ve default pozisyon atamaktır.
      *
-     * @param setpoint enconder'ın ayarlanacagı deger
+     * @param setpoint encoder'ın ayarlanacagı deger
      */
     public void setEncoderPosition(double setpoint)
     {
