@@ -38,6 +38,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
   private StatusSignal<Current> followerSupplyCurrent;
 
   private StatusSignal<Angle> elevatorPositionStatusSignal;
+  private StatusSignal<Angle> elevatorPositionStatusSignalFollower;
 
   private StatusSignal<Temperature> elevatorLeadTempStatusSignal;
   private StatusSignal<Temperature> elevatorFollowerTempStatusSignal;
@@ -101,6 +102,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
     followerSupplyCurrent = elevatorMotorFollower.getSupplyCurrent();
 
     elevatorPositionStatusSignal = elevatorMotorLead.getPosition();
+    elevatorPositionStatusSignalFollower = elevatorMotorFollower.getPosition();
 
     elevatorLeadTempStatusSignal = elevatorMotorLead.getDeviceTemp();
     elevatorFollowerTempStatusSignal = elevatorMotorFollower.getDeviceTemp();
@@ -148,6 +150,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
         elevatorLeadTempStatusSignal,
         elevatorFollowerTempStatusSignal,
         leadVelocitySignal,
+        elevatorPositionStatusSignalFollower,
         followerVelocitySignal);
 
     // Optimize CAN bus usage for all devices
@@ -179,6 +182,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
             followerVoltageSupplied,
             elevatorLeadTempStatusSignal,
             elevatorFollowerTempStatusSignal,
+            elevatorPositionStatusSignalFollower,
             leadVelocitySignal,
             followerVelocitySignal,
             elevatorForwardSoftLimitTriggeredSignal,
@@ -203,6 +207,8 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
     inputs.positionRotations = elevatorPositionStatusSignal.getValueAsDouble();
 
     inputs.positionRads = Units.rotationsToRadians(elevatorPositionStatusSignal.getValueAsDouble());
+    inputs.positionRadsFollower =
+        Units.rotationsToRadians(elevatorPositionStatusSignalFollower.getValueAsDouble());
     inputs.velocityLead = leadVelocitySignal.getValueAsDouble();
     inputs.velocityFollower = followerVelocitySignal.getValueAsDouble();
 
@@ -285,11 +291,13 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
   }
 
   @Override
-  public void setPosition(double positionRads) {
+  public void setPosition(double goalPositionRads) {
+    // if(goalPositionRads>=Units.rotationsToRadians(elevatorPositionStatusSignalFollower) )
     elevatorMotorLead.setControl(
         motionMagicPositionRequest
-            .withPosition(Units.radiansToRotations(positionRads))
+            .withPosition(Units.radiansToRotations(goalPositionRads))
             .withSlot(0));
+    elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
   }
 
   @Override

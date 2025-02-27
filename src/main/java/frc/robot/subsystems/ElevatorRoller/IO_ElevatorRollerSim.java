@@ -10,14 +10,12 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DigitalInput;
 import frc.lib.team3015.subsystem.FaultReporter;
-import frc.robot.Constants;
 import frc.robot.subsystems.processor_roller.ProcessorRollerConstants;
 import frc.robot.util.SparkUtil;
 
 public class IO_ElevatorRollerSim implements IO_ElevatorRollerBase {
-  private final DigitalInput photoelectricSensor = new DigitalInput(Constants.kBeamBreakPort);
+  // private final DigitalInput photoelectricSensor = new DigitalInput(Constants.kBeamBreakPort);
 
   private final Alert configAlert =
       new Alert("Elevator Roller için config ayarlanırken bir hata oluştu.", AlertType.kError);
@@ -98,6 +96,7 @@ public class IO_ElevatorRollerSim implements IO_ElevatorRollerBase {
 
   @Override
   public boolean hasCoral() {
-    return photoelectricSensor.get();
+    // return photoelectricSensor.get();
+    return true;
   }
 }

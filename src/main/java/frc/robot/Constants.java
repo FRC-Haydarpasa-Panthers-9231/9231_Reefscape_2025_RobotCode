@@ -1,12 +1,15 @@
 package frc.robot;
 
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
   public static final double loopPeriodSecs = 0.02;
   public static final boolean tuningMode = true;
   public static final boolean debug = true;
-
+  public static final Distance kSwerveTolerance = Units.Meters.of(0.03);
+  public static final int kElevatorLimitSwitchPort = 2;
   public static final boolean DEMO_MODE = false;
   public static final boolean kIsCompetition = false;
 

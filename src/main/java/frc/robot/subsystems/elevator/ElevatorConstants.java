@@ -59,9 +59,9 @@ public class ElevatorConstants {
   public static final double KA_SLOT1 = 0;
   public static final double KG_SLOT1 = 0.1;
   public static final double MOTION_MAGIC_CRUISE_VELOCITY = 60;
-  public static final double MOTION_MAGIC_ACCELERATION = 60;
-  public static final double MOTION_MAGIC_JERK = 600;
-  public static final double MOTION_MAGIC_KV = 0.3;
+  public static final double MOTION_MAGIC_ACCELERATION = 30;
+  public static final double MOTION_MAGIC_JERK = 10;
+  public static final double MOTION_MAGIC_KV = 0;
 
   public enum ReefBranch {
     L1,
@@ -92,7 +92,7 @@ public class ElevatorConstants {
     kElavatorConfig
         .CurrentLimits
         .withSupplyCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(Amps.of(7));
+        .withSupplyCurrentLimit(Amps.of(8));
 
     kElavatorConfig.Voltage.PeakForwardVoltage = 12.0;
     kElavatorConfig.Voltage.PeakReverseVoltage = -12;
@@ -142,7 +142,7 @@ public class ElevatorConstants {
 
   // TODO: SCORİNG HEİGHTLERI ÖLÇ
   public enum ELEVATOR_HEIGHT {
-    ZERO_HEIGHT(0.3),
+    ZERO_HEIGHT(1.2),
     ALGAE_GROUND_INTAKE(0.0),
     CORAL_L1_HEIGHT(0.3),
     CORAL_L2_HEIGHT(9),

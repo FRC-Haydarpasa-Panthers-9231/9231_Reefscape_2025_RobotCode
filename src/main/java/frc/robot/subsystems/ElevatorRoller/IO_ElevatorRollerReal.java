@@ -8,16 +8,14 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DigitalInput;
 import frc.lib.team3015.subsystem.FaultReporter;
-import frc.robot.Constants;
 import frc.robot.util.SparkUtil;
 
 public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
 
   private SparkMax elevatorRoller1Motor;
   private SparkMax elevatorRoller2Motor;
-  private final DigitalInput photoelectricSensor = new DigitalInput(Constants.kBeamBreakPort);
+  // private final DigitalInput photoelectricSensor = new DigitalInput(Constants.kBeamBreakPort);
   private final Alert configAlert =
       new Alert("Elevator Roller için config ayarlanırken bir hata oluştu.", AlertType.kError);
 
@@ -32,10 +30,7 @@ public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
         5,
         () ->
             elevatorRoller1Motor.configure(
-                new SparkMaxConfig()
-                    .idleMode(IdleMode.kBrake)
-                    .smartCurrentLimit(50)
-                    .inverted(false),
+                new SparkMaxConfig().idleMode(IdleMode.kBrake).smartCurrentLimit(50).inverted(true),
                 ResetMode.kNoResetSafeParameters,
                 PersistMode.kPersistParameters),
         configAlert);
@@ -67,7 +62,8 @@ public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
 
   @Override
   public boolean hasCoral() {
-    return photoelectricSensor.get();
+    // return photoelectricSensor.get();
+    return true;
   }
 
   @Override
@@ -81,7 +77,7 @@ public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
     inputs.elevatorRoller2CurrentAmps = elevatorRoller2Motor.getOutputCurrent();
     inputs.elevatorRoller1TempCelsius = elevatorRoller1Motor.getMotorTemperature();
     inputs.elevatorRoller1TempCelsius = elevatorRoller2Motor.getMotorTemperature();
-    inputs.hasCoral = photoelectricSensor.get();
+    // inputs.hasCoral = photoelectricSensor.get();
   }
 
   @Override

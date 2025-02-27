@@ -165,6 +165,8 @@ public class Robot extends LoggedRobot {
     PathPlannerLogging.setLogActivePathCallback(
         poses -> Logger.recordOutput("PathFollowing/activePath", poses.toArray(new Pose2d[0])));
 
+    robotContainer.logField();
+
     this.canivoreBus = new CANBus("*");
     PathfindingCommand.warmupCommand().schedule();
   }
@@ -257,6 +259,7 @@ public class Robot extends LoggedRobot {
         autoMessagePrinted = true;
       }
     }
+    robotContainer.logRobotFieldPosition();
   }
 
   @Override
@@ -275,7 +278,9 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    robotContainer.logAutonomousPath();
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override

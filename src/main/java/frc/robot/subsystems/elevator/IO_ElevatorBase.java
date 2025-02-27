@@ -29,6 +29,7 @@ public interface IO_ElevatorBase {
 
     double positionRotations = 0.0;
     double positionRads = 0.0;
+    double positionRadsFollower = 0.0;
 
     double tempCelciusLead = 0.0;
     double tempCelciusFollower = 0.0;
