@@ -4,18 +4,15 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class BeamBreak extends SubsystemBase {
-    private final DigitalInput photoelectricSensor;
+  private final DigitalInput photoelectricSensor;
 
-    public BeamBreak(int id)
-    {
-        photoelectricSensor = new DigitalInput(id);
+  public BeamBreak(int id) {
+    photoelectricSensor = new DigitalInput(id);
+  }
 
-    }
-
-    public boolean isTrue()
-    {
-        return !photoelectricSensor.get();
-    }
+  public boolean isTrue() {
+    return !photoelectricSensor.get();
+  }
 }
 
 /**
@@ -23,14 +20,11 @@ public class BeamBreak extends SubsystemBase {
  * static final int DEBOUNCE_THRESHOLD = 5; // 5 cycle bekleyin @Override public void periodic() {
  * boolean currentSensorState = photoelectricSensor.get();
  *
- * <p>
- * // Debouncing if (currentSensorState != lastSensorState) { debounceCounter++; } else {
+ * <p>// Debouncing if (currentSensorState != lastSensorState) { debounceCounter++; } else {
  * debounceCounter = 0; }
  *
- * <p>
- * if (debounceCounter >= DEBOUNCE_THRESHOLD) { lastSensorState = currentSensorState;
+ * <p>if (debounceCounter >= DEBOUNCE_THRESHOLD) { lastSensorState = currentSensorState;
  * debounceCounter = 0;
  *
- * <p>
- * // Işın kırıldıysa bir işlem yap if (currentSensorState) { resetElevatorPosition(); } } }
+ * <p>// Işın kırıldıysa bir işlem yap if (currentSensorState) { resetElevatorPosition(); } } }
  */
