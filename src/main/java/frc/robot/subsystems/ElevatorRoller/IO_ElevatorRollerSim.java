@@ -15,7 +15,6 @@ import frc.robot.subsystems.processor_roller.ProcessorRollerConstants;
 import frc.robot.util.SparkUtil;
 
 public class IO_ElevatorRollerSim implements IO_ElevatorRollerBase {
-  // private final DigitalInput photoelectricSensor = new DigitalInput(Constants.kBeamBreakPort);
 
   private final Alert configAlert =
       new Alert("Elevator Roller için config ayarlanırken bir hata oluştu.", AlertType.kError);

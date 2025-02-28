@@ -8,6 +8,8 @@ public class ElevatorRollerConstants {
   // TODO: PORTLARI KONTROL ET VE DOgRU PORTLARI ATA
   public static final int kElevatorRollerMotor1Port = 13;
   public static final int kElevatorRollerMotor2Port = 14;
+  public static final int kPhotoelectricSensorPort = 4;
+
   public static final String kSubsystemName = "Elevator Roller";
 
   // TODO SCORİNG SPEEDLERİ ÖLÇ

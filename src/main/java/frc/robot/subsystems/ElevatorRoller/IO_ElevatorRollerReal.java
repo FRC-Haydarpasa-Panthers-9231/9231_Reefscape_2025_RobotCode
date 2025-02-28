@@ -78,7 +78,6 @@ public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
     inputs.elevatorRoller2CurrentAmps = elevatorRoller2Motor.getOutputCurrent();
     inputs.elevatorRoller1TempCelsius = elevatorRoller1Motor.getMotorTemperature();
     inputs.elevatorRoller1TempCelsius = elevatorRoller2Motor.getMotorTemperature();
-    // inputs.hasCoral = photoelectricSensor.get();
   }
 
   @Override

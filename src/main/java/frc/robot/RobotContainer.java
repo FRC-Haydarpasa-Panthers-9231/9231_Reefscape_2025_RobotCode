@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.FieldConstants.ReefSide;
 import frc.robot.commands.CleaningL2Reef;
 import frc.robot.commands.CleaningL3Reef;
+import frc.robot.commands.DebugIntaking;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.GetCoral;
 import frc.robot.commands.IntakingAlgaeGround;
@@ -357,6 +358,11 @@ public class RobotContainer {
         .whileTrue(
             DriveCommands.pathfindingCommandToPose(1.13, 0.97, 52.76, drive)
                 .withName("Drive to Bottom Feeder"));
+    driverController
+        .pov(0)
+        .whileTrue(
+            DriveCommands.pathfindingCommandToPose(5.98, 0.59, -90.30, drive)
+                .withName("Drive to processor"));
   }
 
   private void operatorContorllerBindings() {
@@ -521,7 +527,9 @@ public class RobotContainer {
                 .withName("Elevator Rollerlar çalıştı"))
         .onFalse(Commands.runOnce(() -> elevatorRoller.setSpeed(0), elevatorRoller));
 
-    debugController.pov(0).onTrue(new IntakingCoral(elevatorRoller).withTimeout(5));
+    debugController.pov(0).onTrue(new DebugIntaking(elevatorRoller).withTimeout(6));
+
+    // debugController.pov(0).onTrue(new IntakingCoral(elevatorRoller).withTimeout(5));
 
     debugController.pov(90).whileTrue(Commands.run(() -> System.out.println("POV 90")));
     debugController.pov(180).whileTrue(Commands.run(() -> System.out.println("POV 180")));

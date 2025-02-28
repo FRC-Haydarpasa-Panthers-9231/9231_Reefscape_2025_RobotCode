@@ -58,7 +58,7 @@ public class ElevatorConstants {
   public static final double KV_SLOT1 = 0;
   public static final double KA_SLOT1 = 0;
   public static final double KG_SLOT1 = 0.1;
-  public static final double MOTION_MAGIC_CRUISE_VELOCITY = 60;
+  public static final double MOTION_MAGIC_CRUISE_VELOCITY = 90;
   public static final double MOTION_MAGIC_ACCELERATION = 30;
   public static final double MOTION_MAGIC_JERK = 10;
   public static final double MOTION_MAGIC_KV = 0;

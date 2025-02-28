@@ -11,7 +11,7 @@ public class BeamBreak extends SubsystemBase {
   }
 
   public boolean isTrue() {
-    return !photoelectricSensor.get();
+    return photoelectricSensor.get();
   }
 }
 
