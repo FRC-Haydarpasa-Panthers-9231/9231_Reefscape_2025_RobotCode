@@ -29,7 +29,6 @@ import frc.robot.commands.IntakingAlgaeGround;
 import frc.robot.commands.IntakingCoral;
 import frc.robot.commands.ScoringAlgea;
 import frc.robot.commands.ScoringCoral;
-import frc.robot.commands.ZeroElevator;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ElevatorRoller.IO_ElevatorRollerReal;
 import frc.robot.subsystems.ElevatorRoller.IO_ElevatorRollerSim;
@@ -128,7 +127,7 @@ public class RobotContainer {
   public RobotContainer() {
 
     // Eger voltaj 6.5 altına düşerse roborio'ya komut gitmez.
-    RobotController.setBrownoutVoltage(6.5);
+    RobotController.setBrownoutVoltage(5.5);
 
     switch (Constants.currentMode) {
       case REAL:
@@ -413,7 +412,6 @@ public class RobotContainer {
         .rightBumper()
         .and(operatorController.leftBumper().negate())
         .onTrue(setCoralAlgaeModeCommand());
-    operatorController.rightTrigger().onTrue(new ZeroElevator(elevator));
   }
 
   private void debugControllerBindings() {
@@ -469,11 +467,10 @@ public class RobotContainer {
         .a()
         .onTrue(
             Commands.runOnce(
-                    () ->
-                        elevator.setPosition(
-                            ElevatorConstants.ELEVATOR_HEIGHT.ZERO_HEIGHT.getPositionRads()),
-                    elevator)
-                .withName("Elevator position zero"));
+                () ->
+                    elevator.setPosition(
+                        ElevatorConstants.ELEVATOR_HEIGHT.ZERO_HEIGHT.getPositionRads()),
+                elevator));
 
     debugController
         .b()

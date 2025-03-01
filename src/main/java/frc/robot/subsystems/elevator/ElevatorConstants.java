@@ -36,9 +36,6 @@ public class ElevatorConstants {
   public static final double kDefaultSetpoint = 0;
   public static final String kSubsystemName = "Elevator";
 
-  // TODO INVERTLENIP INVERTLENMEYECEgİNİ KONTROL ET
-  public static final boolean kIsInverted = false;
-
   public static final int kElevatorTeeth = 17;
   public static final double kElevatorPitch = 0.00635; // 6.35 mm = 0.00635 metre
 
@@ -58,10 +55,11 @@ public class ElevatorConstants {
   public static final double KV_SLOT1 = 0;
   public static final double KA_SLOT1 = 0;
   public static final double KG_SLOT1 = 0.1;
-  public static final double MOTION_MAGIC_CRUISE_VELOCITY = 90;
-  public static final double MOTION_MAGIC_ACCELERATION = 30;
-  public static final double MOTION_MAGIC_JERK = 10;
-  public static final double MOTION_MAGIC_KV = 0;
+  public static final double MOTION_MAGIC_CRUISE_VELOCITY = 150;
+  public static final double MOTION_MAGIC_ACCELERATION = 50;
+  public static final double MOTION_MAGIC_JERK = 30;
+  public static final double MOTION_MAGIC_KV = 0.5;
+  public static final double MOTION_MAGIC_KA = 0.5;
 
   public enum ReefBranch {
     L1,
@@ -85,14 +83,14 @@ public class ElevatorConstants {
     // TODO: SOFTWARE LIMITLERINI BUL VE EKLE
     kElavatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     kElavatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kForwardLimit;
-    kElavatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    kElavatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
     kElavatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kReverseLimit;
     kElavatorConfig.CurrentLimits.StatorCurrentLimit = 80.0;
     kElavatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     kElavatorConfig
         .CurrentLimits
         .withSupplyCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(Amps.of(8));
+        .withSupplyCurrentLimit(Amps.of(12));
 
     kElavatorConfig.Voltage.PeakForwardVoltage = 12.0;
     kElavatorConfig.Voltage.PeakReverseVoltage = -12;
@@ -127,6 +125,8 @@ public class ElevatorConstants {
     kElavatorConfig.MotionMagic.MotionMagicAcceleration = MOTION_MAGIC_ACCELERATION;
     kElavatorConfig.MotionMagic.MotionMagicJerk = MOTION_MAGIC_JERK;
     kElavatorConfig.MotionMagic.MotionMagicExpo_kV = MOTION_MAGIC_KV;
+    kElavatorConfig.MotionMagic.MotionMagicExpo_kA = MOTION_MAGIC_KA;
+
     // kElavatorConfig.MotionMagic.MotionMagicExpo_kV = MOTION_MAGIC_EXPO_KV;
   }
 
@@ -142,7 +142,7 @@ public class ElevatorConstants {
 
   // TODO: SCORİNG HEİGHTLERI ÖLÇ
   public enum ELEVATOR_HEIGHT {
-    ZERO_HEIGHT(1.2),
+    ZERO_HEIGHT(-0.1),
     ALGAE_GROUND_INTAKE(0.0),
     CORAL_L1_HEIGHT(0.3),
     CORAL_L2_HEIGHT(9),
