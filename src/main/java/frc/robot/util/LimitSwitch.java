@@ -12,7 +12,7 @@ public class LimitSwitch extends SubsystemBase {
   }
 
   public boolean isTrue() {
-    return !limitSwitch.get();
+    return limitSwitch.get();
   }
 
   @Override

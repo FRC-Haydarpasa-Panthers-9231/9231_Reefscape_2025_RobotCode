@@ -27,7 +27,7 @@ public class ElevatorConstants {
   public static final double kTolerance = 0.030;
 
   // TODO ELEVATOR YAPILDIKTAN SONRAs TAM REDUCTION'I AL
-  public static final double kElevatorGearing = 12;
+  public static final double kElevatorGearing = 9;
   public static final double kCarriageMass = 18;
   public static final double kElevatorDrumRadius =
       edu.wpi.first.math.util.Units.inchesToMeters(0.62);
@@ -40,26 +40,24 @@ public class ElevatorConstants {
   public static final double kElevatorPitch = 0.00635; // 6.35 mm = 0.00635 metre
 
   // TODO GERÇEK HAYAT PID VE FEEDFORWARDLARINI AYARLA.
-  public static final double KP_SLOT0 = 42.72;
+  public static final double KP_SLOT0 = 24.976;
   public static final double KI_SLOT0 = 0;
-  public static final double KD_SLOT0 = 3.91;
-  public static final double KS_SLOT0 = 0;
-  public static final double KV_SLOT0 = 1.43;
-  public static final double KA_SLOT0 = 0.245;
-  public static final double KG_SLOT0 = 0.359;
+  public static final double KD_SLOT0 = 1.9351;
+  public static final double KS_SLOT0 = 0.092144;
+  public static final double KV_SLOT0 = 1.1236;
+  public static final double KA_SLOT0 = 0.045095;
+  public static final double KG_SLOT0 = 0.50164;
 
-  public static final double KP_SLOT1 = 1000;
-  public static final double KI_SLOT1 = 5;
-  public static final double KD_SLOT1 = 50;
+  public static final double KP_SLOT1 = 77;
+  public static final double KI_SLOT1 = 0;
+  public static final double KD_SLOT1 = 3.91;
   public static final double KS_SLOT1 = 0;
-  public static final double KV_SLOT1 = 0;
-  public static final double KA_SLOT1 = 0;
-  public static final double KG_SLOT1 = 0.1;
-  public static final double MOTION_MAGIC_CRUISE_VELOCITY = 150;
-  public static final double MOTION_MAGIC_ACCELERATION = 50;
-  public static final double MOTION_MAGIC_JERK = 30;
-  public static final double MOTION_MAGIC_KV = 0.5;
-  public static final double MOTION_MAGIC_KA = 0.5;
+  public static final double KV_SLOT1 = 2.55;
+  public static final double KA_SLOT1 = 0.200;
+  public static final double KG_SLOT1 = 0.359;
+  public static final double MOTION_MAGIC_CRUISE_VELOCITY = 210;
+  public static final double MOTION_MAGIC_ACCELERATION = 60;
+  public static final double MOTION_MAGIC_JERK = 18;
 
   public enum ReefBranch {
     L1,
@@ -71,7 +69,7 @@ public class ElevatorConstants {
     ALGAE_2,
   }
 
-  public static final double kForwardLimit = 6.1;
+  public static final double kForwardLimit = 5.97;
   public static final double kReverseLimit = 0;
 
   public static TalonFXConfiguration kElavatorConfig = new TalonFXConfiguration();
@@ -83,14 +81,14 @@ public class ElevatorConstants {
     // TODO: SOFTWARE LIMITLERINI BUL VE EKLE
     kElavatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     kElavatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kForwardLimit;
-    kElavatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
+    kElavatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     kElavatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kReverseLimit;
     kElavatorConfig.CurrentLimits.StatorCurrentLimit = 80.0;
     kElavatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     kElavatorConfig
         .CurrentLimits
         .withSupplyCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(Amps.of(12));
+        .withSupplyCurrentLimit(Amps.of(57));
 
     kElavatorConfig.Voltage.PeakForwardVoltage = 12.0;
     kElavatorConfig.Voltage.PeakReverseVoltage = -12;
@@ -105,6 +103,8 @@ public class ElevatorConstants {
     kElavatorConfig.Slot0.kI = KI_SLOT0;
     kElavatorConfig.Slot0.kD = KD_SLOT0;
 
+    kElavatorConfig.MotionMagic.MotionMagicExpo_kA = 0.35;
+    kElavatorConfig.MotionMagic.MotionMagicExpo_kV = 0.35;
     kElavatorConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
     kElavatorConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
 
@@ -118,15 +118,18 @@ public class ElevatorConstants {
 
     kElavatorConfig.Slot1.GravityType = GravityTypeValue.Elevator_Static;
 
-    kElavatorConfig.Slot1.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
+    kElavatorConfig.Slot2.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
+    kElavatorConfig.Slot2.kG = 0.4; // Volts to overcome gravity
+    kElavatorConfig.Slot2.kS = 0; // Volts to overcome static friction
+    kElavatorConfig.Slot2.kV = 2.40; // Volts for a velocity target of 1 rps
+    kElavatorConfig.Slot2.kA = 0.8; // Volts for an acceleration of 1 rps/s
+    kElavatorConfig.Slot2.kP = 150;
+    kElavatorConfig.Slot2.kI = 0;
+    kElavatorConfig.Slot2.kD = 4;
 
-    // TODO MOTION MAGIC DEgERLERİNİ DÜZENLE
-    kElavatorConfig.MotionMagic.MotionMagicCruiseVelocity = MOTION_MAGIC_CRUISE_VELOCITY;
-    kElavatorConfig.MotionMagic.MotionMagicAcceleration = MOTION_MAGIC_ACCELERATION;
-    kElavatorConfig.MotionMagic.MotionMagicJerk = MOTION_MAGIC_JERK;
-    kElavatorConfig.MotionMagic.MotionMagicExpo_kV = MOTION_MAGIC_KV;
-    kElavatorConfig.MotionMagic.MotionMagicExpo_kA = MOTION_MAGIC_KA;
+    kElavatorConfig.Slot2.GravityType = GravityTypeValue.Elevator_Static;
 
+    kElavatorConfig.Slot2.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
     // kElavatorConfig.MotionMagic.MotionMagicExpo_kV = MOTION_MAGIC_EXPO_KV;
   }
 
@@ -142,11 +145,11 @@ public class ElevatorConstants {
 
   // TODO: SCORİNG HEİGHTLERI ÖLÇ
   public enum ELEVATOR_HEIGHT {
-    ZERO_HEIGHT(-0.1),
+    ZERO_HEIGHT(0.0),
     ALGAE_GROUND_INTAKE(0.0),
-    CORAL_L1_HEIGHT(0.3),
-    CORAL_L2_HEIGHT(9),
-    CORAL_L3_HEIGHT(19),
+    CORAL_L1_HEIGHT(0),
+    CORAL_L2_HEIGHT(8.22),
+    CORAL_L3_HEIGHT(18.9),
     CORAL_L4_HEIGHT(37),
     ALGAE_PREP_PROCESSOR_HEIGHT(1.0),
     ALGAE_L3_CLEANING(25.0),

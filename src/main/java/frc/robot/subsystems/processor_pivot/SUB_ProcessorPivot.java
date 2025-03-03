@@ -1,6 +1,10 @@
 package frc.robot.subsystems.processor_pivot;
 
+import static edu.wpi.first.units.Units.Volts;
+
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
@@ -17,8 +21,20 @@ public class SUB_ProcessorPivot extends SubsystemBase {
 
   private double setpointVal;
 
+  private static SysIdRoutine sysIdRoutine;
+
   public SUB_ProcessorPivot(IO_ProcessorPivotBase io) {
     this.io = io;
+
+    sysIdRoutine =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(
+                null, // Use default ramp rate (1 V/s)
+                Volts.of(1), // Reduce dynamic step voltage to 4 to prevent brownout
+                null, // Use default timeout (10 s)
+                // Log state with Phoenix SignalLogger class
+                (state) -> Logger.recordOutput("SysIDPivotTest", state.toString())),
+            new SysIdRoutine.Mechanism((volts) -> io.setVoltage(volts), null, this));
   }
 
   @Override
@@ -56,5 +72,13 @@ public class SUB_ProcessorPivot extends SubsystemBase {
 
     io.setPosition(processorPivotDebugSetpoint.getAsDouble());
     setpointVal = processorPivotDebugSetpoint.getAsDouble();
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine.dynamic(direction);
   }
 }

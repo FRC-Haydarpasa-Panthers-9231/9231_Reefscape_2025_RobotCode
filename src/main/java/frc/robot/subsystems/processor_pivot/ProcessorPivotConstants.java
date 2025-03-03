@@ -18,7 +18,7 @@ public class ProcessorPivotConstants {
 
   // TODO: Limitlerini tespit et
   public static final double kProcessorPivotMinAngle = 0;
-  public static final double kProcessorPivotMaxAngle = 50;
+  public static final double kProcessorPivotMaxAngle = 190;
 
   // TODO: REDUCTİON VARSA KONTROL ET
   public static final double kGearing = 125;
@@ -28,9 +28,9 @@ public class ProcessorPivotConstants {
   public static final double kMass = 1;
 
   // TODO: PID Degerlerini bul
-  public static final double kP = 0;
+  public static final double kP = 2.3;
   public static final double kI = 0;
-  public static final double kD = 0;
+  public static final double kD = 12;
 
   public static final boolean kBrake = true;
 

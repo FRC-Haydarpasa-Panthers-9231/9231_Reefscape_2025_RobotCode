@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.61219262295082,
-        "y": 4.894108606557377
+        "x": 7.156500000000001,
+        "y": 4.931749999999999
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.348463114754099,
-        "y": 4.906096311475411
+        "x": 6.89277049180328,
+        "y": 4.943737704918033
       },
       "isLocked": false,
       "linkedName": null
@@ -48,7 +48,7 @@
   "folder": "2 piece ustten",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -179.25594079711135
+    "rotation": -153.43494882292214
   },
   "useDefaultConstraints": true
 }

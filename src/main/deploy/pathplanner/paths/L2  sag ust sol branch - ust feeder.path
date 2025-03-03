@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.6672500000000001,
-        "y": 7.34975
+        "x": 5.00175,
+        "y": 5.302249999999999
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0372439067714407,
-        "y": 6.9690291387008445
+        "x": 3.7589225010315177,
+        "y": 6.176820398835153
       },
       "isLocked": false,
-      "linkedName": "ust feeder sag"
+      "linkedName": "sag ust sag branch"
     },
     {
       "anchor": {
-        "x": 3.6270000000000007,
-        "y": 5.1267499999999995
+        "x": 1.6672500000000001,
+        "y": 7.34975
       },
       "prevControl": {
-        "x": 3.2699557619349844,
-        "y": 5.508228281252136
+        "x": 2.3090738275732394,
+        "y": 6.919649259992474
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "sol ust resif sag"
+      "linkedName": "ust feeder sag"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -59.99999999999999
+    "rotation": -52.125016348901774
   },
   "reversed": false,
-  "folder": "3 piece ustten ",
+  "folder": "L2 Path",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -52.125016348901774
+    "rotation": -119.99999999999999
   },
   "useDefaultConstraints": true
 }

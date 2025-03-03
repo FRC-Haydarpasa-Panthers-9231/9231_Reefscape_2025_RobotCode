@@ -12,6 +12,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
@@ -110,13 +111,13 @@ public class IO_ProcessorPivotSim implements IO_ProcessorPivotBase {
   }
 
   @Override
-  public boolean isAtSetpoint() {
-    return false;
+  public void setPosition(double setPoint) {
+    m_controller.setReference(setPoint, ControlType.kPosition);
   }
 
   @Override
-  public void setPosition(double setPoint) {
-    m_controller.setReference(setPoint, ControlType.kPosition);
+  public void setVoltage(Voltage volts) {
+    maxSim.setBusVoltage(volts.magnitude());
   }
 
   @Override

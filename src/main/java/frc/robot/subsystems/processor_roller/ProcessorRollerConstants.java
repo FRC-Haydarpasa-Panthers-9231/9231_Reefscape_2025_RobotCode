@@ -7,11 +7,11 @@ public class ProcessorRollerConstants {
   public static final int kProcessorRollerPort = 12;
 
   // TODO: BU DEGERLERI TEST ET VE DEGISTIR
-  public static final double kAlgeaIntakeHasGamePieceCurrent = 15;
+  public static final double kAlgeaIntakeHasGamePieceCurrent = 20;
   public static final double kAlgeaProcessorRollerHasGamePieceVoltage = 5;
 
   // TODO: BU DEGERLERI TEST ET VE DEGISTIR
-  public static final double kProcessorRollerIntakeSpeed = -0.4;
+  public static final double kProcessorRollerIntakeSpeed = -0.28;
   public static final double kProcessorRollerGroundIntakeSpeed = -0.4;
   public static final double kProcessorRollerScoringSpeed = 0.4;
 

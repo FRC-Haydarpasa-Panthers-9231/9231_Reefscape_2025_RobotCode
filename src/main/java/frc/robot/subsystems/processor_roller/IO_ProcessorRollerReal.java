@@ -31,7 +31,7 @@ public class IO_ProcessorRollerReal implements IO_ProcessorRollerBase {
         5,
         () ->
             processorRoller.configure(
-                new SparkMaxConfig().idleMode(IdleMode.kBrake).smartCurrentLimit(50),
+                new SparkMaxConfig().idleMode(IdleMode.kBrake).smartCurrentLimit(50).inverted(true),
                 ResetMode.kNoResetSafeParameters,
                 PersistMode.kPersistParameters),
         configAlert);
@@ -84,7 +84,6 @@ public class IO_ProcessorRollerReal implements IO_ProcessorRollerBase {
     // 2. Motor voltajı belirli bir eşik degerden küçükse (yük altındaysa yavaşlama göstergesi)
     if ((intakeCurrent >= processorRollerHasGamePieceCurrent)
     // && (appliedVoltage <= intakeHasGamePieceVoltage)
-
     ) {
       return true;
     } else {

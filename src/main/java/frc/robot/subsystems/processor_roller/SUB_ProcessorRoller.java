@@ -11,6 +11,8 @@ public class SUB_ProcessorRoller extends SubsystemBase {
   private static final LoggedTunableNumber processorRollerVoltage =
       new LoggedTunableNumber("ProcessorRoller/Processor Roller Voltage", 2);
 
+  private boolean hasAlgeaOverride = false;
+
   public SUB_ProcessorRoller(IO_ProcessorRollerBase io) {
     this.io = io;
   }
@@ -19,6 +21,7 @@ public class SUB_ProcessorRoller extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("ProcessorRoller", inputs);
+    Logger.recordOutput("HasAlgeaOverride", hasAlgeaOverride);
   }
 
   public void stopMotor() {
@@ -26,10 +29,16 @@ public class SUB_ProcessorRoller extends SubsystemBase {
   }
 
   public void setSpeed(double speed) {
+    if (speed > 0) {
+      hasAlgeaOverride = false;
+    }
     io.setProcessorRollerSpeed(speed);
   }
 
   public boolean hasAlgae() {
+    if (hasAlgeaOverride) {
+      return true;
+    }
     return io.hasAlgae();
   }
 

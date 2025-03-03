@@ -20,14 +20,11 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.FieldConstants.ReefSide;
-import frc.robot.commands.CleaningL2Reef;
-import frc.robot.commands.CleaningL3Reef;
 import frc.robot.commands.DebugIntaking;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.GetCoral;
-import frc.robot.commands.IntakingAlgaeGround;
+import frc.robot.commands.IntakingAlgea;
 import frc.robot.commands.IntakingCoral;
-import frc.robot.commands.ScoringAlgea;
 import frc.robot.commands.ScoringCoral;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ElevatorRoller.IO_ElevatorRollerReal;
@@ -85,10 +82,12 @@ public class RobotContainer {
   // Robotun kontrolcünün hız degeri. Hız bu deger ile çarpılır. Bu sayede istedigimiz zaman
   // yavaşlatabiliriz.
   private double speedRate = 1;
-
   // Trigger for algae/coral mode switching
   private boolean coralModeEnabled = true;
+  private boolean zeroElevatorModeEnabled = true;
+
   private Trigger isCoralMode = new Trigger(() -> coralModeEnabled);
+  private Trigger isZeroingElevator = new Trigger(() -> zeroElevatorModeEnabled);
 
   /**
    * Kontrolcüler. 1. porttaki driver'ın kontrolcüsü 2.porttaki operator'ün kontrolcüsü 3.porttaki
@@ -122,6 +121,8 @@ public class RobotContainer {
 
   // Otonom seçmek için widgetd
   private final LoggedDashboardChooser<Command> autoChooser;
+
+  private boolean hasAlgeaOverride = false;
 
   /** Robot için sarmalayıcı. Subsystems, OI devices, ve commands içerir. */
   public RobotContainer() {
@@ -265,6 +266,21 @@ public class RobotContainer {
                 .andThen(Commands.waitSeconds(0.1))
                 .repeatedly()
                 .withTimeout(0.9)); // Rumble three times
+    // new Trigger(hasAlgeaOverride);
+
+    // TODO : BUNU YAP
+
+    new Trigger(() -> elevator.limitSwitchvalue())
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  elevator.setEncoderPosition(0);
+                }));
+
+    /*
+     * new Trigger(() -> processorRoller.hasAlgae())
+     * .onTrue(Commands.runOnce(() -> processorRoller.stopMotor(), processorRoller));
+     */
   }
 
   private void driverControllerBindings() {
@@ -367,104 +383,20 @@ public class RobotContainer {
   private void operatorContorllerBindings() {
 
     operatorController
-        .leftBumper()
-        .and(operatorController.rightTrigger())
-        .whileTrue(Commands.run(() -> elevator.setSpeed(-0.3)))
+        .axisGreaterThan(XboxController.Axis.kRightTrigger.value, 0.6)
+        .whileTrue(Commands.run(() -> elevator.setSpeed(-0.4)))
         .onFalse(Commands.runOnce(() -> elevator.setSpeed(0)));
 
     operatorController
-        .a()
-        .and(isCoralMode)
-        .onTrue(new ScoringCoral(elevator, elevatorRoller, ELEVATOR_HEIGHT.CORAL_L1_HEIGHT));
-    operatorController
-        .b()
-        .and(isCoralMode)
-        .onTrue(new ScoringCoral(elevator, elevatorRoller, ELEVATOR_HEIGHT.CORAL_L2_HEIGHT));
-    operatorController
-        .x()
-        .and(isCoralMode)
-        .onTrue(new ScoringCoral(elevator, elevatorRoller, ELEVATOR_HEIGHT.CORAL_L3_HEIGHT));
-    operatorController
-        .y()
-        .and(isCoralMode)
-        .onTrue(new ScoringCoral(elevator, elevatorRoller, ELEVATOR_HEIGHT.CORAL_L4_HEIGHT));
-
-    operatorController
-        .a()
-        .and(isCoralMode.negate())
-        .onTrue(new IntakingAlgaeGround(elevator, processorRoller, processorPivot));
-    operatorController
-        .b()
-        .and(isCoralMode.negate())
-        .onTrue(new CleaningL2Reef(elevator, processorRoller, processorPivot));
-    operatorController
-        .x()
-        .and(isCoralMode.negate())
-        .onTrue(new CleaningL3Reef(elevator, processorRoller, processorPivot));
-    operatorController
-        .y()
-        .and(isCoralMode.negate())
-        .onTrue(new ScoringAlgea(processorPivot, processorRoller, elevator));
-
-    // Driver Right Bumper: Toggle between Coral and Algae Modes.
-    // Make sure the Approach nearest reef face does not mess with this
-    operatorController
         .rightBumper()
-        .and(operatorController.leftBumper().negate())
-        .onTrue(setCoralAlgaeModeCommand());
-  }
+        .whileTrue(Commands.runOnce(() -> elevatorRoller.setSpeed(0.4)))
+        .onFalse(Commands.runOnce(() -> elevatorRoller.stopmotors(), elevatorRoller));
 
-  private void debugControllerBindings() {
-    /*
-     * debugController
-     * .a()
-     * .onTrue(Commands.runOnce(() -> processorPivot.setDebugPosition(), processorPivot));
-     *
-     * debugController.b().onTrue(Commands.runOnce(() -> elevator.setPositionDebug(),
-     * elevator));
-     *
-     * debugController
-     * .y()
-     * .whileTrue(Commands.run(() -> elevatorRoller.setDebugSpeed(true), elevatorRoller))
-     * .onFalse(Commands.runOnce(() -> elevatorRoller.setSpeed(0), elevatorRoller));
-     *
-     * debugController
-     * .x()
-     * .whileTrue(Commands.run(() -> elevatorRoller.setDebugSpeed(false), elevatorRoller))
-     * .onFalse(Commands.runOnce(() -> elevatorRoller.setSpeed(0), elevatorRoller));
-     *
-     * debugController
-     * .start()
-     * .whileTrue(
-     * Commands.run(
-     * () -> processorRoller.setProcessorRollerDebugVoltage(true), processorRoller))
-     * .onFalse(Commands.runOnce(() -> processorRoller.setSpeed(0), processorRoller));
-     *
-     * debugController
-     * .back()
-     * .whileTrue(
-     * Commands.run(
-     * () -> processorRoller.setProcessorRollerDebugVoltage(false), processorRoller))
-     * .onFalse(Commands.runOnce(() -> processorRoller.setSpeed(0), processorRoller));
-     */
-    /*
-     * debugController
-     * .y()
-     * .whileTrue(
-     * Commands.run(() -> elevator.setElevatorDebugVoltage(true))
-     * .withName("Elevator Debug Voltage"))
-     * .onFalse(Commands.runOnce(() -> elevator.setElevatorVoltage(Volts.of(0)), elevator));
-     *
-     * debugController
-     * .a()
-     * .whileTrue(
-     * Commands.run(() -> elevator.setElevatorDebugVoltage(false), elevator)
-     * .withName("Elevator Debug Voltage Negative"))
-     * .onFalse(Commands.runOnce(() -> elevator.setElevatorVoltage(Volts.of(0)), elevator));
-     */
+    operatorController.leftBumper().onTrue(new DebugIntaking(elevatorRoller).withTimeout(6));
 
-    debugController
+    operatorController
         .a()
+        .and(isCoralMode)
         .onTrue(
             Commands.runOnce(
                 () ->
@@ -472,69 +404,137 @@ public class RobotContainer {
                         ElevatorConstants.ELEVATOR_HEIGHT.ZERO_HEIGHT.getPositionRads()),
                 elevator));
 
-    debugController
+    operatorController
         .b()
+        .and(isCoralMode)
         .onTrue(
             Commands.runOnce(
-                    () ->
-                        elevator.setPosition(
-                            ElevatorConstants.ELEVATOR_HEIGHT.CORAL_L2_HEIGHT.getPositionRads()),
-                    elevator)
-                .withName("Elevator position L2"));
-
-    debugController
+                () ->
+                    elevator.setPosition(
+                        ElevatorConstants.ELEVATOR_HEIGHT.CORAL_L2_HEIGHT.getPositionRads()),
+                elevator));
+    operatorController
         .x()
+        .and(isCoralMode)
         .onTrue(
             Commands.runOnce(
-                    () ->
-                        elevator.setPosition(
-                            ElevatorConstants.ELEVATOR_HEIGHT.CORAL_L3_HEIGHT.getPositionRads()),
-                    elevator)
-                .withName("Elevator position L3"));
-    debugController
+                () ->
+                    elevator.setPosition(
+                        ElevatorConstants.ELEVATOR_HEIGHT.CORAL_L3_HEIGHT.getPositionRads()),
+                elevator));
+
+    operatorController
         .y()
+        .and(isCoralMode)
         .onTrue(
             Commands.runOnce(
-                    () ->
-                        elevator.setPosition(
-                            ElevatorConstants.ELEVATOR_HEIGHT.CORAL_L4_HEIGHT.getPositionRads()),
-                    elevator)
-                .withName("Elevator position L4"));
-
-    debugController
-        .axisGreaterThan(XboxController.Axis.kRightTrigger.value, 0.8)
-        .whileTrue(Commands.run(() -> elevator.setElevatorDebugVoltage(true), elevator))
-        .onFalse(Commands.runOnce(() -> elevator.stopElevator(), elevator));
-
-    debugController
-        .axisGreaterThan(XboxController.Axis.kLeftTrigger.value, 0.8)
-        .whileTrue(Commands.run(() -> elevator.setElevatorDebugVoltage(false), elevator))
-        .onFalse(Commands.runOnce(() -> elevator.stopElevator(), elevator));
-
-    debugController
-        .rightBumper()
-        .whileTrue(
-            Commands.run(() -> elevatorRoller.setSpeed(0.5), elevatorRoller)
-                .withName("Elevator Rollerlar çalıştı"))
-        .onFalse(Commands.runOnce(() -> elevatorRoller.setSpeed(0), elevatorRoller));
-    debugController
-        .leftBumper()
-        .whileTrue(
-            Commands.run(() -> elevatorRoller.setSpeed(-0.5), elevatorRoller)
-                .withName("Elevator Rollerlar çalıştı"))
-        .onFalse(Commands.runOnce(() -> elevatorRoller.setSpeed(0), elevatorRoller));
-
-    debugController.pov(0).onTrue(new DebugIntaking(elevatorRoller).withTimeout(6));
-
-    // debugController.pov(0).onTrue(new IntakingCoral(elevatorRoller).withTimeout(5));
-
-    debugController.pov(90).whileTrue(Commands.run(() -> System.out.println("POV 90")));
-    debugController.pov(180).whileTrue(Commands.run(() -> System.out.println("POV 180")));
-    debugController.pov(270).whileTrue(Commands.run(() -> System.out.println("POV 270")));
-
+                () ->
+                    elevator.setPosition(
+                        ElevatorConstants.ELEVATOR_HEIGHT.CORAL_L4_HEIGHT.getPositionRads()),
+                elevator));
     /*
-     * debugController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
-     * debugController.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+     * operatorController
+     * .a()
+     * .and(isCoralMode.negate())
+     * .onTrue(new IntakingAlgaeGround(elevator, processorRoller, processorPivot));
+     *
+     * operatorController
+     * .b()
+     * .and(isCoralMode.negate())
+     * .onTrue(new CleaningL2Reef(elevator, processorRoller, processorPivot));
+     * operatorController
+     * .x()
+     * .and(isCoralMode.negate())
+     * .onTrue(new CleaningL3Reef(elevator, processorRoller, processorPivot));
+     * operatorController
+     * .y()
+     * .and(isCoralMode.negate())
+     * .onTrue(new ScoringAlgea(processorPivot, processorRoller, elevator));
+     */
+
+    operatorController.pov(90).onTrue(new IntakingAlgea(processorRoller).withTimeout(3));
+    operatorController
+        .pov(270)
+        .whileTrue(Commands.run(() -> processorRoller.setSpeed(-0.3), processorRoller))
+        .onFalse(Commands.runOnce(() -> processorRoller.setSpeed(0), processorRoller));
+    // Driver Right Bumper: Toggle between Coral and Algae Modes.
+    // Make sure the Approach nearest reef face does not mess with this
+    operatorController.pov(0).onTrue(setCoralAlgaeModeCommand());
+  }
+
+  private void debugControllerBindings() {
+    /*
+     * debugController
+     * .a()
+     * .onTrue(
+     * Commands.runOnce(
+     * () -> elevator.setPosition(
+     * ElevatorConstants.ELEVATOR_HEIGHT.ZERO_HEIGHT.getPositionRads()),
+     * elevator));
+     *
+     * debugController
+     * .b()
+     * .onTrue(
+     * Commands.runOnce(
+     * () -> elevator.setPosition(
+     * ElevatorConstants.ELEVATOR_HEIGHT.CORAL_L2_HEIGHT.getPositionRads()),
+     * elevator)
+     * .withName("Elevator position L2"));
+     *
+     * debugController
+     * .x()
+     * .onTrue(
+     * Commands.runOnce(
+     * () -> elevator.setPosition(
+     * ElevatorConstants.ELEVATOR_HEIGHT.CORAL_L3_HEIGHT.getPositionRads()),
+     * elevator)
+     * .withName("Elevator position L3"));
+     * debugController
+     * .y()
+     * .onTrue(
+     * Commands.runOnce(
+     * () -> elevator.setPosition(
+     * ElevatorConstants.ELEVATOR_HEIGHT.CORAL_L4_HEIGHT.getPositionRads()),
+     * elevator)
+     * .withName("Elevator position L4"));
+     *
+     * debugController
+     * .axisGreaterThan(XboxController.Axis.kRightTrigger.value, 0.8)
+     * .whileTrue(Commands.run(() -> elevator.setElevatorDebugVoltage(true), elevator))
+     * .onFalse(Commands.runOnce(() -> elevator.stopElevator(), elevator));
+     *
+     * debugController
+     * .axisGreaterThan(XboxController.Axis.kLeftTrigger.value, 0.8)
+     * .whileTrue(Commands.run(() -> elevator.setElevatorDebugVoltage(false), elevator))
+     * .onFalse(Commands.runOnce(() -> elevator.stopElevator(), elevator));
+     *
+     * debugController
+     * .rightBumper()
+     * .whileTrue(
+     * Commands.run(() -> elevatorRoller.setSpeed(0.3), elevatorRoller)
+     * .withName("Elevator Rollerlar çalıştı"))
+     * .onFalse(Commands.runOnce(() -> elevatorRoller.setSpeed(0), elevatorRoller));
+     * debugController
+     * .leftBumper()
+     * .whileTrue(
+     * Commands.run(() -> elevatorRoller.setSpeed(-0.5), elevatorRoller)
+     * .withName("Elevator Rollerlar çalıştı"))
+     * .onFalse(Commands.runOnce(() -> elevatorRoller.setSpeed(0), elevatorRoller));
+     *
+     * debugController.pov(0).onTrue(new DebugIntaking(elevatorRoller).withTimeout(6));
+     * debugController.pov(90)
+     * .whileTrue(Commands.run(() -> processorRoller.setSpeed(-0.5), processorRoller))
+     * .onFalse(Commands.runOnce(() -> processorRoller.stopMotor(), processorRoller));
+     * debugController.pov(270)
+     * .whileTrue(Commands.run(() -> processorRoller.setSpeed(-0.5), processorRoller))
+     * .onFalse(Commands.runOnce(() -> processorRoller.stopMotor(), processorRoller));
+     *
+     * // debugController.pov(0).whileTrue(new IntakingCoral(elevatorRoller));
+     */
+    /*
+     * ELEVATOR SYSID TESTS
+     * debugController.povUp().onTrue(Commands.runOnce(() -> SignalLogger.start()));
+     * debugController.povDown().onTrue(Commands.runOnce(() -> SignalLogger.stop()));
      * debugController.y().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward))
      * ;
      * debugController.a().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse))
@@ -542,22 +542,45 @@ public class RobotContainer {
      * debugController.b().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
      * debugController.x().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
      */
-    // TODO:BÜTÜN TRİGGERLARA DEADBAND EKLE
+
+    debugController
+        .y()
+        .whileTrue(Commands.run(() -> processorPivot.setPosition(10), processorPivot))
+        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
+    ;
+    debugController
+        .a()
+        .whileTrue(Commands.run(() -> processorPivot.setPosition(120), processorPivot))
+        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
+    ;
+    debugController
+        .b()
+        .whileTrue(
+            Commands.run(() -> processorPivot.setPosition(60), processorPivot, processorPivot))
+        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
+
+    debugController
+        .pov(0)
+        .whileTrue(Commands.runOnce(() -> processorRoller.setSpeed(0.3), processorRoller))
+        .onFalse(Commands.runOnce(() -> processorRoller.stopMotor(), processorRoller));
+    debugController
+        .pov(180)
+        .whileTrue(Commands.runOnce(() -> processorRoller.setSpeed(-0.3), processorRoller))
+        .onFalse(Commands.runOnce(() -> processorRoller.stopMotor(), processorRoller));
+
+    // debugController.x().whileTrue(
+    // Commands.run(() -> processorPivot.setPosition(), processorPivot, processorPivot));
+
+    // ARM SYSID TESTS
     /*
-     * debugController
-     * .leftBumper()
-     * .whileTrue(Commands.run(() -> processorPivot.setDebugSpeed(true), processorPivot))
-     * .onFalse(Commands.runOnce(() -> processorPivot.setSpeed(0)));
-     *
-     * debugController
-     * .leftTrigger()
-     * .whileTrue(Commands.run(() -> processorPivot.setDebugSpeed(false), processorPivot))
-     * .onFalse(Commands.runOnce(() -> processorPivot.setSpeed(0), processorPivot));
-     *
-     * debugController.pov(0).whileTrue(new IntakingCoral(elevatorRoller));
-     * // debugController.pov(90);
-     * // debugController.pov(180);
-     * debugController.pov(270).whileTrue(new ZeroElevator(elevator));
+     * debugController.y().whileTrue(processorPivot.sysIdQuasistatic(SysIdRoutine.Direction.
+     * kForward));
+     * debugController.a().whileTrue(processorPivot.sysIdQuasistatic(SysIdRoutine.Direction.
+     * kReverse));
+     * debugController.b().whileTrue(processorPivot.sysIdDynamic(SysIdRoutine.Direction.kForward
+     * ));
+     * debugController.x().whileTrue(processorPivot.sysIdDynamic(SysIdRoutine.Direction.kReverse
+     * ));
      */
   }
 
@@ -660,6 +683,14 @@ public class RobotContainer {
               coralModeEnabled = !coralModeEnabled;
             })
         .withName("Setting Algea-Coral Mode");
+  }
+
+  public Command setZeroingElevatorMode() {
+    return Commands.runOnce(
+            () -> {
+              zeroElevatorModeEnabled = !zeroElevatorModeEnabled;
+            })
+        .withName("Setting Zeroing Elevator Mode");
   }
 
   // Update dashboard data

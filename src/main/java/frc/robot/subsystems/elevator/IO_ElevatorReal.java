@@ -6,9 +6,8 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -22,9 +21,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.lib.team3015.subsystem.FaultReporter;
-import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil;
-import org.littletonrobotics.junction.Logger;
 
 public class IO_ElevatorReal implements IO_ElevatorBase {
   private TalonFX elevatorMotorLead;
@@ -53,42 +50,9 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
   private final VoltageOut voltageRequest = new VoltageOut(0.0).withUpdateFreqHz(0.0);
 
-  private final MotionMagicVoltage motionMagicPositionRequest = new MotionMagicVoltage(0.0);
-
-  private final DynamicMotionMagicVoltage motionMagicDynamicPositionRequest =
-      new DynamicMotionMagicVoltage(0, 280, 90, 40);
+  private final MotionMagicExpoVoltage motionMagicExpoControl = new MotionMagicExpoVoltage(0);
 
   private final TalonFXConfiguration followerConfig = new TalonFXConfiguration();
-
-  private final LoggedTunableNumber kPslot0 =
-      new LoggedTunableNumber("Elevator/kPslot0", ElevatorConstants.KP_SLOT0);
-  private final LoggedTunableNumber kIslot0 =
-      new LoggedTunableNumber("Elevator/kIslot0", ElevatorConstants.KI_SLOT0);
-  private final LoggedTunableNumber kDslot0 =
-      new LoggedTunableNumber("Elevator/kDslot0", ElevatorConstants.KD_SLOT0);
-  private final LoggedTunableNumber kSslot0 =
-      new LoggedTunableNumber("Elevator/kSslot0", ElevatorConstants.KS_SLOT0);
-  private final LoggedTunableNumber kVslot0 =
-      new LoggedTunableNumber("Elevator/kVslot0", ElevatorConstants.KV_SLOT0);
-  private final LoggedTunableNumber kAslot0 =
-      new LoggedTunableNumber("Elevator/kAslot0", ElevatorConstants.KA_SLOT0);
-  private final LoggedTunableNumber kGslot0 =
-      new LoggedTunableNumber("Elevator/kGslot0", ElevatorConstants.KG_SLOT0);
-
-  private final LoggedTunableNumber cruiseVelocity =
-      new LoggedTunableNumber(
-          "Elevator/Cruise Velocity", ElevatorConstants.MOTION_MAGIC_CRUISE_VELOCITY);
-
-  private final LoggedTunableNumber acceleration =
-      new LoggedTunableNumber("Elevator/acceleration", ElevatorConstants.MOTION_MAGIC_ACCELERATION);
-
-  private final LoggedTunableNumber motionMagicJerk =
-      new LoggedTunableNumber("Elevator/MotionMagicJerk", ElevatorConstants.MOTION_MAGIC_JERK);
-
-  private final LoggedTunableNumber expo_kv =
-      new LoggedTunableNumber("Elevator/expo_kv", ElevatorConstants.MOTION_MAGIC_KV);
-  private String positionReqName = "";
-
   private final Alert configAlert =
       new Alert("Elevator için config ayarlanırken bir hata oluştu.", AlertType.kError);
 
@@ -128,11 +92,12 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
     followerConfig.Voltage.PeakForwardVoltage = 12.0;
     followerConfig.Voltage.PeakReverseVoltage = -12;
     followerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    followerConfig.CurrentLimits.StatorCurrentLimit = 80.0;
     followerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     followerConfig
         .CurrentLimits
         .withSupplyCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(Amps.of(12));
+        .withSupplyCurrentLimit(Amps.of(34));
 
     PhoenixUtil.tryUntilOk(
         5, () -> elevatorMotorFollower.getConfigurator().apply(followerConfig), configAlert);
@@ -214,8 +179,6 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
     inputs.elevatorForwardSoftLimitTriggered = elevatorForwardSoftLimitTriggeredSignal.getValue();
     inputs.elevatorReverseSoftLimitTriggered = elevatorReverseSoftLimitTriggeredSignal.getValue();
 
-    Logger.recordOutput(
-        "Elevator/Acceleration", motionMagicDynamicPositionRequest.getAccelerationMeasure());
     /*
      * LoggedTunableNumber.ifChanged(
      * hashCode(),
@@ -251,7 +214,6 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
      * motionMagicJerk,
      * expo_kv);
      */
-    Logger.recordOutput("Elevator/PositionReq", positionReqName);
   }
 
   @Override
@@ -296,35 +258,23 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
   @Override
   public void setPosition(double goalPositionRads) {
-    if (goalPositionRads
-        >= Units.rotationsToRadians(elevatorPositionStatusSignal.getValueAsDouble())) {
-      motionMagicDynamicPositionRequest.Velocity = 180;
-      motionMagicDynamicPositionRequest.Acceleration = 90;
-      motionMagicDynamicPositionRequest.Jerk = 50;
-      positionReqName = "ilkPositionReqgirdi";
 
-    } else {
-      motionMagicDynamicPositionRequest.Velocity = 180;
-      motionMagicDynamicPositionRequest.Acceleration = 70;
-      motionMagicDynamicPositionRequest.Jerk = 50;
-      positionReqName = "ilkPositionReqgirdi";
-    }
     elevatorMotorLead.setControl(
-        motionMagicDynamicPositionRequest
+        motionMagicExpoControl
             .withPosition(Units.radiansToRotations(goalPositionRads))
             .withSlot(0));
     elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
-
-    /*
-     *
-     *
-     * elevatorMotorLead.setControl(
-     * motionMagicPositionRequest
-     * .withPosition(Units.radiansToRotations(goalPositionRads))
-     * .withSlot(0));
-     * elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
-     */
   }
+
+  /*
+   *
+   *
+   * elevatorMotorLead.setControl(
+   * motionMagicPositionRequest
+   * .withPosition(Units.radiansToRotations(goalPositionRads))
+   * .withSlot(0));
+   * elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
+   */
 
   @Override
   public void setSoftwareLimits(boolean reverseLimitEnable, boolean forwardLimitEnable) {

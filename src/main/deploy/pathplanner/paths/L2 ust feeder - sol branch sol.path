@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0372439067714407,
-        "y": 6.9690291387008445
+        "x": 2.3933406541203994,
+        "y": 5.605360595476382
       },
       "isLocked": false,
       "linkedName": "ust feeder sag"
     },
     {
       "anchor": {
-        "x": 3.6270000000000007,
-        "y": 5.1267499999999995
+        "x": 3.12975,
+        "y": 4.181
       },
       "prevControl": {
-        "x": 3.2699557619349844,
-        "y": 5.508228281252136
+        "x": 2.614565696816774,
+        "y": 5.221763188753054
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "sol ust resif sag"
+      "linkedName": "sol resif sol "
     }
   ],
   "rotationTargets": [],
@@ -42,10 +42,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -59.99999999999999
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "3 piece ustten ",
+  "folder": "L2 Path",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -52.125016348901774

@@ -1,5 +1,6 @@
 package frc.robot.subsystems.processor_pivot;
 
+import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface IO_ProcessorPivotBase {
@@ -26,12 +27,12 @@ public interface IO_ProcessorPivotBase {
    */
   public void setSpeed(double speed);
 
+  public void setVoltage(Voltage volts);
+
   /**
    * Kolun pozisyonunu ayarlar.
    *
    * @param setPoint Kolun sabit durması istenilen pozisyon.
    */
   public void setPosition(double setPoint);
-
-  public boolean isAtSetpoint();
 }
