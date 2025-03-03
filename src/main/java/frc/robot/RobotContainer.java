@@ -79,7 +79,8 @@ public class RobotContainer {
   // Elastic dashboard'a gyro'yu göstermek için ayrı olarak oluşturduk.
   private GyroIOPigeon2 pigeon = new GyroIOPigeon2();
   private final Field2d m_field = new Field2d();
-  // Robotun kontrolcünün hız degeri. Hız bu deger ile çarpılır. Bu sayede istedigimiz zaman
+  // Robotun kontrolcünün hız degeri. Hız bu deger ile çarpılır. Bu sayede
+  // istedigimiz zaman
   // yavaşlatabiliriz.
   private double speedRate = 1;
   // Trigger for algae/coral mode switching
@@ -113,7 +114,8 @@ public class RobotContainer {
 
   private Alert pathFileMissingAlert =
       new Alert("Could not find the specified path file.", AlertType.kError);
-  // Sayaç verilen degerlere geldiginde controller belli bir süre titreyip sürücüye uyarı verir.
+  // Sayaç verilen degerlere geldiginde controller belli bir süre titreyip
+  // sürücüye uyarı verir.
   private final LoggedNetworkNumber endgameAlert1 =
       new LoggedNetworkNumber("/SmartDashboard/Endgame Alert #1", 30.0);
   private final LoggedNetworkNumber endgameAlert2 =
@@ -279,7 +281,8 @@ public class RobotContainer {
 
     /*
      * new Trigger(() -> processorRoller.hasAlgae())
-     * .onTrue(Commands.runOnce(() -> processorRoller.stopMotor(), processorRoller));
+     * .onTrue(Commands.runOnce(() -> processorRoller.stopMotor(),
+     * processorRoller));
      */
   }
 
@@ -299,8 +302,10 @@ public class RobotContainer {
                 .withName("Lock 0 Degree"));
 
     /*
-     * X tuşuna basıldıgında tekerleklerin hepsini X şekline olur. Bu sayede robotun hareket
-     * etmesi çok zor olur. Belli bir pozisyonda sabit kalmak istedigimizde kullanılır.
+     * X tuşuna basıldıgında tekerleklerin hepsini X şekline olur. Bu sayede robotun
+     * hareket
+     * etmesi çok zor olur. Belli bir pozisyonda sabit kalmak istedigimizde
+     * kullanılır.
      */
     driverController.x().onTrue(Commands.runOnce(drive::stopWithX, drive).withName("Stop With X"));
 
@@ -334,7 +339,8 @@ public class RobotContainer {
                             .rotateBy(Rotation2d.k180deg))
                 .withName("Face Nearest Reef Face"));
 
-    // Driver Left Bumper + Right Stick Right: Approach Nearest Right-Side Reef Branch
+    // Driver Left Bumper + Right Stick Right: Approach Nearest Right-Side Reef
+    // Branch
     driverController
         .leftBumper()
         .and(driverController.axisGreaterThan(XboxController.Axis.kRightX.value, 0.4))
@@ -500,12 +506,14 @@ public class RobotContainer {
      *
      * debugController
      * .axisGreaterThan(XboxController.Axis.kRightTrigger.value, 0.8)
-     * .whileTrue(Commands.run(() -> elevator.setElevatorDebugVoltage(true), elevator))
+     * .whileTrue(Commands.run(() -> elevator.setElevatorDebugVoltage(true),
+     * elevator))
      * .onFalse(Commands.runOnce(() -> elevator.stopElevator(), elevator));
      *
      * debugController
      * .axisGreaterThan(XboxController.Axis.kLeftTrigger.value, 0.8)
-     * .whileTrue(Commands.run(() -> elevator.setElevatorDebugVoltage(false), elevator))
+     * .whileTrue(Commands.run(() -> elevator.setElevatorDebugVoltage(false),
+     * elevator))
      * .onFalse(Commands.runOnce(() -> elevator.stopElevator(), elevator));
      *
      * debugController
@@ -521,26 +529,36 @@ public class RobotContainer {
      * .withName("Elevator Rollerlar çalıştı"))
      * .onFalse(Commands.runOnce(() -> elevatorRoller.setSpeed(0), elevatorRoller));
      *
-     * debugController.pov(0).onTrue(new DebugIntaking(elevatorRoller).withTimeout(6));
+     * debugController.pov(0).onTrue(new
+     * DebugIntaking(elevatorRoller).withTimeout(6));
      * debugController.pov(90)
-     * .whileTrue(Commands.run(() -> processorRoller.setSpeed(-0.5), processorRoller))
-     * .onFalse(Commands.runOnce(() -> processorRoller.stopMotor(), processorRoller));
+     * .whileTrue(Commands.run(() -> processorRoller.setSpeed(-0.5),
+     * processorRoller))
+     * .onFalse(Commands.runOnce(() -> processorRoller.stopMotor(),
+     * processorRoller));
      * debugController.pov(270)
-     * .whileTrue(Commands.run(() -> processorRoller.setSpeed(-0.5), processorRoller))
-     * .onFalse(Commands.runOnce(() -> processorRoller.stopMotor(), processorRoller));
+     * .whileTrue(Commands.run(() -> processorRoller.setSpeed(-0.5),
+     * processorRoller))
+     * .onFalse(Commands.runOnce(() -> processorRoller.stopMotor(),
+     * processorRoller));
      *
      * // debugController.pov(0).whileTrue(new IntakingCoral(elevatorRoller));
      */
     /*
      * ELEVATOR SYSID TESTS
      * debugController.povUp().onTrue(Commands.runOnce(() -> SignalLogger.start()));
-     * debugController.povDown().onTrue(Commands.runOnce(() -> SignalLogger.stop()));
-     * debugController.y().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward))
+     * debugController.povDown().onTrue(Commands.runOnce(() ->
+     * SignalLogger.stop()));
+     * debugController.y().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.
+     * Direction.kForward))
      * ;
-     * debugController.a().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse))
+     * debugController.a().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.
+     * Direction.kReverse))
      * ;
-     * debugController.b().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
-     * debugController.x().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+     * debugController.b().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.
+     * kForward));
+     * debugController.x().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.
+     * kReverse));
      */
 
     debugController
@@ -569,17 +587,22 @@ public class RobotContainer {
         .onFalse(Commands.runOnce(() -> processorRoller.stopMotor(), processorRoller));
 
     // debugController.x().whileTrue(
-    // Commands.run(() -> processorPivot.setPosition(), processorPivot, processorPivot));
+    // Commands.run(() -> processorPivot.setPosition(), processorPivot,
+    // processorPivot));
 
     // ARM SYSID TESTS
     /*
-     * debugController.y().whileTrue(processorPivot.sysIdQuasistatic(SysIdRoutine.Direction.
+     * debugController.y().whileTrue(processorPivot.sysIdQuasistatic(SysIdRoutine.
+     * Direction.
      * kForward));
-     * debugController.a().whileTrue(processorPivot.sysIdQuasistatic(SysIdRoutine.Direction.
+     * debugController.a().whileTrue(processorPivot.sysIdQuasistatic(SysIdRoutine.
+     * Direction.
      * kReverse));
-     * debugController.b().whileTrue(processorPivot.sysIdDynamic(SysIdRoutine.Direction.kForward
+     * debugController.b().whileTrue(processorPivot.sysIdDynamic(SysIdRoutine.
+     * Direction.kForward
      * ));
-     * debugController.x().whileTrue(processorPivot.sysIdDynamic(SysIdRoutine.Direction.kReverse
+     * debugController.x().whileTrue(processorPivot.sysIdDynamic(SysIdRoutine.
+     * Direction.kReverse
      * ));
      */
   }
@@ -588,8 +611,8 @@ public class RobotContainer {
 
     return DriveCommands.joystickDrive(
         drive,
-        () -> -driverController.getLeftY() * speedRate,
-        () -> -driverController.getLeftX() * speedRate,
+        () -> driverController.getLeftY() * speedRate,
+        () -> driverController.getLeftX() * speedRate,
         () -> -driverController.getRightX() * speedRate);
   }
 

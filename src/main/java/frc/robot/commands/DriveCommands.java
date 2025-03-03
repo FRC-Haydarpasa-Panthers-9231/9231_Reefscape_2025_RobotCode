@@ -304,6 +304,8 @@ public class DriveCommands {
                   System.out.println("********** Drive FF Characterization Results **********");
                   System.out.println("\tkS: " + formatter.format(kS));
                   System.out.println("\tkV: " + formatter.format(kV));
+                  Logger.recordOutput("swerve/kS", kS);
+                  Logger.recordOutput("swerve/kV", kV);
                 }));
   }
 
@@ -384,7 +386,8 @@ public class DriveCommands {
 
   public static Command pathfindingCommandToPose(
       double xPos, double yPos, double rotation, Drive drive) {
-    // Since we are using a holonomic drivetrain, the rotation component of this pose
+    // Since we are using a holonomic drivetrain, the rotation component of this
+    // pose
     // represents the goal holonomic rotation
     Pose2d targetPose = new Pose2d(xPos, yPos, Rotation2d.fromDegrees(rotation));
 
