@@ -455,6 +455,7 @@ public class RobotContainer {
      * operatorController
      * .y()
      * .and(isCoralMode.negate())
+     *
      * .onTrue(new ScoringAlgea(processorPivot, processorRoller, elevator));
      */
 
@@ -463,6 +464,10 @@ public class RobotContainer {
         .pov(270)
         .whileTrue(Commands.run(() -> processorRoller.setSpeed(-0.3), processorRoller))
         .onFalse(Commands.runOnce(() -> processorRoller.setSpeed(0), processorRoller));
+    operatorController
+        .pov(180)
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(105), processorPivot))
+        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
     // Driver Right Bumper: Toggle between Coral and Algae Modes.
     // Make sure the Approach nearest reef face does not mess with this
     operatorController.pov(0).onTrue(setCoralAlgaeModeCommand());
@@ -561,21 +566,21 @@ public class RobotContainer {
      * kReverse));
      */
 
-    debugController
-        .y()
-        .whileTrue(Commands.run(() -> processorPivot.setPosition(10), processorPivot))
-        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
-    ;
-    debugController
-        .a()
-        .whileTrue(Commands.run(() -> processorPivot.setPosition(120), processorPivot))
-        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
-    ;
+    debugController.y().onTrue(Commands.run(() -> processorPivot.setPosition(42), processorPivot));
+    // .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
     debugController
         .b()
-        .whileTrue(
-            Commands.run(() -> processorPivot.setPosition(60), processorPivot, processorPivot))
-        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
+        .onTrue(Commands.run(() -> processorPivot.setPosition(35), processorPivot, processorPivot));
+    // .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
+    debugController
+        .x()
+        .onTrue(Commands.run(() -> processorPivot.setPosition(25), processorPivot, processorPivot));
+    // .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
+    debugController
+        .a()
+        .onTrue(Commands.run(() -> processorPivot.setPosition(-120), processorPivot));
+    // .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
+    ;
 
     debugController
         .pov(0)

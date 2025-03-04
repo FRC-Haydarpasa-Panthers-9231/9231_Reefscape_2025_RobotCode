@@ -44,7 +44,7 @@ public class IO_ProcessorPivotReal implements IO_ProcessorPivotBase {
   public IO_ProcessorPivotReal() {
     processorPivot =
         new SparkMax(ProcessorPivotConstants.kProcessorPivotMotorID, MotorType.kBrushless);
-    pivotFeedForward = new ArmFeedforward(0, 0.43, 0);
+    pivotFeedForward = new ArmFeedforward(0, 0.3, 0);
     // processorPivotPID = new PIDController(kP.get(), kI.get(), kD.get());
     m_controller = processorPivot.getClosedLoopController();
     config.closedLoop.p(ProcessorPivotConstants.kP);
@@ -100,16 +100,13 @@ public class IO_ProcessorPivotReal implements IO_ProcessorPivotBase {
 
   @Override
   public void setPosition(double setPoint) {
-    if (setPoint < ProcessorPivotConstants.kProcessorPivotMaxAngle
-        && setPoint > ProcessorPivotConstants.kProcessorPivotMinAngle) {
 
-      var ff =
-          pivotFeedForward.calculate(Units.degreesToRadians(getProcessorPivotPosition() - 105), 0);
-      Logger.recordOutput("ProcessorPivot/ff", ff);
-      // PIDinitialize(setPoint);
-      m_controller.setReference(
-          Units.degreesToRotations(setPoint / 3), ControlType.kPosition, ClosedLoopSlot.kSlot0, ff);
-    }
+    var ff =
+        pivotFeedForward.calculate(Units.degreesToRadians(getProcessorPivotPosition() - 90.2), 0);
+    Logger.recordOutput("ProcessorPivot/ff", ff);
+    // PIDinitialize(setPoint);
+    m_controller.setReference(
+        Units.degreesToRotations(setPoint / 3), ControlType.kPosition, ClosedLoopSlot.kSlot0, ff);
   }
 
   @Override
