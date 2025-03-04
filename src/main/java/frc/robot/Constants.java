@@ -6,22 +6,22 @@ import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
   public static final double loopPeriodSecs = 0.02;
-  public static final boolean tuningMode = true;
-  public static final boolean debug = true;
+  public static final boolean tuningMode = false;
+  public static final boolean debug = false;
   public static final Distance kSwerveTolerance = Units.Meters.of(0.03);
   public static final int kElevatorLimitSwitchPort = 2;
   public static final boolean DEMO_MODE = false;
-  public static final boolean kIsCompetition = false;
+  public static final boolean kIsCompetition = true;
 
   public static final int kBeamBreakPort = 3;
 
   public static class OperatorConstants {
-    public static final int kDriverControllerPort = 2;
+    public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
-    public static final int kPracticeControllerPort = 0;
-    public static final double LEFT_X_DEADBAND = 0.1;
-    public static final double LEFT_Y_DEADBAND = 0.1;
-    public static final double RIGHT_X_DEADBAND = 0.1;
+    public static final int kPracticeControllerPort = 2;
+    public static final double LEFT_X_DEADBAND = 0.12;
+    public static final double LEFT_Y_DEADBAND = 0.12;
+    public static final double RIGHT_X_DEADBAND = 0.12;
   }
 
   public static final Mode simMode = Mode.SIM;

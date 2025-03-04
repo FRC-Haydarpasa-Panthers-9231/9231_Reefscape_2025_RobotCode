@@ -7,19 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "L2 Başlangıç - sağ ust sol branch"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "L2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "L2  sag ust sol branch - ust feeder"
+            "pathName": "Start Point"
           }
         },
         {
@@ -29,9 +17,9 @@
           }
         },
         {
-          "type": "path",
+          "type": "wait",
           "data": {
-            "pathName": "L2 ust feeder - sol branch sol"
+            "waitTime": 2.0
           }
         },
         {

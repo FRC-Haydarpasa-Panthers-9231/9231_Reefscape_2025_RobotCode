@@ -29,7 +29,7 @@ public class SUB_ProcessorRoller extends SubsystemBase {
   }
 
   public void setSpeed(double speed) {
-    if (speed > 0) {
+    if (speed < 0) {
       hasAlgeaOverride = false;
     }
     io.setProcessorRollerSpeed(speed);

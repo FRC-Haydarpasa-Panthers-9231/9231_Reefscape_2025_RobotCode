@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.00175,
-        "y": 5.302249999999999
+        "x": 5.022848360655738,
+        "y": 5.277715163934426
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.7589225010315177,
-        "y": 6.176820398835153
+        "x": 3.7800208616872553,
+        "y": 6.152285562769579
       },
       "isLocked": false,
       "linkedName": "sag ust sag branch"
     },
     {
       "anchor": {
-        "x": 1.6672500000000001,
-        "y": 7.34975
+        "x": 0.7117500000032109,
+        "y": 6.6477499999940495
       },
       "prevControl": {
-        "x": 2.3090738275732394,
-        "y": 6.919649259992474
+        "x": 1.3535738275764502,
+        "y": 6.217649259986524
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "ust feeder sag"
+      "linkedName": "ust feeder sol"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -52.125016348901774
+    "rotation": -53.334364517308174
   },
   "reversed": false,
   "folder": "L2 Path",

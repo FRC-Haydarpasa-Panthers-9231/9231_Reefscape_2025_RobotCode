@@ -35,6 +35,7 @@ public class Vision extends SubsystemBase {
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
+  private Pose2d lastPose;
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
     this.consumer = consumer;
@@ -62,6 +63,11 @@ public class Vision extends SubsystemBase {
    */
   public Rotation2d getTargetX(int cameraIndex) {
     return inputs[cameraIndex].latestTargetObservation.tx();
+  }
+
+  public Pose2d getRobotPose() {
+
+    return lastPose;
   }
 
   @Override
@@ -140,6 +146,9 @@ public class Vision extends SubsystemBase {
         }
 
         // Send vision observation
+
+        lastPose = observation.pose().toPose2d();
+
         consumer.accept(
             observation.pose().toPose2d(),
             observation.timestamp(),

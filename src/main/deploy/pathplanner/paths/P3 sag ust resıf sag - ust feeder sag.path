@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.00175,
-        "y": 5.302249999999999
+        "x": 5.022848360655738,
+        "y": 5.277715163934426
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.04625,
-        "y": 5.94575
+        "x": 4.067348360655737,
+        "y": 5.921215163934427
       },
       "isLocked": false,
       "linkedName": "sag ust sag branch"

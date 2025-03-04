@@ -22,8 +22,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.FieldConstants.ReefSide;
 import frc.robot.commands.DebugIntaking;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.GetCoral;
-import frc.robot.commands.IntakingAlgea;
 import frc.robot.commands.IntakingCoral;
 import frc.robot.commands.ScoringCoral;
 import frc.robot.generated.TunerConstants;
@@ -439,6 +437,43 @@ public class RobotContainer {
                         ElevatorConstants.ELEVATOR_HEIGHT.CORAL_L4_HEIGHT.getPositionRads()),
                 elevator));
     /*
+     *
+     * operatorController
+     * .pov(0)
+     * .onTrue(Commands.run(() -> processorPivot.setPosition(42), processorPivot));
+     * // .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
+     */
+
+    /*
+     * operatorController
+     * .pov(180)
+     * .onTrue(
+     * Commands.run(() -> processorPivot.setPosition(-120), processorPivot,
+     * processorPivot));
+     */
+    operatorController
+        .pov(90)
+        .whileTrue(Commands.run(() -> processorRoller.setSpeed(-0.5), processorRoller))
+        .onFalse(Commands.runOnce(() -> processorRoller.stopMotor(), processorRoller));
+    operatorController
+        .pov(270)
+        .whileTrue(Commands.run(() -> processorRoller.setSpeed(0.5), processorRoller))
+        .onFalse(Commands.runOnce(() -> processorRoller.stopMotor(), processorRoller));
+
+    operatorController
+        .pov(0)
+        .whileTrue(Commands.run(() -> processorPivot.setSpeed(0.2), processorPivot))
+        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
+    operatorController
+        .pov(180)
+        .whileTrue(Commands.run(() -> processorPivot.setSpeed(-0.2), processorPivot))
+        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
+
+    // operatorController.pov(270).onTrue(new IntakingAlgea(processorRoller).withTimeout(4));
+
+    // .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
+    ;
+    /*
      * operatorController
      * .a()
      * .and(isCoralMode.negate())
@@ -459,18 +494,21 @@ public class RobotContainer {
      * .onTrue(new ScoringAlgea(processorPivot, processorRoller, elevator));
      */
 
-    operatorController.pov(90).onTrue(new IntakingAlgea(processorRoller).withTimeout(3));
-    operatorController
-        .pov(270)
-        .whileTrue(Commands.run(() -> processorRoller.setSpeed(-0.3), processorRoller))
-        .onFalse(Commands.runOnce(() -> processorRoller.setSpeed(0), processorRoller));
-    operatorController
-        .pov(180)
-        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(105), processorPivot))
-        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
+    // operatorController.pov(90).onTrue(new IntakingAlgea(processorRoller).withTimeout(3));
+    /*
+     * operatorController
+     * .pov(270)
+     * .whileTrue(Commands.run(() -> processorRoller.setSpeed(-0.3), processorRoller))
+     * .onFalse(Commands.runOnce(() -> processorRoller.setSpeed(0), processorRoller));
+     * operatorController
+     * .pov(180)
+     * .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(105), processorPivot))
+     * .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
+     */
+
     // Driver Right Bumper: Toggle between Coral and Algae Modes.
     // Make sure the Approach nearest reef face does not mess with this
-    operatorController.pov(0).onTrue(setCoralAlgaeModeCommand());
+    operatorController.start().onTrue(setCoralAlgaeModeCommand());
   }
 
   private void debugControllerBindings() {
@@ -616,8 +654,8 @@ public class RobotContainer {
 
     return DriveCommands.joystickDrive(
         drive,
-        () -> driverController.getLeftY() * speedRate,
-        () -> driverController.getLeftX() * speedRate,
+        () -> -driverController.getLeftY() * speedRate,
+        () -> -driverController.getLeftX() * speedRate,
         () -> -driverController.getRightX() * speedRate);
   }
 
@@ -679,7 +717,7 @@ public class RobotContainer {
         "elavatorRollerOuttake", Commands.run(() -> elevatorRoller.setSpeed(0.5), elevatorRoller));
     NamedCommands.registerCommand(
         "elatorRollerStop", Commands.run(() -> elevatorRoller.setSpeed(0), elevatorRoller));
-    NamedCommands.registerCommand("getCoral", new GetCoral(elevatorRoller, elevator));
+    NamedCommands.registerCommand("getCoral", new DebugIntaking(elevatorRoller));
 
     // processor roller komutu
     NamedCommands.registerCommand(
