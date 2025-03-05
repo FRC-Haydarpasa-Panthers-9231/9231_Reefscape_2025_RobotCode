@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.0,
-        "y": 7.0
+        "x": 5.022848360655738,
+        "y": 2.7575
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0,
-        "y": 7.0
+        "x": 5.292320679419156,
+        "y": 2.8553342017338226
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "sag alt mercan sol "
     },
     {
       "anchor": {
-        "x": 6.883500000000001,
-        "y": 6.51125
+        "x": 1.599,
+        "y": 0.7197499999999991
       },
       "prevControl": {
-        "x": 5.883500000000001,
-        "y": 6.51125
+        "x": 1.335005796102927,
+        "y": 0.5606613891870955
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "alt feeder sag"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 160.84438755456043
+    "rotation": 55.15426658020029
   },
   "reversed": false,
-  "folder": "2 piece ustten",
+  "folder": "L2 Alttan",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 119.99999999999999
   },
   "useDefaultConstraints": true
 }

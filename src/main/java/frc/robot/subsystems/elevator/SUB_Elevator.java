@@ -113,6 +113,7 @@ public class SUB_Elevator extends SubsystemBase {
 
     if (limitSwitchvalue()) {
       speed = MathUtil.clamp(speed, 0, 1);
+      setEncoderPosition(0);
     }
 
     io.setElevatorSpeed(speed);

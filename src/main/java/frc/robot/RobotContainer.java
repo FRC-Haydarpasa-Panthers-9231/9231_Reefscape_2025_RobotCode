@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -268,15 +269,14 @@ public class RobotContainer {
                 .withTimeout(0.9)); // Rumble three times
     // new Trigger(hasAlgeaOverride);
 
-    // TODO : BUNU YAP
-
-    new Trigger(() -> elevator.limitSwitchvalue())
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  elevator.setEncoderPosition(0);
-                }));
-
+    /*
+     * new Trigger(() -> elevator.limitSwitchvalue())
+     * .onTrue(
+     * Commands.runOnce(
+     * () -> {
+     * elevator.setEncoderPosition(0);
+     * }));
+     */
     /*
      * new Trigger(() -> processorRoller.hasAlgae())
      * .onTrue(Commands.runOnce(() -> processorRoller.stopMotor(),
@@ -393,10 +393,22 @@ public class RobotContainer {
 
     operatorController
         .rightBumper()
-        .whileTrue(Commands.runOnce(() -> elevatorRoller.setSpeed(0.4)))
+        .whileTrue(Commands.runOnce(() -> elevatorRoller.setSpeed(0.5)))
         .onFalse(Commands.runOnce(() -> elevatorRoller.stopmotors(), elevatorRoller));
 
-    operatorController.leftBumper().onTrue(new DebugIntaking(elevatorRoller).withTimeout(6));
+    operatorController
+        .leftBumper()
+        .onTrue(
+            new ParallelCommandGroup(
+                    new DebugIntaking(elevatorRoller),
+                    Commands.runOnce(
+                            () ->
+                                elevator.setPosition(
+                                    ElevatorConstants.ELEVATOR_HEIGHT.ZERO_HEIGHT
+                                        .getPositionRads()),
+                            elevator)
+                        .until(() -> elevator.isAtSetPoint()))
+                .withTimeout(6));
 
     operatorController
         .a()
@@ -672,12 +684,6 @@ public class RobotContainer {
   /** Register Named commands for use in PathPlanner */
   private void registerNamedCommands() {
 
-    // asansör hareket komutu
-    NamedCommands.registerCommand(
-        "elevatorZeroPose",
-        Commands.runOnce(() -> elevator.setPosition(ELEVATOR_HEIGHT.ZERO_HEIGHT.getPositionRads()))
-            .withName("Elevator Zero Pose"));
-
     NamedCommands.registerCommand(
         "L1",
         new ScoringCoral(elevator, elevatorRoller, ELEVATOR_HEIGHT.CORAL_L1_HEIGHT)
@@ -694,6 +700,40 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "L4",
         new ScoringCoral(elevator, elevatorRoller, ELEVATOR_HEIGHT.CORAL_L4_HEIGHT)
+            .withName("Scoring Coral L4"));
+
+    NamedCommands.registerCommand(
+        "zero elevator",
+        Commands.runOnce(
+                () ->
+                    elevator.setPosition(
+                        ElevatorConstants.ELEVATOR_HEIGHT.ZERO_HEIGHT.getPositionRads()),
+                elevator)
+            .withName("Scoring Coral L1"));
+    NamedCommands.registerCommand(
+        "L2 elevator",
+        Commands.runOnce(
+                () ->
+                    elevator.setPosition(
+                        ElevatorConstants.ELEVATOR_HEIGHT.CORAL_L2_HEIGHT.getPositionRads()),
+                elevator)
+            .withName("Scoring Coral L2"));
+
+    NamedCommands.registerCommand(
+        "L3 elevator",
+        Commands.runOnce(
+                () ->
+                    elevator.setPosition(
+                        ElevatorConstants.ELEVATOR_HEIGHT.CORAL_L3_HEIGHT.getPositionRads()),
+                elevator)
+            .withName("Scoring Coral L3"));
+    NamedCommands.registerCommand(
+        "L4 elevator",
+        Commands.runOnce(
+                () ->
+                    elevator.setPosition(
+                        ElevatorConstants.ELEVATOR_HEIGHT.CORAL_L4_HEIGHT.getPositionRads()),
+                elevator)
             .withName("Scoring Coral L4"));
 
     NamedCommands.registerCommand(
@@ -717,6 +757,7 @@ public class RobotContainer {
         "elavatorRollerOuttake", Commands.run(() -> elevatorRoller.setSpeed(0.5), elevatorRoller));
     NamedCommands.registerCommand(
         "elatorRollerStop", Commands.run(() -> elevatorRoller.setSpeed(0), elevatorRoller));
+
     NamedCommands.registerCommand("getCoral", new DebugIntaking(elevatorRoller));
 
     // processor roller komutu

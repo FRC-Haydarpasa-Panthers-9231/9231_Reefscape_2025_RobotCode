@@ -449,24 +449,6 @@
             }
           },
           {
-            "title": "Voltage",
-            "x": 400.0,
-            "y": 450.0,
-            "width": 350.0,
-            "height": 150.0,
-            "type": "Voltage View",
-            "properties": {
-              "topic": "/AdvantageKit/PowerDistribution/Voltage",
-              "period": 0.06,
-              "data_type": "double",
-              "min_value": 4.0,
-              "max_value": 13.0,
-              "divisions": 5,
-              "inverted": false,
-              "orientation": "horizontal"
-            }
-          },
-          {
             "title": "Station",
             "x": 300.0,
             "y": 600.0,
@@ -525,6 +507,24 @@
               "period": 0.06,
               "data_type": "string"
             }
+          },
+          {
+            "title": "Voltage",
+            "x": 400.0,
+            "y": 450.0,
+            "width": 350.0,
+            "height": 150.0,
+            "type": "Voltage View",
+            "properties": {
+              "topic": "/SmartDashboard/PDH/Voltage",
+              "period": 0.06,
+              "data_type": "double",
+              "min_value": 4.0,
+              "max_value": 13.0,
+              "divisions": 5,
+              "inverted": false,
+              "orientation": "horizontal"
+            }
           }
         ]
       }
@@ -561,24 +561,6 @@
               "time_display_mode": "Minutes and Seconds",
               "red_start_time": 15,
               "yellow_start_time": 30
-            }
-          },
-          {
-            "title": "Voltaj",
-            "x": 900.0,
-            "y": 150.0,
-            "width": 300.0,
-            "height": 150.0,
-            "type": "Voltage View",
-            "properties": {
-              "topic": "/AdvantageKit/PowerDistribution/Voltage",
-              "period": 0.06,
-              "data_type": "double",
-              "min_value": 4.0,
-              "max_value": 13.0,
-              "divisions": 5,
-              "inverted": false,
-              "orientation": "horizontal"
             }
           },
           {
@@ -680,19 +662,6 @@
             }
           },
           {
-            "title": "Driver Cam",
-            "x": 550.0,
-            "y": 150.0,
-            "width": 650.0,
-            "height": 450.0,
-            "type": "Camera Stream",
-            "properties": {
-              "topic": "/CameraPublisher/USB Camera 0",
-              "period": 0.06,
-              "rotation_turns": 0
-            }
-          },
-          {
             "title": "Match Time",
             "x": 950.0,
             "y": 0.0,
@@ -709,29 +678,11 @@
             }
           },
           {
-            "title": "Voltage",
-            "x": 550.0,
-            "y": 0.0,
-            "width": 400.0,
-            "height": 150.0,
-            "type": "Voltage View",
-            "properties": {
-              "topic": "/AdvantageKit/PowerDistribution/Voltage",
-              "period": 0.06,
-              "data_type": "double",
-              "min_value": 4.0,
-              "max_value": 13.0,
-              "divisions": 5,
-              "inverted": false,
-              "orientation": "horizontal"
-            }
-          },
-          {
             "title": "Has Coral",
-            "x": 1350.0,
-            "y": 300.0,
-            "width": 150.0,
-            "height": 150.0,
+            "x": 300.0,
+            "y": 400.0,
+            "width": 250.0,
+            "height": 100.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/AdvantageKit/ElevatorRoller/HasCoral",
@@ -745,10 +696,10 @@
           },
           {
             "title": "Has Algea",
-            "x": 1350.0,
-            "y": 450.0,
-            "width": 150.0,
-            "height": 150.0,
+            "x": 300.0,
+            "y": 300.0,
+            "width": 250.0,
+            "height": 100.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/AdvantageKit/ProcessorRoller/HasAlgea",
@@ -762,10 +713,10 @@
           },
           {
             "title": "At Setpoint",
-            "x": 1200.0,
-            "y": 300.0,
-            "width": 150.0,
-            "height": 150.0,
+            "x": 300.0,
+            "y": 500.0,
+            "width": 250.0,
+            "height": 100.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/isElevatorAtSetpoint",
@@ -788,13 +739,87 @@
               "topic": "/SmartDashboard/Field",
               "period": 0.06,
               "field_game": "Reefscape",
-              "robot_width": 0.85,
-              "robot_length": 0.85,
+              "robot_width": 0.72,
+              "robot_length": 0.72,
               "show_other_objects": true,
               "show_trajectories": true,
               "field_rotation": 0.0,
-              "robot_color": 4294198070,
-              "trajectory_color": 4294967295
+              "robot_color": 4293139473,
+              "trajectory_color": 4282204597
+            }
+          },
+          {
+            "title": "Voltage",
+            "x": 550.0,
+            "y": 0.0,
+            "width": 400.0,
+            "height": 150.0,
+            "type": "Voltage View",
+            "properties": {
+              "topic": "/SmartDashboard/PDH/Voltage",
+              "period": 0.06,
+              "data_type": "double",
+              "min_value": 4.0,
+              "max_value": 13.0,
+              "divisions": 5,
+              "inverted": false,
+              "orientation": "horizontal"
+            }
+          },
+          {
+            "title": "Scheduler",
+            "x": 0.0,
+            "y": 300.0,
+            "width": 300.0,
+            "height": 450.0,
+            "type": "Scheduler",
+            "properties": {
+              "topic": "/SmartDashboard/Scheduler",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Gyro",
+            "x": 1200.0,
+            "y": 300.0,
+            "width": 300.0,
+            "height": 300.0,
+            "type": "Gyro",
+            "properties": {
+              "topic": "/SmartDashboard/Gyro",
+              "period": 0.06,
+              "counter_clockwise_positive": false
+            }
+          },
+          {
+            "title": "isAlignment",
+            "x": 300.0,
+            "y": 600.0,
+            "width": 250.0,
+            "height": 100.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/isAlignment",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "limelight",
+            "x": 550.0,
+            "y": 150.0,
+            "width": 650.0,
+            "height": 550.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/limelight",
+              "period": 0.06,
+              "rotation_turns": 0,
+              "compression": 32
             }
           }
         ]
@@ -2108,51 +2133,6 @@
         ],
         "containers": [
           {
-            "title": "Processor Roller Voltage",
-            "x": 700.0,
-            "y": 150.0,
-            "width": 200.0,
-            "height": 150.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Tuning/ProcessorRoller/Processor Roller Voltage",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Elevator Roller speed",
-            "x": 700.0,
-            "y": 0.0,
-            "width": 200.0,
-            "height": 150.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Tuning/ElevatorRoller/Elevator Roller speed",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "HasCoral",
-            "x": 750.0,
-            "y": 300.0,
-            "width": 150.0,
-            "height": 150.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/AdvantageKit/ElevatorRoller/HasCoral",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
             "title": "ProcessorPivotPositionRads",
             "x": 1050.0,
             "y": 500.0,
@@ -2164,6 +2144,44 @@
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": false
+            }
+          },
+          {
+            "title": "Elevator Volts",
+            "x": 350.0,
+            "y": 0.0,
+            "width": 150.0,
+            "height": 150.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Tuning/Elevator/Elevator Volts",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Scheduler",
+            "x": 300.0,
+            "y": 150.0,
+            "width": 300.0,
+            "height": 450.0,
+            "type": "Scheduler",
+            "properties": {
+              "topic": "/SmartDashboard/Scheduler",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Alerts",
+            "x": 600.0,
+            "y": 0.0,
+            "width": 300.0,
+            "height": 450.0,
+            "type": "Alerts",
+            "properties": {
+              "topic": "/SmartDashboard/Alerts",
+              "period": 0.06
             }
           }
         ]
