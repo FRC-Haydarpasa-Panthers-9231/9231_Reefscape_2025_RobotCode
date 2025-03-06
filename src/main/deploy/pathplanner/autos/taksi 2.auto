@@ -7,19 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ortadan stage"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "L1"
+            "pathName": "taxi 2"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "orta",
+  "folder": null,
   "choreoAuto": false
 }

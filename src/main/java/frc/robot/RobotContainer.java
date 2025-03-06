@@ -21,8 +21,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.FieldConstants.ReefSide;
+import frc.robot.commands.CleaningReef;
 import frc.robot.commands.DebugIntaking;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.IntakingAlgea;
 import frc.robot.commands.IntakingCoral;
 import frc.robot.commands.ScoringCoral;
 import frc.robot.generated.TunerConstants;
@@ -87,7 +89,6 @@ public class RobotContainer {
   private boolean zeroElevatorModeEnabled = true;
 
   private Trigger isCoralMode = new Trigger(() -> coralModeEnabled);
-  private Trigger isZeroingElevator = new Trigger(() -> zeroElevatorModeEnabled);
 
   /**
    * Kontrolcüler. 1. porttaki driver'ın kontrolcüsü 2.porttaki operator'ün kontrolcüsü 3.porttaki
@@ -104,12 +105,12 @@ public class RobotContainer {
 
   // Eger kontrolcüler baglı degilse dashboardda uyarı çıkarır
   private final Alert driverDisconnected =
-      new Alert("Driver kontrolcüsünün baglantısı yok!! (port 0).", AlertType.kWarning);
+      new Alert("Driver kontrolcusunun baglantisi yok!! (port 0).", AlertType.kWarning);
   private final Alert operatorDisconnected =
-      new Alert("Operator kontrolcüsünün baglantısı yok! (port 1).", AlertType.kWarning);
+      new Alert("Operator kontrolcusunun baglantisi yok! (port 1).", AlertType.kWarning);
 
   private final Alert debugControllerDisconnected =
-      new Alert("Debug kontrolcüsünün baglantısı yok! (port 2).", AlertType.kInfo);
+      new Alert("Debug kontrolcusunun baglantisi yok! (port 2).", AlertType.kInfo);
 
   private Alert pathFileMissingAlert =
       new Alert("Could not find the specified path file.", AlertType.kError);
@@ -122,8 +123,6 @@ public class RobotContainer {
 
   // Otonom seçmek için widgetd
   private final LoggedDashboardChooser<Command> autoChooser;
-
-  private boolean hasAlgeaOverride = false;
 
   /** Robot için sarmalayıcı. Subsystems, OI devices, ve commands içerir. */
   public RobotContainer() {
@@ -194,11 +193,9 @@ public class RobotContainer {
     // DriverDashboard'a otonomu seçmek için widget oluşturduk.
     // TODO: Içine default otonomu ayarlamayı unutma
     autoChooser =
-        new LoggedDashboardChooser<>(
-            "Auto Choices", AutoBuilder.buildAutoChooser("1 piece center"));
+        new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser("taksi"));
     // Set up SysId routines
 
-    // TODO: RUTINLERI ÇALISTIR
     autoChooser.addOption(
         "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
 
@@ -377,11 +374,35 @@ public class RobotContainer {
         .whileTrue(
             DriveCommands.pathfindingCommandToPose(1.13, 0.97, 52.76, drive)
                 .withName("Drive to Bottom Feeder"));
+    /*
+     * driverController
+     * .pov(0)
+     * .whileTrue(
+     * DriveCommands.pathfindingCommandToPose(5.98, 0.59, -90.30, drive)
+     * .withName("Drive to processor"));
+     */
+
     driverController
         .pov(0)
-        .whileTrue(
-            DriveCommands.pathfindingCommandToPose(5.98, 0.59, -90.30, drive)
-                .withName("Drive to processor"));
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    elevator.setPosition(
+                        ElevatorConstants.ELEVATOR_HEIGHT.ALGAE_L2_CLEANING.getPositionRads()),
+                elevator));
+
+    driverController
+        .pov(180)
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    elevator.setPosition(
+                        ElevatorConstants.ELEVATOR_HEIGHT.ALGAE_L3_CLEANING.getPositionRads()),
+                elevator));
+    driverController.pov(270).onTrue(new CleaningReef(processorRoller, processorPivot));
+    driverController
+        .pov(90)
+        .onTrue(Commands.runOnce(() -> processorPivot.setPosition(400), processorPivot));
   }
 
   private void operatorContorllerBindings() {
@@ -463,25 +484,24 @@ public class RobotContainer {
      * Commands.run(() -> processorPivot.setPosition(-120), processorPivot,
      * processorPivot));
      */
-    operatorController
-        .pov(90)
-        .whileTrue(Commands.run(() -> processorRoller.setSpeed(-0.5), processorRoller))
-        .onFalse(Commands.runOnce(() -> processorRoller.stopMotor(), processorRoller));
+
     operatorController
         .pov(270)
         .whileTrue(Commands.run(() -> processorRoller.setSpeed(0.5), processorRoller))
         .onFalse(Commands.runOnce(() -> processorRoller.stopMotor(), processorRoller));
-
     operatorController
         .pov(0)
-        .whileTrue(Commands.run(() -> processorPivot.setSpeed(0.2), processorPivot))
-        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(180), processorRoller));
+
+    operatorController
+        .pov(90)
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(90), processorPivot));
     operatorController
         .pov(180)
-        .whileTrue(Commands.run(() -> processorPivot.setSpeed(-0.2), processorPivot))
-        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(270), processorPivot));
 
-    // operatorController.pov(270).onTrue(new IntakingAlgea(processorRoller).withTimeout(4));
+    // operatorController.pov(270).onTrue(new
+    // IntakingAlgea(processorRoller).withTimeout(4));
 
     // .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
     ;
@@ -506,15 +526,19 @@ public class RobotContainer {
      * .onTrue(new ScoringAlgea(processorPivot, processorRoller, elevator));
      */
 
-    // operatorController.pov(90).onTrue(new IntakingAlgea(processorRoller).withTimeout(3));
+    // operatorController.pov(90).onTrue(new
+    // IntakingAlgea(processorRoller).withTimeout(3));
     /*
      * operatorController
      * .pov(270)
-     * .whileTrue(Commands.run(() -> processorRoller.setSpeed(-0.3), processorRoller))
-     * .onFalse(Commands.runOnce(() -> processorRoller.setSpeed(0), processorRoller));
+     * .whileTrue(Commands.run(() -> processorRoller.setSpeed(-0.3),
+     * processorRoller))
+     * .onFalse(Commands.runOnce(() -> processorRoller.setSpeed(0),
+     * processorRoller));
      * operatorController
      * .pov(180)
-     * .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(105), processorPivot))
+     * .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(105),
+     * processorPivot))
      * .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
      */
 
@@ -616,31 +640,45 @@ public class RobotContainer {
      * kReverse));
      */
 
-    debugController.y().onTrue(Commands.run(() -> processorPivot.setPosition(42), processorPivot));
     // .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
-    debugController
-        .b()
-        .onTrue(Commands.run(() -> processorPivot.setPosition(35), processorPivot, processorPivot));
-    // .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
-    debugController
-        .x()
-        .onTrue(Commands.run(() -> processorPivot.setPosition(25), processorPivot, processorPivot));
-    // .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
-    debugController
-        .a()
-        .onTrue(Commands.run(() -> processorPivot.setPosition(-120), processorPivot));
-    // .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
-    ;
 
+    // .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
+    /*
+     * debugController
+     * .x()
+     * .onTrue(Commands.run(() -> processorPivot.setPosition(0), processorPivot,
+     * processorPivot));
+     */
+    // .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
+    // .onFalse(Commands.runOnce(() -> processorPivot.stopMotor()));
+
+    debugController.rightBumper().onTrue(new IntakingAlgea(processorRoller));
+    debugController
+        .leftBumper()
+        .onTrue(Commands.run(() -> processorRoller.setSpeed(-0.5), processorRoller))
+        .onFalse(Commands.runOnce(() -> processorRoller.stopMotor(), processorRoller));
     debugController
         .pov(0)
-        .whileTrue(Commands.runOnce(() -> processorRoller.setSpeed(0.3), processorRoller))
-        .onFalse(Commands.runOnce(() -> processorRoller.stopMotor(), processorRoller));
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(180), processorRoller));
+
+    debugController
+        .pov(90)
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(90), processorPivot));
     debugController
         .pov(180)
-        .whileTrue(Commands.runOnce(() -> processorRoller.setSpeed(-0.3), processorRoller))
-        .onFalse(Commands.runOnce(() -> processorRoller.stopMotor(), processorRoller));
-
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(0), processorPivot));
+    debugController
+        .a()
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(5), processorPivot));
+    debugController
+        .b()
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(10), processorPivot));
+    debugController
+        .x()
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(15), processorPivot));
+    debugController
+        .y()
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(20), processorPivot));
     // debugController.x().whileTrue(
     // Commands.run(() -> processorPivot.setPosition(), processorPivot,
     // processorPivot));

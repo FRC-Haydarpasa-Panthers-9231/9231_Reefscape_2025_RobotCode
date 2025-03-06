@@ -81,7 +81,8 @@ public class IO_ProcessorRollerReal implements IO_ProcessorRollerBase {
 
     // Algae algılama koşulları:
     // 1. Akım belirli bir eşik degerden büyükse
-    // 2. Motor voltajı belirli bir eşik degerden küçükse (yük altındaysa yavaşlama göstergesi)
+    // 2. Motor voltajı belirli bir eşik degerden küçükse (yük altındaysa yavaşlama
+    // göstergesi)
     if ((intakeCurrent >= processorRollerHasGamePieceCurrent)
     // && (appliedVoltage <= intakeHasGamePieceVoltage)
     ) {

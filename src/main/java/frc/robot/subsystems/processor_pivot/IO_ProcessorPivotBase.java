@@ -10,7 +10,7 @@ public interface IO_ProcessorPivotBase {
     public double processorPivotAppliedVolts = 0.0;
     public double processorPivotCurrentAmps = 0.0;
     public double processorPivotTempCelcius = 0.0;
-    public double processorPivotPositionRads = 0.0;
+    public double processorPivotPositionRotations = 0.0;
   }
 
   void updateInputs(ProcessorPivotInputs inputs);

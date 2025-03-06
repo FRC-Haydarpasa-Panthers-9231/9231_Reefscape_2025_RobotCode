@@ -21,6 +21,7 @@ public class IntakingAlgea extends Command {
 
   @Override
   public void end(boolean interrupted) {
+    processorRoller.setHasAlgaeOverride(true);
     processorRoller.stopMotor();
     // processorPivot.setPosition(0);
   }

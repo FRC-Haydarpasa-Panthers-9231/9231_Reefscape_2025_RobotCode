@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "L2 Başlangıç - sağ ust sol branch"
+            "pathName": "L2U Başlangıç - sağ ust sol branch"
           }
         },
         {
@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "L2  sag ust sol branch - ust feeder"
+            "pathName": "L2U  sag ust sol branch - ust feeder"
           }
         },
         {
@@ -31,7 +31,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "L2 ust feeder - sol branch sol"
+            "pathName": "L2U ust feeder - sol branch sol"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "L2U sol branch sol - ust sol feeder"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "getCoral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "L2U ust sol feeder - sol branch sag"
           }
         },
         {

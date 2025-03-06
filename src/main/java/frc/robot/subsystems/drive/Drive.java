@@ -138,8 +138,8 @@ public class Drive extends SubsystemBase {
         this::runVelocity,
         // TODO: Eğer değerler sorunluysa azalt genelde 3-5 olur
         new PPHolonomicDriveController(
-            new PIDConstants(5.0, 0.0, 0.0),
-            new PIDConstants(5.0, 0.0, 0.0)), // acil otonom pidsinin ayarlanması lazım
+            new PIDConstants(5, 0.0, 0.0),
+            new PIDConstants(5, 0.0, 0.0)), // acil otonom pidsinin ayarlanması lazım
         PP_CONFIG,
         () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
         this);

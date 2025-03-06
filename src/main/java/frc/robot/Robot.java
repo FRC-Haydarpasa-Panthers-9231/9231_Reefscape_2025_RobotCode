@@ -228,9 +228,12 @@ public class Robot extends LoggedRobot {
     }
 
     /*
-     * Pil voltajını kontrol et. Eger pil voltajı belirlenen düşük voltaj sınırının altındaysa
-     * ve devre dışı kalma zamanlayıcısı belirlenen süreyi aşmışsa (lowBatteryDisabledTime),
-     * ayrıca düşük pil uyarısı minimum döngü sayısına (lowBatteryMinCycleCount) ulaştıysa,
+     * Pil voltajını kontrol et. Eger pil voltajı belirlenen düşük voltaj sınırının
+     * altındaysa
+     * ve devre dışı kalma zamanlayıcısı belirlenen süreyi aşmışsa
+     * (lowBatteryDisabledTime),
+     * ayrıca düşük pil uyarısı minimum döngü sayısına (lowBatteryMinCycleCount)
+     * ulaştıysa,
      * düşük pil uyarısını etkinleştir.
      */
     if (RobotController.getBatteryVoltage() <= lowBatteryVoltage
@@ -243,7 +246,8 @@ public class Robot extends LoggedRobot {
       SUB_LED.getInstance().lowBatteryAlert = true;
     }
 
-    // Otonom süresini yazdır. Bu sayede otonomda kaç saniye geçtigine göre uzatabiliriz.
+    // Otonom süresini yazdır. Bu sayede otonomda kaç saniye geçtigine göre
+    // uzatabiliriz.
     if (autonomousCommand != null) {
       if (!autonomousCommand.isScheduled() && !autoMessagePrinted) {
         if (DriverStation.isAutonomousEnabled()) {

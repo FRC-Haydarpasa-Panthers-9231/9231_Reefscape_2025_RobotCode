@@ -102,7 +102,7 @@ public class IO_ProcessorPivotSim implements IO_ProcessorPivotBase {
 
     inputs.processorPivotAppliedVolts = maxSim.getAppliedOutput() * maxSim.getBusVoltage();
     inputs.processorPivotCurrentAmps = maxSim.getMotorCurrent();
-    inputs.processorPivotPositionRads = Units.rotationsToRadians(getProcessorPivotPosition());
+    inputs.processorPivotPositionRotations = Units.rotationsToRadians(getProcessorPivotPosition());
   }
 
   @Override

@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ortadan stage"
+            "pathName": "A2 alt baslangic - sag alt resif sol"
           }
         },
         {
@@ -15,11 +15,23 @@
           "data": {
             "name": "L1"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A2  sag alt resif sol - alt feeder"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "getCoral"
+          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "orta",
+  "folder": "alt",
   "choreoAuto": false
 }

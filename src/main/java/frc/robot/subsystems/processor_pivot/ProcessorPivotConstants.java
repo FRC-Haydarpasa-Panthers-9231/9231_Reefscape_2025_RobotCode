@@ -7,14 +7,8 @@ public class ProcessorPivotConstants {
   // TODO: motor IDsini ve channel idsini ata
   public static final int kProcessorPivotMotorID = 11;
 
-  public static final int kProcessorPivotEncoderChannel = 0;
-
   // TODO İNVERTLENİP İNVERTLENMEYECEgİNE KARAR VER.
   public static final boolean kIsInverted = false;
-
-  // MAX VE MIN PID çıktısı
-  public static final double kProcessorPivotMinOutput = 0;
-  public static final double kProcessorPivotMaxOutput = 2;
 
   // TODO: Limitlerini tespit et
   public static final double kProcessorPivotMinAngle = 0;

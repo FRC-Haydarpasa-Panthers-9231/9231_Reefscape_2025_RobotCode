@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.107750000000001,
-        "y": 5.302249999999999
+        "x": 7.302878289473683,
+        "y": 7.084703947368421
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.067265326089301,
-        "y": 5.347436106675732
+        "x": 6.783305921052631,
+        "y": 7.113569078947368
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.022848360655738,
-        "y": 5.277715163934426
+        "x": 5.234210526315789,
+        "y": 7.084703947368421
       },
       "prevControl": {
-        "x": 6.137057394143871,
-        "y": 5.283146556549098
+        "x": 5.4842104959876865,
+        "y": 7.084580804968788
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "sag ust sag branch"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": -179.13194855025444
   },
   "reversed": false,
-  "folder": "L2 Path",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -160.42687416958984
+    "rotation": -177.07927847899958
   },
   "useDefaultConstraints": true
 }

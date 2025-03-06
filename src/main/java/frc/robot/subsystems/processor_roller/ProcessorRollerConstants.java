@@ -11,7 +11,7 @@ public class ProcessorRollerConstants {
   public static final double kAlgeaProcessorRollerHasGamePieceVoltage = 5;
 
   // TODO: BU DEGERLERI TEST ET VE DEGISTIR
-  public static final double kProcessorRollerIntakeSpeed = -0.28;
+  public static final double kProcessorRollerIntakeSpeed = -1;
   public static final double kProcessorRollerGroundIntakeSpeed = -0.4;
   public static final double kProcessorRollerScoringSpeed = 0.4;
 
