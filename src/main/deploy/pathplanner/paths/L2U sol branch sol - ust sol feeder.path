@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.12975,
-        "y": 4.181
+        "x": 3.1854452054794518,
+        "y": 4.152718321917808
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3670879135287195,
-        "y": 4.931342478655656
+        "x": 2.4227831190081712,
+        "y": 4.903060800573464
       },
       "isLocked": false,
       "linkedName": "sol resif sol "
@@ -38,9 +38,30 @@
       "rotationDegrees": 0.0
     }
   ],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.17222222222222222,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "zero elevator",
+      "waypointRelativePos": 0.07222222222222222,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.0,
     "maxAcceleration": 3.0,

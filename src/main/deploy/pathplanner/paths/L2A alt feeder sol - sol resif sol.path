@@ -3,47 +3,42 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.033604452054794,
-        "y": 2.8004066780821915
+        "x": 0.7062071917808219,
+        "y": 1.3278895547945206
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.482170025825285,
-        "y": 2.1918308584100603
+        "x": 0.9437696634511752,
+        "y": 1.631187778199426
       },
       "isLocked": false,
-      "linkedName": "sag alt mercan sol "
+      "linkedName": "alt feeder sol"
     },
     {
       "anchor": {
-        "x": 0.7410000000021342,
-        "y": 1.3437499999979559
+        "x": 3.1854452054794518,
+        "y": 4.152718321917808
       },
       "prevControl": {
-        "x": 0.970267514065443,
-        "y": 1.4434315278515681
+        "x": 3.0114844076478633,
+        "y": 3.957173422217776
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "alt feeder sol "
+      "linkedName": "sol resif sol "
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.2564315352697058,
-      "rotationDegrees": 114.37070549972242
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 0.35,
+      "minWaypointRelativePos": 0.7277777777777777,
+      "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 2.0,
-        "maxAcceleration": 2.0,
-        "maxAngularVelocity": 270.0,
-        "maxAngularAcceleration": 270.0,
+        "maxVelocity": 3.0,
+        "maxAcceleration": 1.5,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
         "unlimited": false
       }
@@ -52,8 +47,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "zero elevator",
-      "waypointRelativePos": 0.19724025974026452,
+      "name": "L2 elevator",
+      "waypointRelativePos": 0.7972222222222223,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -68,13 +63,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 56.219665346260456
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "2 piece alttan",
+  "folder": "L2 Alttan",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 119.99999999999999
+    "rotation": 56.4889812021592
   },
   "useDefaultConstraints": true
 }

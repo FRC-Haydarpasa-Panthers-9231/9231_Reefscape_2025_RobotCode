@@ -3,44 +3,39 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.022848360655738,
-        "y": 5.277715163934426
+        "x": 0.7062071917808219,
+        "y": 1.3278895547945206
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.035381147540984,
-        "y": 5.967327868852459
+        "x": 0.9244515673385936,
+        "y": 1.5067019167102869
       },
       "isLocked": false,
-      "linkedName": "sag ust sag branch"
+      "linkedName": "alt feeder sol"
     },
     {
       "anchor": {
-        "x": 0.7117500000032109,
-        "y": 6.6477499999940495
+        "x": 3.1395000000000004,
+        "y": 3.8495
       },
       "prevControl": {
-        "x": 1.0694530788483807,
-        "y": 6.43180698427899
+        "x": 2.9067438952966382,
+        "y": 3.7582607774949968
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "ust feeder sol"
+      "linkedName": "sol resif sag"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.07927031509121127,
-      "rotationDegrees": -114.80890609508585
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 0.1799107142857141,
+      "minWaypointRelativePos": 0.7388888888888889,
+      "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 2.0,
+        "maxVelocity": 3.0,
         "maxAcceleration": 1.5,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -52,8 +47,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "zero elevator",
-      "waypointRelativePos": 0.08526785714285724,
+      "name": "L2 elevator",
+      "waypointRelativePos": 0.7888888888888889,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -68,13 +63,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -53.334364517308174
+    "rotation": 1.2188752351313425
   },
   "reversed": false,
-  "folder": "2 piece ustten",
+  "folder": "L2 Alttan",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": 56.4889812021592
   },
   "useDefaultConstraints": true
 }

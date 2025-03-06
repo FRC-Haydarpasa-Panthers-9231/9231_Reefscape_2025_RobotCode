@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "A1 alt baslangic  - sag alt resif sol"
+            "pathName": null
           }
         },
         {
@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "A1  sag alt resif sol - alt feeder sol"
+            "pathName": null
           }
         },
         {
@@ -31,7 +31,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "A1 alt feeder sol - sol resif sag "
+            "pathName": null
           }
         },
         {
@@ -43,7 +43,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "A1 sol resif sag- alt feeder sol "
+            "pathName": null
           }
         },
         {

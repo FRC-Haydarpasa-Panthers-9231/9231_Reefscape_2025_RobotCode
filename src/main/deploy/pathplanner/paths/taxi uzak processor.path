@@ -45,10 +45,10 @@
     "rotation": -179.13194855025444
   },
   "reversed": false,
-  "folder": null,
+  "folder": "taksi",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -177.07927847899958
+    "rotation": -177.0792784789996
   },
   "useDefaultConstraints": true
 }

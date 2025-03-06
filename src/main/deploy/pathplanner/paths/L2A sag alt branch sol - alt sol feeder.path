@@ -8,30 +8,51 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.303076770818212,
-        "y": 2.898240879816014
+        "x": 3.110316780821918,
+        "y": 1.6133775684931506
       },
       "isLocked": false,
       "linkedName": "sag alt mercan sol "
     },
     {
       "anchor": {
-        "x": 1.599,
-        "y": 0.7197499999999991
+        "x": 0.7062071917808219,
+        "y": 1.3278895547945206
       },
       "prevControl": {
-        "x": 1.335005796102927,
-        "y": 0.5606613891870955
+        "x": 2.3289811643835616,
+        "y": 1.7936857876712327
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "alt feeder sag"
+      "linkedName": "alt feeder sol"
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.15555555555555556,
+      "maxWaypointRelativePos": 0,
+      "constraints": {
+        "maxVelocity": 3.0,
+        "maxAcceleration": 1.5,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "zero elevator",
+      "waypointRelativePos": 0.044444444444444446,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.0,
     "maxAcceleration": 3.0,
@@ -42,7 +63,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 55.15426658020029
+    "rotation": 56.4889812021592
   },
   "reversed": false,
   "folder": "L2 Alttan",

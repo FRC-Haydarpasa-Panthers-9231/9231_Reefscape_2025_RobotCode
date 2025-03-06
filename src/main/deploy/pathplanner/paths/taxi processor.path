@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.7410000000021342,
-        "y": 1.3437499999979559
+        "x": 7.272431506849315,
+        "y": 0.8320419520547944
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.0637833915476014,
-        "y": 1.851647554601478
+        "x": 6.4216334708012734,
+        "y": 0.8382882341730828
       },
       "isLocked": false,
-      "linkedName": "alt feeder sol "
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.1395000000000004,
-        "y": 3.8495
+        "x": 5.724917763157895,
+        "y": 0.8320419520547944
       },
       "prevControl": {
-        "x": 2.619692577176442,
-        "y": 3.3052131746363766
+        "x": 7.977692669047665,
+        "y": 0.8287353625131215
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "sol resif sag"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 1.2188752351313425
+    "rotation": 179.09061955080088
   },
   "reversed": false,
-  "folder": "2 piece alttan",
+  "folder": "taksi",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 56.219665346260456
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

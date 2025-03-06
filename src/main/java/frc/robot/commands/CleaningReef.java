@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.processor_pivot.ProcessorPivotConstants;
 import frc.robot.subsystems.processor_pivot.SUB_ProcessorPivot;
 import frc.robot.subsystems.processor_roller.ProcessorRollerConstants;
 import frc.robot.subsystems.processor_roller.SUB_ProcessorRoller;
@@ -31,9 +30,9 @@ public class CleaningReef extends Command {
   @Override
   public void initialize() {
     // elevator.setPosition(ElevatorConstants.ELEVATOR_HEIGHT.ALGAE_L2_CLEANING.getPositionRads());
+    processorPivot.setPosition(0.05);
 
     processorRoller.setSpeed(ProcessorRollerConstants.kProcessorRollerIntakeSpeed);
-    processorPivot.setPosition(ProcessorPivotConstants.CLEANING_REEF_L2_PIVOT_POSITION);
     // processorPivot.setPosition(Constants.constAlgaeIntake.CLEANING_REEF_L2_PIVOT_POSITION);
   }
 

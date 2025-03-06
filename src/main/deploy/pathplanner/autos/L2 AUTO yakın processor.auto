@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "U1 baslangic - sag ust sol resif "
+            "pathName": "L2A baslangic - sag alt branch sol"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "L4"
+            "name": "elevatorRollerScore"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "U1 sag ust sol resif - ust feeder sol "
+            "pathName": "L2A sag alt branch sol - alt sol feeder"
           }
         },
         {
@@ -31,31 +31,43 @@
         {
           "type": "path",
           "data": {
-            "pathName": "U1 ust feeder sol - sol mercan sol "
+            "pathName": "L2A alt sol feeder - sol resif sag "
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "L4"
+            "name": "elevatorRollerScore"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "U1 sol mercan sol - ust feeder sol   "
+            "pathName": "L2A sol resif sag - alt feeder sol"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "getCoral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "L2A alt feeder sol - sol resif sol"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "elevatorRollerScore"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "ust",
+  "folder": "L2 Autos",
   "choreoAuto": false
 }

@@ -13,7 +13,7 @@
         {
           "type": "named",
           "data": {
-            "name": "L2"
+            "name": "elevatorRollerScore"
           }
         },
         {
@@ -37,7 +37,7 @@
         {
           "type": "named",
           "data": {
-            "name": "L2"
+            "name": "elevatorRollerScore"
           }
         },
         {
@@ -61,13 +61,13 @@
         {
           "type": "named",
           "data": {
-            "name": "L2"
+            "name": "elevatorRollerScore"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "L2 Autos",
   "choreoAuto": false
 }

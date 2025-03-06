@@ -21,113 +21,117 @@ import org.littletonrobotics.junction.Logger;
 
 public class IO_ProcessorPivotReal implements IO_ProcessorPivotBase {
 
-    // FIXME: DOgRU PID DEgERLERİNİ BUL
-    private static final LoggedTunableNumber kP = new LoggedTunableNumber("Processor_Pivot/kP",
-            ProcessorPivotConstants.kP);
-    private static final LoggedTunableNumber kI = new LoggedTunableNumber("Processor_Pivot/kI",
-            ProcessorPivotConstants.kD);
-    private static final LoggedTunableNumber kD = new LoggedTunableNumber("Processor_Pivot/kD",
-            ProcessorPivotConstants.kI);
-    ArmFeedforward pivotFeedForward;
+  // FIXME: DOgRU PID DEgERLERİNİ BUL
+  private static final LoggedTunableNumber kP =
+      new LoggedTunableNumber("Processor_Pivot/kP", ProcessorPivotConstants.kP);
+  private static final LoggedTunableNumber kI =
+      new LoggedTunableNumber("Processor_Pivot/kI", ProcessorPivotConstants.kD);
+  private static final LoggedTunableNumber kD =
+      new LoggedTunableNumber("Processor_Pivot/kD", ProcessorPivotConstants.kI);
+  ArmFeedforward pivotFeedForward;
 
-    SparkMax processorPivot;
-    // private PIDController processorPivotPID;
-    SparkClosedLoopController m_controller;
+  SparkMax processorPivot;
+  // private PIDController processorPivotPID;
+  SparkClosedLoopController m_controller;
 
-    SparkMaxConfig config = new SparkMaxConfig();
+  SparkMaxConfig config = new SparkMaxConfig();
 
-    private final Alert configAlert = new Alert("Processor pivot için config ayarlanırken bir hata oluştu.",
-            AlertType.kError);
+  private final Alert configAlert =
+      new Alert("Processor pivot için config ayarlanırken bir hata oluştu.", AlertType.kError);
 
-    public double degreeAim;
+  public double degreeAim;
 
-    public IO_ProcessorPivotReal() {
-        processorPivot = new SparkMax(ProcessorPivotConstants.kProcessorPivotMotorID, MotorType.kBrushless);
-        pivotFeedForward = new ArmFeedforward(0, 0.44, 0);
-        // processorPivotPID = new PIDController(kP.get(), kI.get(), kD.get());
-        m_controller = processorPivot.getClosedLoopController();
-        config.closedLoop.p(ProcessorPivotConstants.kP);
-        config.closedLoop.i(ProcessorPivotConstants.kI);
-        config.closedLoop.d(ProcessorPivotConstants.kD);
+  public IO_ProcessorPivotReal() {
+    processorPivot =
+        new SparkMax(ProcessorPivotConstants.kProcessorPivotMotorID, MotorType.kBrushless);
+    pivotFeedForward = new ArmFeedforward(0, 0.44, 0);
+    // processorPivotPID = new PIDController(kP.get(), kI.get(), kD.get());
+    m_controller = processorPivot.getClosedLoopController();
+    config.closedLoop.p(ProcessorPivotConstants.kP);
+    config.closedLoop.i(ProcessorPivotConstants.kI);
+    config.closedLoop.d(ProcessorPivotConstants.kD);
+    config.absoluteEncoder.positionConversionFactor(1);
+    SparkUtil.tryUntilOk(
+        processorPivot,
+        5,
+        () ->
+            processorPivot.configure(
+                config
+                    .idleMode(IdleMode.kBrake)
+                    .smartCurrentLimit(30)
+                    .inverted(ProcessorPivotConstants.kIsInverted),
+                ResetMode.kNoResetSafeParameters,
+                PersistMode.kPersistParameters),
+        configAlert);
 
-        SparkUtil.tryUntilOk(
-                processorPivot,
-                5,
-                () -> processorPivot.configure(
-                        config
-                                .idleMode(IdleMode.kBrake)
-                                .smartCurrentLimit(30)
-                                .inverted(ProcessorPivotConstants.kIsInverted),
-                        ResetMode.kNoResetSafeParameters,
-                        PersistMode.kPersistParameters),
-                configAlert);
+    FaultReporter.getInstance()
+        .registerHardware(
+            ProcessorPivotConstants.kSubsystemName, "Processor Pivot Motor", processorPivot);
+  }
 
-        FaultReporter.getInstance()
-                .registerHardware(
-                        ProcessorPivotConstants.kSubsystemName, "Processor Pivot Motor", processorPivot);
-    }
+  /*
+   * private void PIDinitialize(double degree)
+   * {
+   * degreeAim = degree;
+   * processorPivotPID.reset();
+   * processorPivotPID.setSetpoint(degree);
+   * processorPivotPID.setTolerance(0.001);
+   * }
+   */
+  @Override
+  public void setSpeed(double speed) {
+    processorPivot.set(speed);
+  }
 
-    /*
-     * private void PIDinitialize(double degree)
-     * {
-     * degreeAim = degree;
-     * processorPivotPID.reset();
-     * processorPivotPID.setSetpoint(degree);
-     * processorPivotPID.setTolerance(0.001);
-     * }
-     */
-    @Override
-    public void setSpeed(double speed) {
-        processorPivot.set(speed);
-    }
+  @Override
+  public void stopMotor() {
+    processorPivot.stopMotor();
+  }
 
-    @Override
-    public void stopMotor() {
-        processorPivot.stopMotor();
-    }
+  @Override
+  public void setVoltage(Voltage volts) {
+    processorPivot.setVoltage(volts);
+  }
 
-    @Override
-    public void setVoltage(Voltage volts) {
-        processorPivot.setVoltage(volts);
-    }
+  @Override
+  public double getProcessorPivotPosition() {
+    return processorPivot.getAbsoluteEncoder().getPosition();
+  }
 
-    @Override
-    public double getProcessorPivotPosition() {
-        return processorPivot.getAbsoluteEncoder().getPosition();
-    }
+  @Override
+  public void setPosition(double setPoint) {
 
-    @Override
-    public void setPosition(double setPoint) {
+    var ff =
+        pivotFeedForward.calculate(Units.rotationsToRadians(getProcessorPivotPosition() - 1), 0);
+    Logger.recordOutput("ProcessorPivot/ff", ff);
+    // PIDinitialize(setPoint);
+    m_controller.setReference(setPoint, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+  }
 
-        var ff = pivotFeedForward.calculate(Units.rotationsToRadians(getProcessorPivotPosition() - 90.2), 0);
-        Logger.recordOutput("ProcessorPivot/ff", ff);
-        // PIDinitialize(setPoint);
-        m_controller.setReference(setPoint, ControlType.kPosition, ClosedLoopSlot.kSlot0, ff);
-    }
+  @Override
+  public void updateInputs(ProcessorPivotInputs inputs) {
 
-    @Override
-    public void updateInputs(ProcessorPivotInputs inputs) {
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        values -> {
+          config.closedLoop.p(values[0]);
+          config.closedLoop.i(values[1]);
+          config.closedLoop.d(values[2]);
 
-        LoggedTunableNumber.ifChanged(
-                hashCode(),
-                values -> {
-                    config.closedLoop.p(values[0]);
-                    config.closedLoop.i(values[1]);
-                    config.closedLoop.d(values[2]);
+          /*
+           * processorPivotPID.setP(values[0]);
+           * processorPivotPID.setI(values[1]);
+           * processorPivotPID.setD(values[2]);
+           */
+        },
+        kP,
+        kI,
+        kD);
 
-                    /*
-                     * processorPivotPID.setP(values[0]);
-                     * processorPivotPID.setI(values[1]);
-                     * processorPivotPID.setD(values[2]);
-                     */
-                },
-                kP,
-                kI,
-                kD);
-
-        inputs.processorPivotAppliedVolts = processorPivot.getAppliedOutput() * processorPivot.getBusVoltage();
-        inputs.processorPivotCurrentAmps = processorPivot.getOutputCurrent();
-        inputs.processorPivotPositionRotations = getProcessorPivotPosition();
-        inputs.processorPivotTempCelcius = processorPivot.getMotorTemperature();
-    }
+    inputs.processorPivotAppliedVolts =
+        processorPivot.getAppliedOutput() * processorPivot.getBusVoltage();
+    inputs.processorPivotCurrentAmps = processorPivot.getOutputCurrent();
+    inputs.processorPivotPositionRotations = getProcessorPivotPosition();
+    inputs.processorPivotTempCelcius = processorPivot.getMotorTemperature();
+  }
 }
