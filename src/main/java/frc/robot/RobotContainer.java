@@ -25,7 +25,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.FieldConstants.ReefSide;
 import frc.robot.commands.DebugIntaking;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.IntakingAlgea;
 import frc.robot.commands.IntakingCoral;
 import frc.robot.commands.ScoringCoral;
 import frc.robot.generated.TunerConstants;
@@ -275,21 +274,6 @@ public class RobotContainer {
                                 .andThen(Commands.waitSeconds(0.1))
                                 .repeatedly()
                                 .withTimeout(0.9)); // Rumble three times
-        // new Trigger(hasAlgeaOverride);
-
-        /*
-         * new Trigger(() -> elevator.limitSwitchvalue())
-         * .onTrue(
-         * Commands.runOnce(
-         * () -> {
-         * elevator.setEncoderPosition(0);
-         * }));
-         */
-        /*
-         * new Trigger(() -> processorRoller.hasAlgae())
-         * .onTrue(Commands.runOnce(() -> processorRoller.stopMotor(),
-         * processorRoller));
-         */
     }
 
     private void driverControllerBindings() {
@@ -347,13 +331,15 @@ public class RobotContainer {
         // Branch
         driverController
                 .leftBumper()
-                .and(driverController.axisGreaterThan(XboxController.Axis.kRightX.value, 0.4))
+                .and(driverController.axisGreaterThan(XboxController.Axis.kRightX.value,
+                        0.4))
                 .whileTrue(
                         joystickApproach(
                                 () -> FieldConstants.getNearestReefBranch(drive.getPose(), ReefSide.RIGHT))
                                 .withName("Approach Nearest Right-Side Reef Branch"));
 
-        // Driver Left Bumper + Right Stick Left: Approach Nearest Left-Side Reef Branch
+        // Driver Left Bumper + Right Stick Left: Approach Nearest Left-Side Reef
+
         driverController
                 .leftBumper()
                 .and(driverController.axisLessThan(XboxController.Axis.kRightX.value, -0.4))
@@ -370,6 +356,46 @@ public class RobotContainer {
                         joystickApproach(() -> FieldConstants.getNearestReefFace(drive.getPose()))
                                 .withName("Approach Nearest Reef Face"));
 
+        /*
+         * driverController
+         * .pov(0)
+         * .whileTrue(Commands.run(() -> elevator.setSpeed(-0.4)))
+         * .onFalse(Commands.runOnce(() -> elevator.setSpeed(0)));
+         * 
+         * driverController
+         * .rightBumper()
+         * .whileTrue(Commands.runOnce(() -> elevatorRoller.setSpeed(0.5)))
+         * .onFalse(Commands.runOnce(() -> elevatorRoller.stopmotors(),
+         * elevatorRoller));
+         * 
+         * driverController
+         * .leftBumper()
+         * .onTrue(
+         * new ParallelCommandGroup(
+         * new DebugIntaking(elevatorRoller),
+         * Commands.runOnce(
+         * () -> elevator.setPosition(
+         * ElevatorConstants.ELEVATOR_HEIGHT.ZERO_HEIGHT
+         * .getPositionRads()),
+         * elevator)
+         * .until(() -> elevator.isAtSetPoint()))
+         * .withTimeout(6));
+         * driverController
+         * .axisGreaterThan(XboxController.Axis.kRightTrigger.value, 0.6)
+         * .onTrue(
+         * Commands.runOnce(
+         * () -> elevator.setPosition(
+         * ElevatorConstants.ELEVATOR_HEIGHT.ZERO_HEIGHT.getPositionRads()),
+         * elevator));
+         * 
+         * driverController
+         * .axisGreaterThan(XboxController.Axis.kLeftTrigger.value, 0.6)
+         * .onTrue(
+         * Commands.runOnce(
+         * () -> elevator.setPosition(
+         * ElevatorConstants.ELEVATOR_HEIGHT.CORAL_L2_HEIGHT.getPositionRads()),
+         * elevator));
+         */
         driverController
                 .axisGreaterThan(XboxController.Axis.kLeftTrigger.value, 0.8)
                 .and(driverController.rightBumper())
@@ -383,13 +409,12 @@ public class RobotContainer {
                 .whileTrue(
                         DriveCommands.pathfindingCommandToPose(1.13, 0.97, 52.76, drive)
                                 .withName("Drive to Bottom Feeder"));
-        /*
-         * driverController
-         * .pov(0)
-         * .whileTrue(
-         * DriveCommands.pathfindingCommandToPose(5.98, 0.59, -90.30, drive)
-         * .withName("Drive to processor"));
-         */
+
+        driverController
+                .pov(0)
+                .whileTrue(
+                        DriveCommands.pathfindingCommandToPose(5.98, 0.59, -90.30, drive)
+                                .withName("Drive to processor"));
 
     }
 
@@ -549,7 +574,7 @@ public class RobotContainer {
          */
 
         // Make sure the Approach nearest reef face does not mess with this
-        operatorController.start().onTrue(setCoralAlgaeModeCommand());
+        // operatorController.start().onTrue(setCoralAlgaeModeCommand());
     }
 
     private void debugControllerBindings() {
@@ -557,23 +582,23 @@ public class RobotContainer {
         debugController.rightBumper().onTrue(new IntakingCoral(elevatorRoller));
         debugController
                 .leftBumper()
-                .whileTrue(Commands.run(() -> elevatorRoller.setSpeed(-0.5), elevatorRoller))
+                .whileTrue(Commands.run(() -> elevatorRoller.setSpeed(0.5), elevatorRoller))
                 .onFalse(Commands.runOnce(() -> elevatorRoller.stopmotors(), elevatorRoller));
         debugController
                 .pov(0)
-                .whileTrue(Commands.run(() -> elevatorRoller.setSpeed(-1), elevatorRoller))
+                .whileTrue(Commands.run(() -> elevatorRoller.setSpeed(1), elevatorRoller))
                 .onFalse(Commands.runOnce(() -> elevatorRoller.stopmotors(), elevatorRoller));
         debugController
                 .pov(90)
-                .whileTrue(Commands.run(() -> elevatorRoller.setSpeed(-0.1), elevatorRoller))
+                .whileTrue(Commands.run(() -> elevatorRoller.setSpeed(0.1), elevatorRoller))
                 .onFalse(Commands.runOnce(() -> elevatorRoller.stopmotors(), elevatorRoller));
         debugController
                 .pov(180)
-                .whileTrue(Commands.run(() -> elevatorRoller.setSpeed(-0.2), elevatorRoller))
+                .whileTrue(Commands.run(() -> elevatorRoller.setSpeed(0.2), elevatorRoller))
                 .onFalse(Commands.runOnce(() -> elevatorRoller.stopmotors(), elevatorRoller));
         debugController
                 .pov(270)
-                .whileTrue(Commands.run(() -> elevatorRoller.setSpeed(-0.8), elevatorRoller))
+                .whileTrue(Commands.run(() -> elevatorRoller.setSpeed(0.8), elevatorRoller))
                 .onFalse(Commands.runOnce(() -> elevatorRoller.stopmotors(), elevatorRoller));
     }
 
@@ -694,14 +719,6 @@ public class RobotContainer {
                     coralModeEnabled = !coralModeEnabled;
                 })
                 .withName("Setting Algea-Coral Mode");
-    }
-
-    public Command setZeroingElevatorMode() {
-        return Commands.runOnce(
-                () -> {
-                    zeroElevatorModeEnabled = !zeroElevatorModeEnabled;
-                })
-                .withName("Setting Zeroing Elevator Mode");
     }
 
     // Update dashboard data
