@@ -50,7 +50,7 @@ public class IO_ProcessorPivotReal implements IO_ProcessorPivotBase {
     config.closedLoop.p(ProcessorPivotConstants.kP);
     config.closedLoop.i(ProcessorPivotConstants.kI);
     config.closedLoop.d(ProcessorPivotConstants.kD);
-    config.absoluteEncoder.positionConversionFactor(1);
+    config.absoluteEncoder.positionConversionFactor(360);
     SparkUtil.tryUntilOk(
         processorPivot,
         5,

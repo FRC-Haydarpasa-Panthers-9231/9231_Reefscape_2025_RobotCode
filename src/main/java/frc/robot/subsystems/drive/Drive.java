@@ -74,8 +74,8 @@ public class Drive extends SubsystemBase {
 
   // TODO: Bunları düzenlemeyi unutma
   // PathPlanner config constants
-  private static final double ROBOT_MASS_KG = 51.8;
-  private static final double ROBOT_MOI = 6.8384633334;
+  private static final double ROBOT_MASS_KG = 62.6;
+  private static final double ROBOT_MOI = 6.883;
   private static final double WHEEL_COF = 1.190;
   private static final RobotConfig PP_CONFIG =
       new RobotConfig(
@@ -137,7 +137,7 @@ public class Drive extends SubsystemBase {
         this::runVelocity,
         // TODO: Eğer değerler sorunluysa azalt genelde 3-5 olur
         new PPHolonomicDriveController(
-            new PIDConstants(6.3, 0.0, 0.001),
+            new PIDConstants(6, 0.0, 0.001),
             new PIDConstants(5, 0.0, 0.0)), // acil otonom pidsinin ayarlanması lazım
         PP_CONFIG,
         () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,

@@ -45,17 +45,10 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "L2 elevator",
-      "waypointRelativePos": 0.8611111111111112,
-      "endWaypointRelativePos": null,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -66,7 +59,7 @@
     "rotation": -119.99999999999999
   },
   "reversed": false,
-  "folder": "L2 ustten",
+  "folder": "L2 ust",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 179.70806908277805

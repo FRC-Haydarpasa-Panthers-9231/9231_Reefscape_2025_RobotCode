@@ -13,7 +13,7 @@
         {
           "type": "named",
           "data": {
-            "name": "elevatorRollerScore"
+            "name": "L2"
           }
         },
         {
@@ -37,7 +37,7 @@
         {
           "type": "named",
           "data": {
-            "name": "elevatorRollerScore"
+            "name": "L2"
           }
         },
         {
@@ -61,7 +61,7 @@
         {
           "type": "named",
           "data": {
-            "name": "elevatorRollerScore"
+            "name": "L2"
           }
         }
       ]

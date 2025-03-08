@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 5.033604452054794,
-        "y": 2.8004066780821915
+        "x": 5.003289473684211,
+        "y": 2.793421052631579
       },
       "prevControl": {
-        "x": 6.155728695140011,
-        "y": 2.626059438100311
+        "x": 6.125413716769428,
+        "y": 2.6190738126496984
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,17 +45,10 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "L2 elevator",
-      "waypointRelativePos": 0.8527777777777777,
-      "endWaypointRelativePos": null,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -66,7 +59,7 @@
     "rotation": 119.99999999999999
   },
   "reversed": false,
-  "folder": "L2 Alttan",
+  "folder": "L2 alt",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 179.198712669893
