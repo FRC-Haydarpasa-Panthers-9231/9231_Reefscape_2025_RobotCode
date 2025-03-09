@@ -1,10 +1,3 @@
-// Copyright (c) 2025 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by an MIT-style
-// license that can be found in the LICENSE file at
-// the root directory of this project.
-
 package frc.robot;
 
 import edu.wpi.first.math.geometry.*;
@@ -21,12 +14,10 @@ import java.util.Map;
 public class FieldConstants {
   public static final double fieldLength = Units.inchesToMeters(690.876);
   public static final double fieldWidth = Units.inchesToMeters(317);
+  public static final double startingLineX =
+      Units.inchesToMeters(299.438); // Measured from the inside of starting line
   public static final Translation2d fieldCenter =
       new Translation2d(fieldLength / 2, fieldWidth / 2);
-  public static final double startingLineX =
-      Units.inchesToMeters(299.438); // Measured from the inside of starting
-
-  // line
 
   public static class Processor {
     public static final Pose2d centerFace =
@@ -195,41 +186,5 @@ public class FieldConstants {
 
     public final double height;
     public final double pitch;
-  }
-
-  public static Pose2d getNearestReefFace(Pose2d currentPose) {
-    return currentPose.nearest(List.of(FieldConstants.Reef.centerFaces));
-  }
-
-  public enum ReefSide {
-    LEFT,
-    RIGHT
-  }
-
-  public static Pose2d getNearestReefBranch(Pose2d currentPose, ReefSide side) {
-    return FieldConstants.Reef.branchPositions
-        .get(
-            List.of(FieldConstants.Reef.centerFaces).indexOf(getNearestReefFace(currentPose)) * 2
-                + (side == ReefSide.LEFT ? 1 : 0))
-        .get(FieldConstants.ReefHeight.L1)
-        .toPose2d();
-  }
-
-  public static Pose2d getNearestCoralStation(Pose2d currentPose) {
-    if (currentPose.getTranslation().getX() > FieldConstants.fieldLength / 2) {
-      if (currentPose.getTranslation().getY() > FieldConstants.fieldWidth / 2) {
-        return FieldConstants.CoralStation.rightCenterFace.rotateAround(
-            FieldConstants.fieldCenter, Rotation2d.k180deg);
-      } else {
-        return FieldConstants.CoralStation.leftCenterFace.rotateAround(
-            FieldConstants.fieldCenter, Rotation2d.k180deg);
-      }
-    } else {
-      if (currentPose.getTranslation().getY() > FieldConstants.fieldWidth / 2) {
-        return FieldConstants.CoralStation.leftCenterFace;
-      } else {
-        return FieldConstants.CoralStation.rightCenterFace;
-      }
-    }
   }
 }

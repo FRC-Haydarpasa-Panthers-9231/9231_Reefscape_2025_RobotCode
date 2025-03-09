@@ -44,13 +44,13 @@ public class IO_ProcessorPivotReal implements IO_ProcessorPivotBase {
   public IO_ProcessorPivotReal() {
     processorPivot =
         new SparkMax(ProcessorPivotConstants.kProcessorPivotMotorID, MotorType.kBrushless);
-    pivotFeedForward = new ArmFeedforward(0, 0.44, 0);
+    pivotFeedForward = new ArmFeedforward(0, 0., 0);
     // processorPivotPID = new PIDController(kP.get(), kI.get(), kD.get());
     m_controller = processorPivot.getClosedLoopController();
     config.closedLoop.p(ProcessorPivotConstants.kP);
     config.closedLoop.i(ProcessorPivotConstants.kI);
     config.closedLoop.d(ProcessorPivotConstants.kD);
-    config.absoluteEncoder.positionConversionFactor(360);
+    config.absoluteEncoder.positionConversionFactor(1);
     SparkUtil.tryUntilOk(
         processorPivot,
         5,

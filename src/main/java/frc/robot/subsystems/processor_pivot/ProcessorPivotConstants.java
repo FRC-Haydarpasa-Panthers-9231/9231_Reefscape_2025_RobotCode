@@ -22,9 +22,9 @@ public class ProcessorPivotConstants {
   public static final double kMass = 1;
 
   // TODO: PID Degerlerini bul
-  public static final double kP = 1;
+  public static final double kP = 1.5;
   public static final double kI = 0;
-  public static final double kD = 0.05;
+  public static final double kD = 0.01;
 
   public static final boolean kBrake = true;
 

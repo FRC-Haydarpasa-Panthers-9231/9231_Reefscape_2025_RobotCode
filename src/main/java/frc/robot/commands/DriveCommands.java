@@ -13,8 +13,6 @@
 
 package frc.robot.commands;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -38,13 +36,14 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.2;
-  private static final double ANGLE_KP = 7.0;
+  private static final double ANGLE_KP = 6.0;
   private static final double ANGLE_KD = 0.4;
   private static final double ANGLE_MAX_VELOCITY = 9.0;
   private static final double ANGLE_MAX_ACCELERATION = 20.0;
@@ -73,10 +72,9 @@ public class DriveCommands {
    * Field relative drive command using two joysticks (controlling linear and angular velocities).
    */
   public static Command joystickDrive(
-      Drive drive,
-      DoubleSupplier xSupplier,
-      DoubleSupplier ySupplier,
-      DoubleSupplier omegaSupplier) {
+      Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier omegaSupplier
+      // BooleanSupplier isFieldOriented
+      ) {
     return Commands.run(
         () -> {
           Translation2d linearVelocity =
@@ -97,12 +95,25 @@ public class DriveCommands {
           boolean isFlipped =
               DriverStation.getAlliance().isPresent()
                   && DriverStation.getAlliance().get() == Alliance.Red;
+
+          // if (isFieldOriented.getAsBoolean()) {
           drive.runVelocity(
               ChassisSpeeds.fromFieldRelativeSpeeds(
                   speeds,
                   isFlipped
                       ? drive.getRotation().plus(new Rotation2d(Math.PI))
                       : drive.getRotation()));
+          // }
+          /*
+           * if (!isFieldOriented.getAsBoolean()) {
+           * drive.runVelocity(
+           * ChassisSpeeds.fromRobotRelativeSpeeds(
+           * speeds,
+           * isFlipped
+           * ? drive.getRotation().plus(new Rotation2d(Math.PI))
+           * : drive.getRotation()));
+           * // }
+           */
         },
         drive);
   }
@@ -168,7 +179,10 @@ public class DriveCommands {
    * rotation facing away from the target
    */
   public static Command joystickApproach(
-      Drive drive, DoubleSupplier ySupplier, Supplier<Pose2d> approachSupplier) {
+      Drive drive,
+      DoubleSupplier ySupplier,
+      Supplier<Pose2d> approachSupplier,
+      BooleanSupplier isFieldOriented) {
 
     // Create PID controller
     TuneableProfiledPID angleController =
@@ -236,7 +250,6 @@ public class DriveCommands {
                       linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
                       linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
                       omega);
-              drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, drive.getRotation()));
             },
             drive)
 
@@ -383,26 +396,76 @@ public class DriveCommands {
     Rotation2d lastAngle = new Rotation2d();
     double gyroDelta = 0.0;
   }
-
-  public static Command pathfindingCommandToPose(
-      double xPos, double yPos, double rotation, Drive drive) {
-    // Since we are using a holonomic drivetrain, the rotation component of this
-    // pose
-    // represents the goal holonomic rotation
-    Pose2d targetPose = new Pose2d(xPos, yPos, Rotation2d.fromDegrees(rotation));
-
-    // Create the constraints to use while pathfinding
-    PathConstraints constraints =
-        new PathConstraints(
-            drive.getMaxLinearSpeedMetersPerSec(), drive.getMaxAngularSpeedRadPerSec(),
-            Units.degreesToRadians(540), Units.degreesToRadians(720));
-
-    // Since AutoBuilder is configured, we can use it to build pathfinding commands
-    Command pathfindingCommand =
-        AutoBuilder.pathfindToPoseFlipped(
-            targetPose, constraints, 0.0 // Goal end velocity in meters/sec
-            );
-
-    return pathfindingCommand;
-  }
+  /*
+   * public static Command driveToPose(
+   * Drive drivetrain, Supplier<Pose2d> poseSupplier, Transform2d tolerance)
+   * {
+   * Pose2d targetPose = poseSupplier.get();
+   * Pose2d currentPose = drivetrain.getPose();
+   *
+   * boolean isFlipped =
+   * DriverStation.getAlliance().isPresent()
+   * && DriverStation.getAlliance().get() == Alliance.Red;
+   *
+   * final ProfiledPIDController xController =
+   * new ProfiledPIDController(
+   * 2, 0, 0, new TrapezoidProfile.Constraints(2, 2), Constants.loopPeriodSecs);
+   * final ProfiledPIDController yController =
+   * new ProfiledPIDController(
+   * 2, 0, 0, new TrapezoidProfile.Constraints(2, 2), Constants.loopPeriodSecs);
+   *
+   * final ProfiledPIDController thetaController =
+   * new ProfiledPIDController(
+   * 1, 0, 0, new TrapezoidProfile.Constraints(2, 1.5), Constants.loopPeriodSecs);
+   *
+   * int allianceMultiplier = isFlipped ? -1 : 1;
+   *
+   * return Commands.run(
+   * () -> {
+   * // use last values of filter
+   * double xVelocity = xController.calculate(currentPose.getX(), targetPose.getX());
+   * double yVelocity = yController.calculate(currentPose.getY(), targetPose.getY());
+   * double thetaVelocity =
+   * thetaController.calculate(
+   * currentPose.getRotation().getRadians(),
+   * targetPose.getRotation().getRadians());
+   * Transform2d difference = drivetrain.getPose().minus(targetPose);
+   *
+   * boolean atGoal =
+   * Math.abs(difference.getX()) < tolerance.getX()
+   * && Math.abs(difference.getY()) < tolerance.getY()
+   * && Math.abs(difference.getRotation().getRadians()) < tolerance
+   * .getRotation().getRadians();
+   *
+   * if (Math.abs(difference.getX()) < 0.0762) {
+   * if (difference.getY() < 0.05 && difference.getY() > 0) {
+   * yVelocity -= 0.5;
+   * } else if (difference.getY() > -0.05 && difference.getY() < 0) {
+   * yVelocity += 0.5;
+   * }
+   * }
+   *
+   * ChassisSpeeds speeds =
+   * new ChassisSpeeds(
+   * allianceMultiplier * xVelocity,
+   * allianceMultiplier * yVelocity,
+   * thetaVelocity);
+   *
+   * drivetrain.runVelocity(
+   * ChassisSpeeds.fromFieldRelativeSpeeds(
+   * speeds,
+   * isFlipped
+   * ? drivetrain.getRotation().plus(new Rotation2d(Math.PI))
+   * : drivetrain.getRotation()));
+   * },
+   * drivetrain)
+   * .beforeStarting(
+   * () -> {
+   * xController.reset(currentPose.getX());
+   * yController.reset(currentPose.getY());
+   * thetaController.reset(currentPose.getRotation().getRadians());
+   * })
+   * .until(()->);
+   * }
+   */
 }

@@ -14,7 +14,7 @@ public class DebugIntaking extends Command {
 
   @Override
   public void initialize() {
-    elevatorRoller.setSpeed(0.5);
+    elevatorRoller.setSpeed(0.4);
   }
 
   @Override

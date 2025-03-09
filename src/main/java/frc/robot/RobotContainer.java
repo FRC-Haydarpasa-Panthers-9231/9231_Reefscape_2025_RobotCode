@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.FieldConstants.ReefSide;
 import frc.robot.commands.DebugIntaking;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IntakingCoral;
@@ -75,6 +74,7 @@ public class RobotContainer {
   private final SUB_Elevator elevator;
   private final SUB_ElevatoRoller elevatorRoller;
   private final Vision vision;
+
   private final SUB_ProcessorPivot processorPivot;
   private final SUB_ProcessorRoller processorRoller;
   // Elastic dashboard'a gyro'yu göstermek için ayrı olarak oluşturduk.
@@ -128,6 +128,7 @@ public class RobotContainer {
 
     // Eger voltaj 6.5 altına düşerse roborio'ya komut gitmez.
     RobotController.setBrownoutVoltage(5.5);
+    frc.robot.Field2d.getInstance().populateReefBranchPoseMaps();
 
     switch (Constants.currentMode) {
       case REAL:
@@ -188,6 +189,7 @@ public class RobotContainer {
         break;
     }
     registerNamedCommands();
+    constructField();
 
     // DriverDashboard'a otonomu seçmek için widget oluşturduk.
     // TODO: Içine default otonomu ayarlamayı unutma
@@ -312,6 +314,32 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(() -> speedRate = (speedRate == 1) ? 0.5 : 1)
                 .withName("Toggle Speed"));
+    /*
+     * driverController
+     * .leftBumper()
+     * .onTrue(
+     * new DriveToPose(
+     * drive,
+     * new Transform2d(
+     * edu.wpi.first.math.util.Units.inchesToMeters(2.0),
+     * edu.wpi.first.math.util.Units.inchesToMeters(0.5),
+     * Rotation2d.fromDegrees(2.0)),
+     * Side.LEFT))
+     * .onFalse(Commands.runOnce(() -> drive.stop(), drive));
+     *
+     * driverController
+     * .rightBumper()
+     * .onTrue(
+     * new DriveToPose(
+     * drive,
+     * new Transform2d(
+     * edu.wpi.first.math.util.Units.inchesToMeters(2.0),
+     * edu.wpi.first.math.util.Units.inchesToMeters(0.5),
+     * Rotation2d.fromDegrees(2.0)),
+     * Side.RIGHT))
+     * .onFalse(Commands.runOnce(() -> drive.stop(), drive));
+     *
+     */
 
     /*
      * // Driver Left Bumper: Face Nearest Reef Face
@@ -481,103 +509,29 @@ public class RobotContainer {
                     elevator.setPosition(
                         ElevatorConstants.ELEVATOR_HEIGHT.CORAL_L4_HEIGHT.getPositionRads()),
                 elevator));
-    /*
-     * operatorController
-     * .pov(270)
-     * .whileTrue(
-     * new SequentialCommandGroup(
-     * Commands.runOnce(() -> processorPivot.setPosition(0.19), processorPivot),
-     * Commands.runOnce(() -> processorRoller.setSpeed(-0.8), processorRoller),
-     * new WaitCommand(0.4),
-     * Commands.runOnce(() -> processorPivot.setPosition(0.05), processorPivot),
-     * new WaitCommand(0.4),
-     * Commands.runOnce(() -> processorRoller.setSpeed(0.8), processorRoller),
-     * new WaitCommand(0.4),
-     * Commands.runOnce(() -> processorPivot.setPosition(0.15), processorPivot))
-     * .withTimeout(9))
-     * .onFalse(
-     * Commands.run(
-     * () -> {
-     * processorRoller.stopMotor();
-     * processorPivot.setPosition(0.19);
-     * },
-     * processorPivot,
-     * processorRoller));
-     *
-     * operatorController
-     * .pov(180)
-     * .onTrue(
-     * Commands.runOnce(
-     * () -> elevator.setPosition(
-     * ElevatorConstants.ELEVATOR_HEIGHT.ALGAE_L2_CLEANING.getPositionRads()),
-     * elevator));
-     *
-     * operatorController
-     * .pov(0)
-     * .onTrue(
-     * Commands.runOnce(
-     * () -> elevator.setPosition(
-     * ElevatorConstants.ELEVATOR_HEIGHT.ALGAE_L3_CLEANING.getPositionRads()),
-     * elevator));
-     *
-     */
 
-    /*
-     * operatorController
-     * .a()
-     * .and(isCoralMode.
-     * negate())
-     * .onTrue(new
-     * IntakingAlgaeGround
-     * (elevator,
-     * processorRoller,
-     * processorPivot));
-     *
-     * operatorController
-     * .b()
-     * .and(isCoralMode.
-     * negate())
-     * .onTrue(new
-     * CleaningL2Reef(
-     * elevator,
-     * processorRoller,
-     * processorPivot));
-     * operatorController
-     * .x()
-     * .and(isCoralMode.
-     * negate())
-     * .onTrue(new
-     * CleaningL3Reef(
-     * elevator,
-     * processorRoller,
-     * processorPivot));
-     * operatorController
-     * .y()
-     * .and(isCoralMode.
-     * negate())
-     *
-     * .onTrue(new
-     * ScoringAlgea(
-     * processorPivot,
-     * processorRoller,
-     * elevator));
-     */
-
-    // operatorController.pov(90).onTrue(new
-    // IntakingAlgea(processorRoller).withTimeout(3));
-    /*
-     * operatorController
-     * .pov(270)
-     * .whileTrue(Commands.run(() -> processorRoller.setSpeed(-0.3),
-     * processorRoller))
-     * .onFalse(Commands.runOnce(() -> processorRoller.setSpeed(0),
-     * processorRoller));
-     * operatorController
-     * .pov(180)
-     * .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(105),
-     * processorPivot))
-     * .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
-     */
+    operatorController
+        .pov(270)
+        .whileTrue(
+            new SequentialCommandGroup(
+                    // Commands.runOnce(() -> processorPivot.setPosition(0.3), processorPivot),
+                    // Commands.runOnce(() -> processorRoller.setSpeed(-0.8), processorRoller),
+                    // Commands.waitSeconds(0.4),
+                    Commands.runOnce(() -> processorPivot.setPosition(-1.54), processorPivot),
+                    Commands.waitSeconds(1.2),
+                    Commands.runOnce(() -> processorRoller.setSpeed(-0.8), processorRoller)
+                    // Commands.waitSeconds(0.4),
+                    // Commands.runOnce(() -> processorPivot.setPosition(0.3), processorPivot)
+                    )
+                .withTimeout(9))
+        .onFalse(
+            Commands.run(
+                () -> {
+                  processorRoller.stopMotor();
+                  processorPivot.setPosition(0.45);
+                },
+                processorPivot,
+                processorRoller));
 
     // Make sure the Approach nearest reef face does not mess with this
     // operatorController.start().onTrue(setCoralAlgaeModeCommand());
@@ -586,37 +540,46 @@ public class RobotContainer {
   private void debugControllerBindings() {
 
     debugController
-        .pov(0)
-        .whileTrue(Commands.runOnce(() -> processorPivot.setSpeed(0.5), processorPivot))
-        .onFalse(Commands.runOnce(() -> processorPivot.setSpeed(0), processorPivot));
+        .rightBumper()
+        .whileTrue(Commands.runOnce(() -> processorPivot.setSpeed(-0.3), processorPivot))
+        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
     debugController
-        .pov(180)
-        .whileTrue(Commands.runOnce(() -> processorPivot.setSpeed(-0.5), processorPivot))
-        .onFalse(Commands.runOnce(() -> processorPivot.setSpeed(0), processorPivot));
+        .leftBumper()
+        .whileTrue(Commands.runOnce(() -> processorPivot.setSpeed(0.3), processorPivot))
+        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
 
     debugController
+        .pov(0)
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(-0.2), processorPivot))
+        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
+    debugController
         .pov(90)
-        .whileTrue(Commands.runOnce(() -> processorRoller.setSpeed(1), processorRoller))
-        .onFalse(Commands.runOnce(() -> processorRoller.setSpeed(0), processorRoller));
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(-0.4), processorPivot))
+        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
+    debugController
+        .pov(180)
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(-0.8), processorPivot))
+        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
     debugController
         .pov(270)
-        .whileTrue(Commands.runOnce(() -> processorRoller.setSpeed(-1), processorRoller))
-        .onFalse(Commands.runOnce(() -> processorRoller.setSpeed(0), processorRoller));
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(-1.4), processorPivot))
+        .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
+
     debugController
         .a()
-        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(315), processorPivot))
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(0), processorPivot))
         .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
     debugController
         .b()
-        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(320), processorPivot))
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(0.1), processorPivot))
         .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
     debugController
         .x()
-        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(270), processorPivot))
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(0.2), processorPivot))
         .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
     debugController
         .y()
-        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(300), processorPivot))
+        .whileTrue(Commands.runOnce(() -> processorPivot.setPosition(0.45), processorPivot))
         .onFalse(Commands.runOnce(() -> processorPivot.stopMotor(), processorPivot));
 
     /*
@@ -649,13 +612,23 @@ public class RobotContainer {
      */
   }
 
+  /**
+   * Creates the field from the defined regions and transition points from one region to its
+   * neighbor. The field is used to generate paths.
+   */
+  private void constructField() {
+    frc.robot.Field2d.getInstance().setRegions(new Region2d[] {});
+  }
+
   private Command joystickDrive() {
 
     return DriveCommands.joystickDrive(
         drive,
         () -> -driverController.getLeftY() * speedRate,
         () -> -driverController.getLeftX() * speedRate,
-        () -> -driverController.getRightX() * speedRate);
+        () -> -driverController.getRightX() * speedRate
+        // () -> !driverController.rightBumper().getAsBoolean()
+        );
   }
 
   private Command joystickDriveAtAngle(Supplier<Rotation2d> angle) {
@@ -665,7 +638,11 @@ public class RobotContainer {
 
   private Command joystickApproach(Supplier<Pose2d> approachPose) {
 
-    return DriveCommands.joystickApproach(drive, () -> -driverController.getLeftY(), approachPose);
+    return DriveCommands.joystickApproach(
+        drive,
+        () -> -driverController.getLeftY(),
+        approachPose,
+        () -> !driverController.rightBumper().getAsBoolean());
   }
 
   /** Register Named commands for use in PathPlanner */
@@ -726,19 +703,6 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "getCoral", new IntakingCoral(elevatorRoller).withName("Intaking Coral"));
 
-    NamedCommands.registerCommand(
-        "align-right",
-        joystickApproach(() -> FieldConstants.getNearestReefBranch(drive.getPose(), ReefSide.RIGHT))
-            .withName("Align Right"));
-    NamedCommands.registerCommand(
-        "align-center",
-        joystickApproach(() -> FieldConstants.getNearestReefFace(drive.getPose()))
-            .withName("Align Center"));
-    NamedCommands.registerCommand(
-        "align-left",
-        joystickApproach(() -> FieldConstants.getNearestReefBranch(drive.getPose(), ReefSide.LEFT))
-            .withName("Align Left"));
-
     // asansör roller komutu
     NamedCommands.registerCommand(
         "elevatorRollerScore",
@@ -770,6 +734,14 @@ public class RobotContainer {
               coralModeEnabled = !coralModeEnabled;
             })
         .withName("Setting Algea-Coral Mode");
+  }
+
+  public Command setFieldOriented(boolean isFieldOrianted) {
+    return Commands.runOnce(
+            () -> {
+              coralModeEnabled = isFieldOrianted;
+            })
+        .withName("Setting field orianted Mode");
   }
 
   // Update dashboard data

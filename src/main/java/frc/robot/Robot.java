@@ -23,6 +23,7 @@ import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -35,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.led.SUB_LED;
 import frc.robot.util.Elastic;
+import java.util.Optional;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -57,6 +59,8 @@ public class Robot extends LoggedRobot {
 
   private static final double CAN_ERROR_TIME_THRESHOLD = 0.5; // Seconds to disable alert
   private static final double CANIVORE_ERROR_TIME_THRESHOLD = 0.5;
+
+  private Alliance lastAlliance = frc.robot.Field2d.getInstance().getAlliance();
 
   private boolean autoMessagePrinted;
   private double autoStart;
@@ -312,7 +316,7 @@ public class Robot extends LoggedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-
+    this.checkAllianceColor();
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
@@ -324,6 +328,14 @@ public class Robot extends LoggedRobot {
     // Teleop dashboard'ı 1.tab oldugu için otomatik olarak 1.tab'ı seçer.
     if (!Constants.debug && Constants.kIsCompetition && !Constants.tuningMode) {
       Elastic.selectTab("Teleoperated");
+    }
+  }
+
+  public void checkAllianceColor() {
+    Optional<Alliance> alliance = DriverStation.getAlliance();
+    if (alliance.isPresent() && alliance.get() != lastAlliance) {
+      this.lastAlliance = alliance.get();
+      frc.robot.Field2d.getInstance().updateAlliance(this.lastAlliance);
     }
   }
 
