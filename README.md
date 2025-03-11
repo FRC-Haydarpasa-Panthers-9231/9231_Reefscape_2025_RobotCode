@@ -1,6 +1,8 @@
 
+https://github.com/user-attachments/assets/ed57f1ab-2126-4e9a-a40e-1b0e20cdf1a3
+
 # FRC 2025 9231 Robot Kodu
-Haydarpaşa Lisesi robotik takımımı Haydarpaşa Panthers'in 2025 Reefscape sezonuna ait robotun kodu. Bu sezonun temasında görevimiz mercan(içi boş beyaz boru şeklinde) adı verilen oyun parçalarını resif üzerindeki belli yüksekliklere takmak, alg(büyük mavi top) adı verilen oyun parçalarını resif üzerinden alıp puana dönüştürmek ve tırmanmak.
+Haydarpaşa Lisesi robotik takımımı Haydarpaşa Panthers'in 2025 Reefscape sezonuna ait robotun kodu. Bu sezonun temasında görevimiz mercan(içi boş beyaz boru şeklinde) adı verilen oyun parçalarını resif üzerindeki belli yüksekliklere takmak, alg(büyük mavi top) adı verilen oyun parçalarını resif üzerinden alıp puana dönüştürmek ve tırmanmak. 
 
 ![Logo](https://avatars.githubusercontent.com/u/162712686?s=100&u=d0ea36e11b59c011f9e8804e3c5b683a33d4264f&v=4)
 
@@ -8,8 +10,8 @@ Haydarpaşa Lisesi robotik takımımı Haydarpaşa Panthers'in 2025 Reefscape se
 ## Belgelendirme
 Takımın sürdürülebilirliği ve yazılım kaynakları için bu sene yazılım tarafında yapılanların ayrıntılı [kılavuz](https://panthers.gitbook.io/9231-2025-code-docs) (Sezondan sonra güncellenecek)
 
-
-## Görüntüler
+Techinal Binder:
+[Panthers 2025 Reefscape Technical Binder_20250228_103159_0000.pdf](https://github.com/user-attachments/files/19181950/Panthers.2025.Reefscape.Technical.Binder_20250228_103159_0000.pdf)
 
 ### Robot Tasarımı
 
@@ -18,26 +20,24 @@ Takımın sürdürülebilirliği ve yazılım kaynakları için bu sene yazılı
 ![image](https://github.com/user-attachments/assets/cf000522-b030-4235-876c-22eb2e3ed484)
 ![image](https://github.com/user-attachments/assets/51f560ca-551e-48b0-842b-a55ecdbf6045)
 
-### Gerçek Robot
-
 ### Yarışmada Robot
+https://github.com/user-attachments/assets/87d8c1f8-83bf-4198-bddc-bb12f67542ef
+![WhatsApp Image 2025-03-09 at 20 13 14](https://github.com/user-attachments/assets/5fc35b6b-6aaf-4293-a319-41a5643adc1d)
 
 ### Elastic Dashboad Düzeni
 ![Before Match Tab](https://github.com/user-attachments/assets/e45ff02e-104b-4563-aef9-d41961ba1425)
+![Ekran görüntüsü 2025-02-26 224901](https://github.com/user-attachments/assets/74afdca9-2ed6-4955-ab21-4e4f2391943a)
 ![Swerve Tab](https://github.com/user-attachments/assets/205b8996-3c8c-4681-b72d-03aa8845add2)
 
 ## Otonom Rutinleri
 ![orta](https://github.com/user-attachments/assets/d47e606b-d41b-4c49-a6e0-c9256e084c11)
-
 ![pathplanner alt 1](https://github.com/user-attachments/assets/406d699c-0abb-4c40-b3be-3f91df35211b)
 ![pathplanner alt 2](https://github.com/user-attachments/assets/52d8692b-98cb-445f-a8f3-e28d3af012c7)
 
-
 ## Kontrolcü buton atamaları
-![Ekran görüntüsü 2025-02-21 152721](https://github.com/user-attachments/assets/317b7b02-db9b-4021-b739-cff0892aff6d)
-
+![image](https://github.com/user-attachments/assets/70aa11df-cf6b-4432-b212-3214f1ab90a9)
+![image](https://github.com/user-attachments/assets/48ab55f7-53c0-42f7-a1fc-3ce7b7ae3775)
 ![Ekran görüntüsü 2025-02-21 151804](https://github.com/user-attachments/assets/76246d18-a196-4d4c-ba33-2ca589c7066c)
-
 
 ### Kullanılan Teknolojiler
 Robotun kodunu yazarken işimizi kolaylaştıracak birçok eklenti, kütüphane ve araç kullandık.
@@ -71,8 +71,6 @@ Robotun kodunu yazarken işimizi kolaylaştıracak birçok eklenti, kütüphane 
 
 ## Özellikler
 - Bütün stageler'e mercan koyabilme
-- Bütün stageler'den alg alabilme
-- Algleri işleyebilme
 - Hızlı cycle
 - Full CTRE swerve
 - Resife otomatik pozisyonlanma
@@ -89,10 +87,7 @@ Robotun kodunu yazarken işimizi kolaylaştıracak birçok eklenti, kütüphane 
 - Detaylı loglar
 - Optimizasyon
 
-
-
 ## Çıkarılan Dersler
-
 - Bu sene en zorlandığımız şey radio'yu konfigüre etmek oldu. Bu yüzden asla radio işini sona bırakmıyoruz.
 - Limelight'ı da kalibre etmemiz gerektiğini öğrendik.
 - İlk defa simulasyonda kendi robotumuzu simüle ettik. Bu yüzden biraz sancılıydı. Tam olarak edemedik ama genel olarak çalışıyor. Bunu sezondan önce öğrenmekte büyük fayda var.
@@ -105,7 +100,6 @@ Robotun kodunu yazarken işimizi kolaylaştıracak birçok eklenti, kütüphane 
 - SysID düzenli olarak kullan.
 - PID ayarlarken 0.1'den başla her seferinde iki katına çıkar hedef nokta etrafında sallanmaya başlayınca yavaş yavaş D değerini arttır.
 - Koda bolca yorum ve açıklama ekle.
-
 
 ## Bilgisayarınızda Çalıştırın
 
