@@ -46,15 +46,15 @@ public class DriveToPose extends Command {
   Side side;
   final ProfiledPIDController xController =
       new ProfiledPIDController(
-          2, 0, 0, new TrapezoidProfile.Constraints(4, 2), Constants.loopPeriodSecs);
+          3.8, 0, 0.001, new TrapezoidProfile.Constraints(4, 3), Constants.loopPeriodSecs);
 
   final ProfiledPIDController yController =
       new ProfiledPIDController(
-          2, 0, 0, new TrapezoidProfile.Constraints(4, 2), Constants.loopPeriodSecs);
+          3.8, 0, 0.001, new TrapezoidProfile.Constraints(4, 3), Constants.loopPeriodSecs);
 
   final ProfiledPIDController thetaController =
       new ProfiledPIDController(
-          2, 0, 0, new TrapezoidProfile.Constraints(3, 3), Constants.loopPeriodSecs);
+          3, 0, 0, new TrapezoidProfile.Constraints(4, 3), Constants.loopPeriodSecs);
 
   /**
    * Constructs a new DriveToPose command that drives the robot in a straight line to the specified
@@ -74,7 +74,7 @@ public class DriveToPose extends Command {
   }
 
   /**
-   * This method is invoked once when this command is scheduled. It resets all the PID controllers
+   * s This method is invoked once when this command is scheduled. It resets all the PID controllers
    * and initializes the current and target poses. It is critical that this initialization occurs in
    * this method and not the constructor as this object is constructed well before the command is
    * scheduled and the robot's pose will definitely have changed and the target pose may not be
@@ -90,7 +90,6 @@ public class DriveToPose extends Command {
     this.targetPose = frc.robot.Field2d.getInstance().getNearestBranch(side, drivetrain.getPose());
 
     Logger.recordOutput("DriveToPose/targetPose", targetPose);
-
     this.timer.restart();
   }
 
@@ -120,9 +119,9 @@ public class DriveToPose extends Command {
     Transform2d difference = drivetrain.getPose().minus(targetPose);
     if (Math.abs(difference.getX()) < 0.0762) {
       if (difference.getY() < 0.05 && difference.getY() > 0) {
-        yVelocity -= 0.3;
+        yVelocity -= 0.1;
       } else if (difference.getY() > -0.05 && difference.getY() < 0) {
-        yVelocity += 0.3;
+        yVelocity += 0.1;
       }
     }
 
@@ -161,6 +160,7 @@ public class DriveToPose extends Command {
             && Math.abs(difference.getY()) < targetTolerance.getY()
             && Math.abs(difference.getRotation().getRadians())
                 < targetTolerance.getRotation().getRadians();
+    Logger.recordOutput("Swerve Aligned", atGoal);
 
     // check that running is true (i.e., the calculate method has been invoked on the PID
     // controllers) and that each of the controllers is at their goal. This is important since

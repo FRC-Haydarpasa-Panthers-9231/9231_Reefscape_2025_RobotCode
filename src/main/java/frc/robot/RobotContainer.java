@@ -6,6 +6,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -21,8 +22,10 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Field2d.Side;
 import frc.robot.commands.DebugIntaking;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.DriveToPose;
 import frc.robot.commands.IntakingCoral;
 import frc.robot.commands.ScoringCoral;
 import frc.robot.generated.TunerConstants;
@@ -314,32 +317,30 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(() -> speedRate = (speedRate == 1) ? 0.5 : 1)
                 .withName("Toggle Speed"));
-    /*
-     * driverController
-     * .leftBumper()
-     * .onTrue(
-     * new DriveToPose(
-     * drive,
-     * new Transform2d(
-     * edu.wpi.first.math.util.Units.inchesToMeters(2.0),
-     * edu.wpi.first.math.util.Units.inchesToMeters(0.5),
-     * Rotation2d.fromDegrees(2.0)),
-     * Side.LEFT))
-     * .onFalse(Commands.runOnce(() -> drive.stop(), drive));
-     *
-     * driverController
-     * .rightBumper()
-     * .onTrue(
-     * new DriveToPose(
-     * drive,
-     * new Transform2d(
-     * edu.wpi.first.math.util.Units.inchesToMeters(2.0),
-     * edu.wpi.first.math.util.Units.inchesToMeters(0.5),
-     * Rotation2d.fromDegrees(2.0)),
-     * Side.RIGHT))
-     * .onFalse(Commands.runOnce(() -> drive.stop(), drive));
-     *
-     */
+
+    driverController
+        .leftBumper()
+        .onTrue(
+            new DriveToPose(
+                drive,
+                new Transform2d(
+                    edu.wpi.first.math.util.Units.inchesToMeters(0.4),
+                    edu.wpi.first.math.util.Units.inchesToMeters(0.4),
+                    Rotation2d.fromDegrees(2.0)),
+                Side.LEFT))
+        .onFalse(Commands.runOnce(() -> drive.stop(), drive));
+
+    driverController
+        .rightBumper()
+        .onTrue(
+            new DriveToPose(
+                drive,
+                new Transform2d(
+                    edu.wpi.first.math.util.Units.inchesToMeters(0.4),
+                    edu.wpi.first.math.util.Units.inchesToMeters(0.4),
+                    Rotation2d.fromDegrees(2.0)),
+                Side.RIGHT))
+        .onFalse(Commands.runOnce(() -> drive.stop(), drive));
 
     /*
      * // Driver Left Bumper: Face Nearest Reef Face
@@ -363,6 +364,7 @@ public class RobotContainer {
      * () -> FieldConstants.getNearestReefBranch(drive.getPose(), ReefSide.RIGHT))
      * .withName("Approach Nearest Right-Side Reef Branch"));
      *
+     * /*
      * // Driver Left Bumper + Right Stick Left: Approach Nearest Left-Side Reef
      *
      * driverController
@@ -372,7 +374,7 @@ public class RobotContainer {
      * joystickApproach(
      * () -> FieldConstants.getNearestReefBranch(drive.getPose(), ReefSide.LEFT))
      * .withName("Approach Nearest Left-Side Reef Branch"));
-     *
+     * /*
      * // Driver Left Bumper + Right Bumper: Approach Nearest Reef Face
      * driverController
      * .leftBumper()

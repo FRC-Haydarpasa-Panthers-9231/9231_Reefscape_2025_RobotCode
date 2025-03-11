@@ -178,7 +178,8 @@ public class Field2d {
       return new ArrayList<>(Arrays.asList(start));
     }
 
-    todo.add(new ArrayList<>(Arrays.asList(start))); // add a path starting with startRegion to the
+    todo.add(new ArrayList<>(Arrays.asList(start))); // add a path starting with startRegion to
+    // the
     // list
 
     while (!todo.isEmpty()) { // while the list isn't empty, keep looking over the list.
@@ -231,19 +232,19 @@ public class Field2d {
       Pose2d leftPose =
           reefCenterFace.transformBy(
               new Transform2d(
-                  Meters.of(0.88).in(Meters) / 2.0,
+                  Meters.of(0.885).in(Meters) / 2.0,
                   -Units.inchesToMeters(PIPE_FROM_REEF_CENTER_INCHES),
                   Rotation2d.fromDegrees(180)));
       Pose2d rightPose =
           reefCenterFace.transformBy(
               new Transform2d(
-                  Meters.of(0.88).in(Meters) / 2.0,
+                  Meters.of(0.885).in(Meters) / 2.0,
                   Units.inchesToMeters(PIPE_FROM_REEF_CENTER_INCHES),
                   Rotation2d.fromDegrees(180)));
       Pose2d removeAlgaePose =
           reefCenterFace.transformBy(
               new Transform2d(
-                  Meters.of(0.88).in(Meters) / 2.0,
+                  Meters.of(0.87).in(Meters) / 2.0,
                   -Units.inchesToMeters(PIPE_FROM_REEF_CENTER_INCHES - 3.0),
                   Rotation2d.fromDegrees(180)));
 
