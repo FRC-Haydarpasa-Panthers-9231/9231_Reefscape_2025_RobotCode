@@ -8,7 +8,7 @@ Haydarpaşa Lisesi robotik takımımı Haydarpaşa Panthers'in 2025 Reefscape se
 Takımın sürdürülebilirliği ve yazılım kaynakları için bu sene yazılım tarafında yapılanların ayrıntılı [kılavuz](https://panthers.gitbook.io/9231-2025-code-docs) (Sezondan sonra güncellenecek)
 
 Techinal Binder:
-[Panthers 2025 Reefscape Technical Binder_20250228_103159_0000.pdf](https://github.com/user-attachments/files/19181950/Panthers.2025.Reefscape.Technical.Binder_20250228_103159_0000.pdf)
+[Panthers 2025 Reefscape Technical Binder](https://github.com/user-attachments/files/19181950/Panthers.2025.Reefscape.Technical.Binder_20250228_103159_0000.pdf)
 
 ### Robot Tasarımı
 
@@ -18,7 +18,7 @@ Techinal Binder:
 ![image](https://github.com/user-attachments/assets/51f560ca-551e-48b0-842b-a55ecdbf6045)
 
 ### Yarışmada Robot
-https://github.com/user-attachments/assets/87d8c1f8-83bf-4198-bddc-bb12f67542ef
+![video](https://github.com/user-attachments/assets/87d8c1f8-83bf-4198-bddc-bb12f67542ef)
 ![WhatsApp Image 2025-03-09 at 20 13 14](https://github.com/user-attachments/assets/5fc35b6b-6aaf-4293-a319-41a5643adc1d)
 
 ### Elastic Dashboad Düzeni
