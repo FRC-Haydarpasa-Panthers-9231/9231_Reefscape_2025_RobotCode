@@ -1,5 +1,5 @@
 # FRC 2025 9231 Robot Kodu
-Haydarpaşa Lisesi robotik takımımı Haydarpaşa Panthers'in 2025 Reefscape sezonuna ait robotun kodu. Bu sezonun temasında görevimiz mercan(içi boş beyaz boru şeklinde) adı verilen oyun parçalarını resif üzerindeki belli yüksekliklere takmak, alg(büyük mavi top) adı verilen oyun parçalarını resif üzerinden alıp puana dönüştürmek ve tırmanmak. 
+Haydarpaşa Lisesi robotik takımımı Haydarpaşa Panthers'in 2025 Reefscape sezonuna ait robotun kodu. Bu sezonun temasında görevimiz mercan(içi boş beyaz boru şeklinde) adı verilen oyun parçalarını resif üzerindeki belli yüksekliklere takmak, alg(büyük mavi top) adı verilen oyun parçalarını resif üzerinden alıp puana dönüştürmek ve tırmanmak.
 
 ![Logo](https://avatars.githubusercontent.com/u/162712686?s=100&u=d0ea36e11b59c011f9e8804e3c5b683a33d4264f&v=4)
 

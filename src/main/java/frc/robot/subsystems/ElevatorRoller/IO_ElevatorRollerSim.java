@@ -10,9 +10,9 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import frc.lib.SparkUtil;
 import frc.lib.team3015.subsystem.FaultReporter;
 import frc.robot.subsystems.processor_roller.ProcessorRollerConstants;
-import frc.robot.util.SparkUtil;
 
 public class IO_ElevatorRollerSim implements IO_ElevatorRollerBase {
 
@@ -91,11 +91,5 @@ public class IO_ElevatorRollerSim implements IO_ElevatorRollerBase {
   public void stopMotors() {
     elevatorRollerMotor1Sim.setAppliedOutput(0);
     elevatorRollerMotor2Sim.setAppliedOutput(0);
-  }
-
-  @Override
-  public boolean hasCoral() {
-    // return photoelectricSensor.get();
-    return true;
   }
 }

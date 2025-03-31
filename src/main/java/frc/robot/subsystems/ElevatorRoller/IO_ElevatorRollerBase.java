@@ -24,6 +24,4 @@ public interface IO_ElevatorRollerBase {
 
   /** Motorları Durdurur */
   public void stopMotors();
-
-  public boolean hasCoral();
 }

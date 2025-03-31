@@ -13,16 +13,16 @@ public class ElevatorRollerConstants {
   public static final String kSubsystemName = "Elevator Roller";
 
   // TODO SCORİNG SPEEDLERİ ÖLÇ
-  public static final double kL1ScoringSpeed = 0.5;
-  public static final double kL2ScoringSpeed = 0.5;
-  public static final double kL3ScoringSpeed = 0.5;
-  public static final double kL4ScoringSpeed = 0.5;
+  public static final double kScoringSpeed = 0.5;
+  // public static final double kL2ScoringSpeed = 0.5;
+  // public static final double kL3ScoringSpeed = 0.5;
+  // public static final double kL4ScoringSpeed = 0.5;
 
   // TODO: SCORE TİME OPTİMİZE OLABİLİRSE OPTİMİZE ET
   public static final Time kCoralScoreTime = Units.Seconds.of(1.25);
   public static final Time kFeedTimeout = Units.Seconds.of(4);
-  public static final Time kAfterSensorWaitTime = Units.Seconds.of(0.15);
+  public static final Time kAfterSensorWaitTime = Units.Seconds.of(0.25);
 
-  public static final double kIntakingSpeed = 0.5;
+  public static final double kIntakingSpeed = 0.4;
   public static final double kAfterSensorIntakingSpeed = 0.2;
 }

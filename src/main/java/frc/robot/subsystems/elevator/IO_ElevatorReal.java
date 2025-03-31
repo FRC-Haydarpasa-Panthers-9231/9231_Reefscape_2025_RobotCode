@@ -20,8 +20,8 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import frc.lib.team254.Phoenix6Util;
 import frc.lib.team3015.subsystem.FaultReporter;
-import frc.robot.util.PhoenixUtil;
 
 public class IO_ElevatorReal implements IO_ElevatorBase {
   private TalonFX elevatorMotorLead;
@@ -54,7 +54,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
   private final TalonFXConfiguration followerConfig = new TalonFXConfiguration();
   private final Alert configAlert =
-      new Alert("Elevator için config ayarlanırken bir hata oluştu.", AlertType.kError);
+      new Alert("Elevator icin config ayarlanirken bir hata olustu.", AlertType.kError);
 
   private Alert refreshAlert = new Alert("Failed to refresh all signals.", AlertType.kError);
 
@@ -83,10 +83,8 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
     elevatorForwardSoftLimitTriggeredSignal = elevatorMotorLead.getFault_ForwardSoftLimit();
     elevatorReverseSoftLimitTriggeredSignal = elevatorMotorLead.getFault_ReverseSoftLimit();
 
-    PhoenixUtil.tryUntilOk(
-        5,
-        () -> elevatorMotorLead.getConfigurator().apply(ElevatorConstants.kElavatorConfig),
-        configAlert);
+    Phoenix6Util.applyAndCheckConfiguration(
+        elevatorMotorLead, ElevatorConstants.kElavatorConfig, configAlert);
 
     followerConfig.Feedback.SensorToMechanismRatio = 12;
     followerConfig.Voltage.PeakForwardVoltage = 12.0;
@@ -99,8 +97,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
         .withSupplyCurrentLimitEnable(true)
         .withSupplyCurrentLimit(Amps.of(34));
 
-    PhoenixUtil.tryUntilOk(
-        5, () -> elevatorMotorFollower.getConfigurator().apply(followerConfig), configAlert);
+    Phoenix6Util.applyAndCheckConfiguration(elevatorMotorFollower, followerConfig, configAlert);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         100.0,
@@ -151,7 +148,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
             followerVelocitySignal,
             elevatorForwardSoftLimitTriggeredSignal,
             elevatorReverseSoftLimitTriggeredSignal);
-    PhoenixUtil.checkError(status, "Failed to refresh elevator motor signals.", refreshAlert);
+    Phoenix6Util.checkError(status, "Failed to refresh elevator motor signals.", refreshAlert);
     inputs.voltageSuppliedLead = leadVoltageSupplied.getValueAsDouble();
     inputs.voltageSuppliedFollower = followerVoltageSupplied.getValueAsDouble();
 

@@ -24,13 +24,13 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.lib.SparkUtil;
 import frc.lib.team3015.subsystem.FaultReporter;
-import frc.robot.util.SparkUtil;
 
 public class IO_ProcessorPivotSim implements IO_ProcessorPivotBase {
 
   private final Alert configAlert =
-      new Alert("Processor pivot için config ayarlanırken bir hata oluştu.", AlertType.kError);
+      new Alert("Processor pivot için config ayarlanirken bir hata oluştu.", AlertType.kError);
 
   DCMotor maxGearbox = DCMotor.getNEO(1);
 

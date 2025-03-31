@@ -28,12 +28,10 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import frc.lib.team254.Phoenix6Util;
 import frc.lib.team3015.subsystem.FaultReporter;
+import frc.lib.team6328.util.LoggedTunableNumber;
 import frc.robot.Constants;
-import frc.robot.util.LoggedTunableNumber;
-import frc.robot.util.PhoenixUtil;
-import frc.robot.util.sim.MotionProfiledElevatorMechanism;
-import frc.robot.util.sim.MotionProfiledMechanism;
 import org.littletonrobotics.junction.Logger;
 
 public class IO_ElevatorSim implements IO_ElevatorBase {
@@ -42,7 +40,6 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
   private final TalonFX elevatorMotorFollower;
 
   public static ElevatorSim elevatorSim;
-  private final MotionProfiledMechanism m_Mech;
 
   private final VoltageOut voltageRequest = new VoltageOut(0.0).withUpdateFreqHz(0.0);
 
@@ -121,10 +118,8 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
     leadVelocitySignal = elevatorMotorLead.getRotorVelocity();
     followerVelocitySignal = elevatorMotorFollower.getRotorVelocity();
 
-    PhoenixUtil.tryUntilOk(
-        5,
-        () -> elevatorMotorLead.getConfigurator().apply(ElevatorConstants.kElavatorConfig),
-        configAlert);
+    Phoenix6Util.applyAndCheckConfiguration(
+        elevatorMotorLead, ElevatorConstants.kElavatorConfig, configAlert);
 
     followerConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     followerConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ElevatorConstants.kForwardLimit;
@@ -143,8 +138,7 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
 
     followerConfig.Feedback.SensorToMechanismRatio = 3;
 
-    PhoenixUtil.tryUntilOk(
-        5, () -> elevatorMotorFollower.getConfigurator().apply(followerConfig), configAlert);
+    Phoenix6Util.applyAndCheckConfiguration(elevatorMotorFollower, followerConfig, configAlert);
 
     FaultReporter.getInstance()
         .registerHardware(
@@ -183,7 +177,6 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
             true,
             ElevatorConstants.kDefaultSetpoint);
 
-    m_Mech = new MotionProfiledElevatorMechanism("Elevator");
     elevatorMotorFollower.setControl(new Follower(elevatorMotorLead.getDeviceID(), true));
   }
 
@@ -205,7 +198,7 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
             elevatorForwardSoftLimitTriggeredSignal,
             elevatorReverseSoftLimitTriggeredSignal);
 
-    PhoenixUtil.checkError(status, "Failed to refresh elevator motor signals.", refreshAlert);
+    Phoenix6Util.checkError(status, "Failed to refresh elevator motor signals.", refreshAlert);
 
     inputs.voltageSuppliedLead = leadVoltageSupplied.getValueAsDouble();
     inputs.voltageSuppliedFollower = followerVoltageSupplied.getValueAsDouble();
@@ -244,7 +237,7 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
     var motorVoltage = elevatorMotorLead.getMotorVoltage().getValueAsDouble();
 
     elevatorSim.setInputVoltage(motorVoltage);
-    elevatorSim.update(Constants.loopPeriodSecs);
+    elevatorSim.update(Constants.LOOP_PERIOD_SECS);
 
     simState.setRawRotorPosition(
         elevatorSim.getPositionMeters()
@@ -254,8 +247,6 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
         elevatorSim.getVelocityMetersPerSecond()
             / (2 * ElevatorConstants.kElevatorPitch * kElevatorTeeth)
             * kElevatorGearing);
-
-    m_Mech.updateElevator(elevatorSim.getPositionMeters());
 
     Logger.recordOutput(
         "FinalComponentPoses1",
@@ -292,8 +283,7 @@ public class IO_ElevatorSim implements IO_ElevatorBase {
           config.MotionMagic.MotionMagicCruiseVelocity = motionMagic[7];
           config.MotionMagic.MotionMagicAcceleration = motionMagic[8];
           config.MotionMagic.MotionMagicExpo_kV = motionMagic[9];
-          PhoenixUtil.tryUntilOk(
-              5, () -> elevatorMotorLead.getConfigurator().apply(config), configAlert);
+          Phoenix6Util.applyAndCheckConfiguration(elevatorMotorLead, config, configAlert);
         },
         kPslot1,
         kIslot1,

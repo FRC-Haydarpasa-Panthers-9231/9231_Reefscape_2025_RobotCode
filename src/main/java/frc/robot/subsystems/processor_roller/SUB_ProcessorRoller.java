@@ -1,7 +1,7 @@
 package frc.robot.subsystems.processor_roller;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.LoggedTunableNumber;
+import frc.lib.team6328.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
 public class SUB_ProcessorRoller extends SubsystemBase {

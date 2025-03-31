@@ -9,18 +9,22 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
+import static frc.robot.Constants.*;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
+import frc.lib.team3061.RobotConfig;
+import frc.lib.team3061.drivetrain.Drivetrain;
+import frc.lib.team3061.leds.LEDs;
+import frc.lib.team6328.util.LoggedTunableNumber;
 import frc.robot.Field2d;
-import frc.robot.Field2d.Side;
-import frc.robot.subsystems.drive.Drive;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -29,6 +33,9 @@ import org.littletonrobotics.junction.Logger;
  * following a predetermined path, refer to the FollowPath Command class. For generating a path on
  * the fly and following that path, refer to the MoveToPose Command class.
  *
+ * <p>This is a more generic command that drives to any given pose, and can be customized for other
+ * specific goals.
+ *
  * <p>Requires: the Drivetrain subsystem
  *
  * <p>Finished When: the robot is at the specified pose (within the specified tolerances)
@@ -36,25 +43,40 @@ import org.littletonrobotics.junction.Logger;
  * <p>At End: stops the drivetrain
  */
 public class DriveToPose extends Command {
-  private final Drive drivetrain;
+  private final Drivetrain drivetrain;
+  private final Supplier<Pose2d> poseSupplier;
+  private final Consumer<Boolean> onTarget;
   private Pose2d targetPose;
   private Transform2d targetTolerance;
 
-  private boolean running = false;
+  private double timeout;
+
   private Timer timer;
-  private double timeout = 5;
-  Side side;
-  final ProfiledPIDController xController =
-      new ProfiledPIDController(
-          3.8, 0, 0.001, new TrapezoidProfile.Constraints(4, 3), Constants.loopPeriodSecs);
 
-  final ProfiledPIDController yController =
-      new ProfiledPIDController(
-          3.8, 0, 0.001, new TrapezoidProfile.Constraints(4, 3), Constants.loopPeriodSecs);
+  private static final LoggedTunableNumber driveKp =
+      new LoggedTunableNumber(
+          "DriveToPose/DriveKp", RobotConfig.getInstance().getDriveToPoseDriveKP());
+  private static final LoggedTunableNumber driveKd =
+      new LoggedTunableNumber(
+          "DriveToPose/DriveKd", RobotConfig.getInstance().getDriveToPoseDriveKD());
+  private static final LoggedTunableNumber driveKi =
+      new LoggedTunableNumber("DriveToPose/DriveKi", 0);
+  private static final LoggedTunableNumber thetaKp =
+      new LoggedTunableNumber(
+          "DriveToPose/ThetaKp", RobotConfig.getInstance().getDriveToPoseThetaKP());
+  private static final LoggedTunableNumber thetaKd =
+      new LoggedTunableNumber(
+          "DriveToPose/ThetaKd", RobotConfig.getInstance().getDriveToPoseThetaKD());
+  private static final LoggedTunableNumber thetaKi =
+      new LoggedTunableNumber(
+          "DriveToPose/ThetaKi", RobotConfig.getInstance().getDriveToPoseThetaKI());
 
-  final ProfiledPIDController thetaController =
-      new ProfiledPIDController(
-          3, 0, 0, new TrapezoidProfile.Constraints(4, 3), Constants.loopPeriodSecs);
+  private final PIDController xController =
+      new PIDController(driveKp.get(), driveKi.get(), driveKd.get(), LOOP_PERIOD_SECS);
+  private final PIDController yController =
+      new PIDController(driveKp.get(), driveKi.get(), driveKd.get(), LOOP_PERIOD_SECS);
+  private final PIDController thetaController =
+      new PIDController(thetaKp.get(), thetaKi.get(), thetaKd.get(), LOOP_PERIOD_SECS);
 
   /**
    * Constructs a new DriveToPose command that drives the robot in a straight line to the specified
@@ -64,17 +86,24 @@ public class DriveToPose extends Command {
    * @param drivetrain the drivetrain subsystem required by this command
    * @param poseSupplier a supplier that returns the pose to drive to
    */
-  public DriveToPose(Drive drivetrain, Transform2d tolerance, Side side) {
+  public DriveToPose(
+      Drivetrain drivetrain,
+      Supplier<Pose2d> poseSupplier,
+      Consumer<Boolean> onTargetConsumer,
+      Transform2d tolerance,
+      double timeout) {
     this.drivetrain = drivetrain;
+    this.poseSupplier = poseSupplier;
+    this.onTarget = onTargetConsumer;
     this.targetTolerance = tolerance;
     this.timer = new Timer();
-    this.side = side;
+    this.timeout = timeout;
     addRequirements(drivetrain);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   /**
-   * s This method is invoked once when this command is scheduled. It resets all the PID controllers
+   * This method is invoked once when this command is scheduled. It resets all the PID controllers
    * and initializes the current and target poses. It is critical that this initialization occurs in
    * this method and not the constructor as this object is constructed well before the command is
    * scheduled and the robot's pose will definitely have changed and the target pose may not be
@@ -83,13 +112,14 @@ public class DriveToPose extends Command {
   @Override
   public void initialize() {
     // Reset all controllers
-    Pose2d currentPose = drivetrain.getPose();
-    xController.reset(currentPose.getX());
-    yController.reset(currentPose.getY());
-    thetaController.reset(currentPose.getRotation().getRadians());
-    this.targetPose = frc.robot.Field2d.getInstance().getNearestBranch(side, drivetrain.getPose());
+    this.targetPose = poseSupplier.get();
+
+    drivetrain.enableAccelerationLimiting();
 
     Logger.recordOutput("DriveToPose/targetPose", targetPose);
+    Logger.recordOutput("DriveToPose/isFinished", false);
+    Logger.recordOutput("DriveToPose/withinTolerance", false);
+
     this.timer.restart();
   }
 
@@ -100,12 +130,25 @@ public class DriveToPose extends Command {
    */
   @Override
   public void execute() {
-    // set running to true in this method to capture that the calculate method has been invoked
-    // on
-    // the PID controllers. This is important since these controllers will return true for
-    // atGoal if
-    // the calculate method has not yet been invoked.
-    running = true;
+
+    LEDs.getInstance().requestState(LEDs.States.AUTO_DRIVING_TO_SCORE);
+
+    // Update from tunable numbers
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        pid -> {
+          xController.setPID(pid[0], pid[1], pid[2]);
+          yController.setPID(pid[0], pid[1], pid[2]);
+        },
+        driveKp,
+        driveKi,
+        driveKd);
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        pid -> thetaController.setPID(pid[0], pid[1], pid[2]),
+        thetaKp,
+        thetaKi,
+        thetaKd);
 
     Pose2d currentPose = drivetrain.getPose();
 
@@ -116,30 +159,13 @@ public class DriveToPose extends Command {
         thetaController.calculate(
             currentPose.getRotation().getRadians(), this.targetPose.getRotation().getRadians());
 
-    Transform2d difference = drivetrain.getPose().minus(targetPose);
-    if (Math.abs(difference.getX()) < 0.0762) {
-      if (difference.getY() < 0.05 && difference.getY() > 0) {
-        yVelocity -= 0.1;
-      } else if (difference.getY() > -0.05 && difference.getY() < 0) {
-        yVelocity += 0.1;
-      }
-    }
+    Logger.recordOutput("DriveToPose/x velocity (field relative)", xVelocity);
+    Logger.recordOutput("DriveToPose/y velocity (field relative)", yVelocity);
 
-    int allianceMultiplier = Field2d.getInstance().getAlliance() == Alliance.Blue ? 1 : 1;
+    int allianceMultiplier = Field2d.getInstance().getAlliance() == Alliance.Blue ? 1 : -1;
 
-    ChassisSpeeds speeds =
-        new ChassisSpeeds(
-            allianceMultiplier * xVelocity, allianceMultiplier * yVelocity, thetaVelocity);
-
-    drivetrain.runVelocity(
-        ChassisSpeeds.fromFieldRelativeSpeeds(
-            speeds, drivetrain.getRotation()
-            /*
-             * isFlipped
-             * ? drivetrain.getRotation().plus(new Rotation2d(Math.PI))
-             * : drivetrain.getRotation())
-             */
-            ));
+    drivetrain.drive(
+        allianceMultiplier * xVelocity, allianceMultiplier * yVelocity, thetaVelocity, true, true);
   }
 
   /**
@@ -152,21 +178,34 @@ public class DriveToPose extends Command {
    */
   @Override
   public boolean isFinished() {
-    Transform2d difference = drivetrain.getPose().minus(targetPose);
+    Transform2d difference =
+        new Transform2d(
+            drivetrain.getPose().getX() - targetPose.getX(),
+            drivetrain.getPose().getY() - targetPose.getY(),
+            Rotation2d.fromRadians(
+                drivetrain.getPose().getRotation().getRadians()
+                    - targetPose.getRotation().getRadians()));
+
     Logger.recordOutput("DriveToPose/difference", difference);
 
-    boolean atGoal =
-        Math.abs(difference.getX()) < targetTolerance.getX()
-            && Math.abs(difference.getY()) < targetTolerance.getY()
-            && Math.abs(difference.getRotation().getRadians())
-                < targetTolerance.getRotation().getRadians();
-    Logger.recordOutput("Swerve Aligned", atGoal);
+    Transform2d robotRelativeDifference = new Transform2d(targetPose, drivetrain.getPose());
+    Logger.recordOutput("DriveToPose/difference (robot relative)", robotRelativeDifference);
 
-    // check that running is true (i.e., the calculate method has been invoked on the PID
-    // controllers) and that each of the controllers is at their goal. This is important since
-    // these
-    // controllers will return true for atGoal if the calculate method has not yet been invoked.
-    return this.timer.hasElapsed(timeout) || atGoal;
+    boolean atGoal =
+        Math.abs(robotRelativeDifference.getX()) < targetTolerance.getX()
+            && Math.abs(robotRelativeDifference.getY()) < targetTolerance.getY()
+            && Math.abs(robotRelativeDifference.getRotation().getRadians())
+                < targetTolerance.getRotation().getRadians();
+
+    if (atGoal) {
+      onTarget.accept(true);
+      Logger.recordOutput("DriveToPose/withinTolerance", true);
+    } else if (!drivetrain.isMoveToPoseEnabled() || this.timer.hasElapsed(timeout)) {
+      onTarget.accept(false);
+    }
+
+    // check each of the controllers is at their goal or if the timeout has elapsed
+    return !drivetrain.isMoveToPoseEnabled() || this.timer.hasElapsed(timeout) || atGoal;
   }
 
   /**
@@ -177,7 +216,8 @@ public class DriveToPose extends Command {
    */
   @Override
   public void end(boolean interrupted) {
+    drivetrain.disableAccelerationLimiting();
     drivetrain.stop();
-    running = false;
+    Logger.recordOutput("DriveToPose/isFinished", true);
   }
 }

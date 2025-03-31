@@ -8,18 +8,15 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import frc.lib.SparkUtil;
 import frc.lib.team3015.subsystem.FaultReporter;
-import frc.robot.Constants;
-import frc.robot.util.BeamBreak;
-import frc.robot.util.SparkUtil;
 
 public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
 
   private SparkMax elevatorRoller1Motor;
   private SparkMax elevatorRoller2Motor;
-  private final BeamBreak photoelectricSensor = new BeamBreak(Constants.kBeamBreakPort);
   private final Alert configAlert =
-      new Alert("Elevator Roller için config ayarlanırken bir hata oluştu.", AlertType.kError);
+      new Alert("Elevator Roller için config ayarlanirken bir hata olustu.", AlertType.kError);
 
   public IO_ElevatorRollerReal() {
     elevatorRoller1Motor =
@@ -60,11 +57,6 @@ public class IO_ElevatorRollerReal implements IO_ElevatorRollerBase {
             ElevatorRollerConstants.kSubsystemName,
             "Elevator Roller Motor 2",
             elevatorRoller2Motor);
-  }
-
-  @Override
-  public boolean hasCoral() {
-    return photoelectricSensor.isTrue();
   }
 
   @Override

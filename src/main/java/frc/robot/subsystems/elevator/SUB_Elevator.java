@@ -10,9 +10,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants;
-import frc.robot.util.LimitSwitch;
-import frc.robot.util.LoggedTunableNumber;
+import frc.lib.team6328.util.LoggedTunableNumber;
+import frc.robot.subsystems.sensors.ElevatorLimitSwitchIO;
 import org.littletonrobotics.junction.Logger;
 
 public class SUB_Elevator extends SubsystemBase {
@@ -20,7 +19,7 @@ public class SUB_Elevator extends SubsystemBase {
   private double lastDesiredPosition;
 
   public boolean attemptingZeroing = false;
-  public LimitSwitch limitSwitch;
+  public ElevatorLimitSwitchIO limitSwitch;
   private static SysIdRoutine sysIdRoutine;
 
   private final IO_ElevatorBase io;
@@ -30,9 +29,9 @@ public class SUB_Elevator extends SubsystemBase {
   private static final LoggedTunableNumber elevatorDebugVolts =
       new LoggedTunableNumber("Elevator/Elevator Volts", 3);
 
-  public SUB_Elevator(IO_ElevatorBase io) {
+  public SUB_Elevator(IO_ElevatorBase io, ElevatorLimitSwitchIO limitSwitch) {
     this.io = io;
-    limitSwitch = new LimitSwitch(Constants.kElevatorLimitSwitchPort);
+    this.limitSwitch = limitSwitch;
     lastDesiredPosition = 0;
 
     sysIdRoutine =
@@ -146,9 +145,9 @@ public class SUB_Elevator extends SubsystemBase {
     io.setNeutral();
   }
 
-  public void setPosition(double positionRad) {
+  public Command setPosition(double positionRad) {
     lastDesiredPosition = positionRad;
-    io.setPosition(positionRad);
+    return Commands.runOnce(() -> io.setPosition(positionRad), this);
   }
 
   public void setSoftwareLimits(boolean reverseLimitEnable, boolean forwardLimitEnable) {
@@ -173,7 +172,7 @@ public class SUB_Elevator extends SubsystemBase {
   }
 
   public boolean limitSwitchvalue() {
-    return limitSwitch.isTrue();
+    return limitSwitch.getValue();
   }
 
   public void stopMotors() {

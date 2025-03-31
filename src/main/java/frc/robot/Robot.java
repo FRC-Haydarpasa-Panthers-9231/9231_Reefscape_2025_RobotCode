@@ -25,7 +25,6 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
@@ -34,12 +33,17 @@ import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.led.SUB_LED;
-import frc.robot.util.Elastic;
+import frc.lib.Elastic;
+import frc.lib.team254.Phoenix6Util;
+import frc.lib.team3061.leds.LEDs;
+import frc.lib.team6328.util.LoggedTracer;
+import frc.lib.team6328.util.NTClientLogger;
+import frc.robot.commands.factory.AutonomousCommandFactory;
 import java.util.Optional;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggedPowerDistribution;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
@@ -65,7 +69,6 @@ public class Robot extends LoggedRobot {
   private boolean autoMessagePrinted;
   private double autoStart;
 
-  private PowerDistribution pdh = new PowerDistribution(19, ModuleType.kRev);
   private final Timer disabledTimer = new Timer();
   private final Timer canInitialErrorTimer = new Timer();
   private final Timer canErrorTimer = new Timer();
@@ -75,14 +78,16 @@ public class Robot extends LoggedRobot {
   private static final double lowBatteryMinCycleCount = 10;
   private static int lowBatteryCycleCount = 0;
   private final Alert lowBatteryAlert =
-      new Alert("Akü voltajı düşük, robotu kapatın ve aküyü değiştirin.", AlertType.kWarning);
+      new Alert("Aku voltaji düşük, robotu kapatin ve akuyu degistirin.", AlertType.kWarning);
+  private final Alert gitAlert =
+      new Alert("Please wait to enable, JITing in progress.", AlertType.kWarning);
 
   private final Alert canErrorAlert =
-      new Alert("CAN hatası tespit edildi, robot kontrol edilemeyebilir.", AlertType.kError);
+      new Alert("CAN hatasi tespit edildi, robot kontrol edilemeyebilir.", AlertType.kError);
   private final Alert canivoreErrorAlert =
       new Alert("CANivore hatasi tespit edildi, robot kontrol edilemeyebilir.", AlertType.kError);
   private final Alert logReceiverQueueAlert =
-      new Alert("Logging kapasitesi aşıldı, data daha fazla kaydedilmeyecek.", AlertType.kError);
+      new Alert("Logging kapasitesi asildi, data daha fazla kaydedilmeyecek.", AlertType.kError);
 
   public Robot() {
 
@@ -105,11 +110,12 @@ public class Robot extends LoggedRobot {
     }
 
     // Set up data receivers & replay source
-    switch (Constants.currentMode) {
+    switch (Constants.getMode()) {
       case REAL:
         // Running on a real robot, log to a USB stick ("/U/logs")
         Logger.addDataReceiver(new WPILOGWriter());
         Logger.addDataReceiver(new NT4Publisher());
+        LoggedPowerDistribution.getInstance(19, ModuleType.kRev);
         break;
 
       case SIM:
@@ -136,17 +142,12 @@ public class Robot extends LoggedRobot {
     // robot container'ı oluştur.
     robotContainer = new RobotContainer();
 
-    if (!Constants.kIsCompetition) {
+    if (!Constants.AT_COMPETITION) {
       LiveWindow.disableAllTelemetry();
     }
-    // PDH log
-    SmartDashboard.putData("PDH", pdh);
 
     // Command schedule'u driver dashoard'a koymak için logladık
     SmartDashboard.putData(CommandScheduler.getInstance());
-
-    // Pigeon'u dashboard'a koymak için logladık
-    robotContainer.addPigeonToDashboard();
 
     disabledTimer.reset();
     canErrorTimer.reset();
@@ -176,14 +177,18 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotPeriodic() {
 
+    LoggedTracer.reset();
+    Phoenix6Util.refreshAll();
+    LoggedTracer.record("PhoenixRefresh");
+
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled commands, running already-scheduled commands, removing
     // finished or interrupted commands, and running subsystem periodic() methods.
     // This must be called from the robot's periodic block in order for anything in
     // the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    LoggedTracer.record("Commands");
 
-    robotContainer.updateAlerts();
     robotContainer.updateDashboardOutputs();
 
     logReceiverQueueAlert.set(Logger.getReceiverQueueFault());
@@ -203,7 +208,7 @@ public class Robot extends LoggedRobot {
             && canInitialErrorTimer.hasElapsed(CAN_ERROR_TIME_THRESHOLD));
 
     // Log CANivore status
-    if (Constants.currentMode == Constants.Mode.REAL) {
+    if (Constants.getMode() == Constants.Mode.REAL) {
       var canivoreStatus = this.canivoreBus.getStatus();
       Logger.recordOutput("CANivoreStatus/Status", canivoreStatus.Status.getName());
       Logger.recordOutput("CANivoreStatus/Utilization", canivoreStatus.BusUtilization);
@@ -218,6 +223,8 @@ public class Robot extends LoggedRobot {
           !canivoreErrorTimer.hasElapsed(CANIVORE_ERROR_TIME_THRESHOLD)
               && canInitialErrorTimer.hasElapsed(CAN_ERROR_TIME_THRESHOLD));
     }
+    NTClientLogger.log();
+    gitAlert.set(Timer.getTimestamp() < 45.0);
 
     // Düşük pil uyarısı döngü sayısını bir artır.
 
@@ -247,7 +254,6 @@ public class Robot extends LoggedRobot {
       // Düşük pil uyarısı aktif hale getirir.
       lowBatteryAlert.set(true);
       // ledleri bataryanın düşük oldugunu gösterecek şekilde yakar.
-      SUB_LED.getInstance().lowBatteryAlert = true;
     }
 
     // Otonom süresini yazdır. Bu sayede otonomda kaç saniye geçtigine göre
@@ -264,7 +270,9 @@ public class Robot extends LoggedRobot {
         autoMessagePrinted = true;
       }
     }
+
     robotContainer.logRobotFieldPosition();
+    LoggedTracer.record("RobotPeriodic");
   }
 
   @Override
@@ -276,7 +284,7 @@ public class Robot extends LoggedRobot {
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    if (!Constants.debug && Constants.kIsCompetition && !Constants.tuningMode) {
+    if (!Constants.DEBUG && Constants.AT_COMPETITION && !Constants.TUNING_MODE) {
       Elastic.selectTab("Before Match Info");
     }
   }
@@ -284,7 +292,15 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {
+
+    // check if the alliance color has changed based on the FMS data
+    robotContainer.checkAllianceColor();
+
     robotContainer.logAutonomousPath();
+
+    if (AutonomousCommandFactory.getInstance().alignedToStartingPose()) {
+      LEDs.getInstance().requestState(LEDs.States.ALIGNED_FOR_AUTO);
+    }
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -295,18 +311,18 @@ public class Robot extends LoggedRobot {
      * Otonom dashboard'ı ilk dashboard oldugu için otonom başladıgında otomatik olarak dashboard'ı
      * ayarlar.
      */
-    if (!Constants.debug && Constants.kIsCompetition && !Constants.tuningMode) {
+    if (!Constants.DEBUG && Constants.AT_COMPETITION && !Constants.TUNING_MODE) {
       Elastic.selectTab("Autonomous");
     }
 
     // Otonom zamanlayıcısını başlatır.
     autoStart = Timer.getFPGATimestamp();
-    autonomousCommand = robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {
       autonomousCommand.schedule();
     }
+    robotContainer.autonomousInit();
   }
 
   /** This function is called periodically during autonomous. */
@@ -326,9 +342,10 @@ public class Robot extends LoggedRobot {
     }
 
     // Teleop dashboard'ı 1.tab oldugu için otomatik olarak 1.tab'ı seçer.
-    if (!Constants.debug && Constants.kIsCompetition && !Constants.tuningMode) {
+    if (!Constants.DEBUG && Constants.AT_COMPETITION && !Constants.TUNING_MODE) {
       Elastic.selectTab("Teleoperated");
     }
+    robotContainer.teleopInit();
   }
 
   public void checkAllianceColor() {
@@ -350,10 +367,6 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().cancelAll();
   }
 
-  /** This function is called periodically during test mode. */
-  @Override
-  public void testPeriodic() {}
-
   /** This function is called once when the robot is first started up. */
   @Override
   public void simulationInit() {
@@ -363,8 +376,4 @@ public class Robot extends LoggedRobot {
     // Gelen joystick baglanmadı uyarılarını kapatır.
     DriverStation.silenceJoystickConnectionWarning(true);
   }
-
-  /** This function is called periodically whilst in simulation. */
-  @Override
-  public void simulationPeriodic() {}
 }

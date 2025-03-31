@@ -79,10 +79,12 @@ public class ElevatorConstants {
     kElavatorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // TODO: SOFTWARE LIMITLERINI BUL VE EKLE
+
     kElavatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     kElavatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kForwardLimit;
     kElavatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
     kElavatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kReverseLimit;
+
     kElavatorConfig.CurrentLimits.StatorCurrentLimit = 80.0;
     kElavatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     kElavatorConfig

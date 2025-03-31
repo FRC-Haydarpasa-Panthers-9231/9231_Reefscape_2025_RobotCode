@@ -14,9 +14,9 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import frc.lib.SparkUtil;
 import frc.lib.team3015.subsystem.FaultReporter;
-import frc.robot.util.LoggedTunableNumber;
-import frc.robot.util.SparkUtil;
+import frc.lib.team6328.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
 public class IO_ProcessorPivotReal implements IO_ProcessorPivotBase {

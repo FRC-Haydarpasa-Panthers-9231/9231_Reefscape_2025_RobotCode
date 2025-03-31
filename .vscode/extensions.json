@@ -1,10 +1,9 @@
 {
-    "recommendations": [
-        "usernamehw.errorlens",
-        "shd101wyy.markdown-preview-enhanced",
-        "alefragnani.project-manager",
-        "richardwillis.vscode-spotless-gradle",
-        "gruntfuggly.todo-tree",
-        "wpilibsuite.vscode-wpilib"
-    ]
+  "recommendations": [
+    "richardwillis.vscode-spotless-gradle",
+    "sonarsource.sonarlint-vscode",
+    "streetsidesoftware.code-spell-checker",
+    "onlyutkarsh.git-config-user-profiles",
+    "mechanical-advantage.event-deploy-wpilib"
+  ]
 }

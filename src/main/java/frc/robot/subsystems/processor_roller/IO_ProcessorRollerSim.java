@@ -10,8 +10,8 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import frc.lib.SparkUtil;
 import frc.lib.team3015.subsystem.FaultReporter;
-import frc.robot.util.SparkUtil;
 import org.littletonrobotics.junction.Logger;
 
 public class IO_ProcessorRollerSim implements IO_ProcessorRollerBase {
